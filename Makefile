@@ -44,12 +44,12 @@ CPP = cpp
 CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES)
 
 CC = gcc
-CFLAGS = -std=c99 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
+CFLAGS = -m32 -std=c99 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
 
 AS = as
-ASFLAGS =
+ASFLAGS = --32
 
-LD = ld
+LD = ld -melf_i386
 
 #		
 # Transformation rules - these ensure that all compilation
@@ -74,11 +74,11 @@ LD = ld
 
 .S.o:
 	$(CPP) $(CPPFLAGS) -o $*.s $*.S
-	$(AS) -o $*.o $*.s -a=$*.lst
+	$(AS) $(ASFLAGS) -o $*.o $*.s -a=$*.lst
 	$(RM) -f $*.s
 
 .s.b:
-	$(AS) -o $*.o $*.s -a=$*.lst
+	$(AS) $(ASFLAGS) -o $*.o $*.s -a=$*.lst
 	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $*.b $*.o
 
 .c.o:
