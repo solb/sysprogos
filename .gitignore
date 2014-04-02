@@ -1,0 +1,7 @@
+/BuildImage
+/startup.s
+*.b
+*.image
+*.lst
+*.nl
+*.o
