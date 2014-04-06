@@ -1,0 +1,29 @@
+Sol Boucher
+Chris Cooper
+Dan Johnson
+Systems Programming II: Project Milestone Definition
+04/09/14
+
+Our projects:
+	- Sol:	Privilege isolation of user-space processes within single pages
+	- Chris:Filesystem
+	- Dan:	64-bit kernel port
+
+Between now and midpoint eval:
+	- Dan and Sol will be in communication about changes made to the PCB and similar kernel design
+	- Chris will record his changes to the syscall interface
+
+04/30 Midpoint eval:
+	- Dan should have the base kernel relatively stable in long mode
+	- Sol should have 1-page process loading working, privilege isolation semi-secure
+	- Chris should be able to read/write/create/delete files, but not necessarily directories
+	- Ideally, Sol and Chris's projects will be partially merged into long mode
+
+05/07 Implementation complete:
+	- Sol and Chris's projects should be considered code-complete and fully merged into 64-bit
+
+05/11 Presentation ready:
+	- We're ready to present for the next day
+
+Finals week demo:
+	- All testing is complete
