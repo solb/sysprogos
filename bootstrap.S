@@ -404,6 +404,7 @@ switch:
 	call	enable_A20
 	call	move_gdt
 	call	check_mem
+	call	build_pts
 
 /*
 ** The IDTR and GDTR are loaded relative to this segment, so we must
@@ -504,6 +505,46 @@ wait2_loop:
 	loop    wait2_loop
 	jmp     a20wait2
 wait2_exit:
+	ret
+
+build_pts:
+	pushl	%edi
+	pushw	%es
+
+	movl	$PML4_ADDRESS, %edi
+	movl	%edi, %cr3
+	xorl	%eax, %eax
+	movw	%ax, %es
+	movl	$PAGE_LENS, %ecx
+
+clr_pts_loop:
+	movl	%eax, %es:(%edi)
+	addl	$4, %edi
+	decl	%ecx
+	jnz		clr_pts_loop
+
+	movl	$PML4_ADDRESS, %edi
+	movl	$(PDPT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
+
+	movl	$PDPT_ADDRESS, %edi
+	movl	$(PDT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
+
+	movl	$PDT_ADDRESS, %edi
+	movl	$(PT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
+
+	movl	$PT_ADDRESS, %edi
+	movl	$512, %ecx
+	movl	$(PAGE_PRESENT | PAGE_RW), %edx
+
+populate_pt_loop:
+	movl	%edx, %es:(%edi)
+	addl	$0x1000, %edx	// Reference the next page of memory
+	addl	$0x8, %edi		// Jump to the next entry in the PT
+	decl	%ecx
+	jnz		populate_pt_loop
+
+	popw	%es
+	popl	%edi
 	ret
 
 /*

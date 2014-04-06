@@ -39,6 +39,17 @@
 #define IDT_ADDRESS	0x00002500
 
 /*
+** The Page Tables
+*/
+#define PML4_ADDRESS	0x10000
+#define	PDPT_ADDRESS	0x11000
+#define PDT_ADDRESS		0x12000
+#define PT_ADDRESS		0x13000
+#define PAGE_LENS		0x1000	// 0x4000 words, moving by DWORD
+#define PAGE_PRESENT	0x1
+#define PAGE_RW			0x2
+
+/*
 ** Physical Memory Map Table (0000:2D00 - 0000:2D08)
 */
 #define	MMAP_SEGMENT	0x000002D0
