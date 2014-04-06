@@ -108,12 +108,13 @@ isr_save_32:
 **	    saved CS		saved by the hardware
 **	    saved EFLAGS	saved by the hardware
 */
+	/* TODO: PUSH ALL REGISTERS
 	pusha			// save E*X, ESP, EBP, ESI, EDI
 	pushl	%ds		// save segment registers
 	pushl	%es
 	pushl	%fs
 	pushl	%gs
-	pushl	%ss
+	pushl	%ss */
 
 /*
 ** Stack contents (all 32-bit longwords) and offsets from ESP:
@@ -144,14 +145,14 @@ isr_save_32:
 /*
 ** END MOD for 20135 CSCI452
 */
-	pushl	%ebx		// put them on the top of the stack ...
-	pushl	%eax		// ... as parameters for the ISR
+	pushq	%rbx		// put them on the top of the stack ...
+	pushq	%rax		// ... as parameters for the ISR
 
 /*
 ** Call the ISR
 */
 	movl	__isr_table(,%eax,4),%ebx
-	call	*%ebx
+	call	*%rbx
 	addl	$8,%esp		// pop the two parameters
 
 /*
@@ -207,9 +208,9 @@ __isr_restore:
 ** END MOD for 20135 CSCI452
 */
 
-	pushl	$fmt
-	pushl	$1
-	pushl	$0
+	pushq	$fmt
+	pushq	$1
+	pushq	$0
 	call	c_printf_at
 
 /*
@@ -228,12 +229,13 @@ __isr_restore:
 /*
 ** Restore the context.
 */
+	/* TODO FIX THIS
 	popl	%ss		// restore the segment registers
 	popl	%gs
 	popl	%fs
 	popl	%es
 	popl	%ds
-	popa			// restore others
+	popa			// restore others */
 	addl	$8, %esp	// discard the error code and vector
 	ljmp $GDT_CODE64, $isr_restore_64
 

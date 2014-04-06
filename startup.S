@@ -112,11 +112,11 @@ clearbss:
 ** Returned from the main function!  Stop execution.
 */
 	cli			// Disable interrupts
-	pushl	$message	// Print the message saying that
-	pushl	$24		//   the main function returned.
+	pushq	$message	// Print the message saying that
+	pushq	$24		//   the main function returned.
 	movl	$80,%eax	//   This goes to the lower right
 	subl	$messagelen,%eax //  corner of the screen.
-	pushl	%eax
+	pushq	%rax
 	call	c_puts_at
 die:	hlt			// Stop.
 	jmp	die
@@ -203,8 +203,8 @@ __outl:
 	.globl	__get_flags
 
 __get_flags:
-	pushfl			// Push flags on the stack,
-	popl	%eax		//   and pop them into eax.
+	pushfq			// Push flags on the stack,
+	popq	%rax		//   and pop them into eax.
 	ret
 
 /*
