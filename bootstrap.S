@@ -29,6 +29,7 @@
 	.code16
 
 #include "bootstrap.h"
+#include "x86arch.h"
 
 BOOT_SEGMENT	= 0x07C0	/* default BIOS addr to load boot sector */
 BOOT_ADDRESS 	= 0x00007C00
@@ -405,6 +406,8 @@ switch:
 	call	move_gdt
 	call	check_mem
 	call	build_pts
+	call	set_pae
+	call	set_lm
 
 /*
 ** The IDTR and GDTR are loaded relative to this segment, so we must
@@ -414,9 +417,9 @@ switch:
 	lidt	idt_48 + BOOT_ADDRESS
 	lgdt	gdt_48 + BOOT_ADDRESS
 
-	movl	%cr0, %eax	/* get current CR0 */
-	orl	$1, %eax	/* set the PE bit */
-	movl	%eax, %cr0	/* and store it back. */
+	movl	%cr0, %eax					/* get current CR0 */
+	orl		$(CR0_PE | CR0_PG), %eax	/* set the PE bit */
+	movl	%eax, %cr0					/* and store it back. */
 	
 	/*
 	** We'll be in protected mode at the start of the user's code
@@ -545,6 +548,19 @@ populate_pt_loop:
 
 	popw	%es
 	popl	%edi
+	ret
+
+set_pae:
+	movl	%cr4, %eax
+	orl		$CR4_PAE, %eax
+	movl	%eax, %cr4
+	ret
+
+set_lm:
+	movl	$MSR_EFER, %ecx
+	rdmsr
+	orl		$MSR_EFER_LM, %eax
+	wrmsr
 	ret
 
 /*
