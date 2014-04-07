@@ -48,7 +48,7 @@ CPP = cpp
 CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES)
 
 CC = gcc
-CFLAGS = -std=c99 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
+CFLAGS = -std=c99 -m64 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
 
 AS = as
 ASFLAGS =

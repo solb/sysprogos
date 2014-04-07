@@ -53,7 +53,7 @@
 **      pointer to the new PCB
 */
 
-pcb_t *_create_process( pid_t ppid, uint32_t entry );
+pcb_t *_create_process( pid_t ppid, uint64_t entry );
 
 /*
 ** _init - system initialization routine

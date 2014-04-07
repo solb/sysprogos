@@ -34,21 +34,17 @@
 */
 
 #define	ISR(vector)			\
-	.code64				; \
 	.globl	__isr_##vector		; \
 __isr_##vector:				; \
 	pushq	$0			; \
 	pushq	$vector			; \
-	jmp	isr_save		; \
-	.code32
+	jmp	isr_save		;
 
 #define	ERR_ISR(vector)		\
-	.code64				; \
 	.globl	__isr_##vector		; \
 __isr_##vector:				; \
 	pushq	$vector			; \
-	jmp	isr_save		; \
-	.code32
+	jmp	isr_save		;
 
 	.globl	__isr_table
 	.globl	__isr_restore
@@ -68,35 +64,7 @@ __isr_##vector:				; \
 ********************************************************************
 */
 
-.code64
 isr_save:
-	pushq %rax
-	// before:
-	// 0   8   16  24  32 40  48  56
-	// RAX vec cod RIP CS RFL RSP SS
-	// after:
-	//     40  44  48  52 56  60
-	movl 48(%rsp), %eax
-	movl %eax, 60(%rsp)
-	movl 40(%rsp), %eax
-	movl %eax, 56(%rsp)
-	movl 32(%rsp), %eax
-	movl %eax, 52(%rsp)
-	movl 24(%rsp), %eax
-	movl %eax, 48(%rsp)
-	movl 16(%rsp), %eax
-	movl %eax, 44(%rsp)
-	movl 8(%rsp), %eax
-	movl %eax, 40(%rsp)
-	movq 0(%rsp), %rax
-	addq $40, %rsp
-	pushq $GDT_CODE
-	pushq $0
-	movl $isr_save_32, 0(%rsp)
-	lretq
-	//ljmp $GDT_CODE, $isr_save_32
-.code32
-isr_save_32:
 /*
 ** Begin by saving the state
 **
@@ -104,19 +72,45 @@ isr_save_32:
 **
 **  esp ->  vector #		saved by the entry macro
 **	    error code, or 0	saved by the hardware, or the entry macro
-**	    saved EIP		saved by the hardware
+**	    saved RIP		saved by the hardware
 **	    saved CS		saved by the hardware
-**	    saved EFLAGS	saved by the hardware
+**	    saved RFLAGS	saved by the hardware
 */
-	/* TODO: PUSH ALL REGISTERS
-	pusha			// save E*X, ESP, EBP, ESI, EDI
-	pushl	%ds		// save segment registers
-	pushl	%es
-	pushl	%fs
-	pushl	%gs
-	pushl	%ss */
+	pushq	%r15
+	pushq	%r14
+	pushq	%r13
+	pushq	%r12
+	pushq	%r11
+	pushq	%r10
+	pushq	%r9
+	pushq	%r8
+	pushq	%rax
+	pushq	%rcx
+	pushq	%rdx
+	pushq	%rbx
+	pushq	%rbp
+	pushq	%rsi
+	pushq	%rdi
+
+	xorq	%rdx, %rdx
+	movw	%ds, %dx
+	pushq	%rdx
+	movw	%es, %dx
+	pushq	%rdx
+	movw	%fs, %dx
+	pushq	%rdx
+	movw	%gs, %dx
+	pushq	%rdx
+	
 
 /*
+** Stack contents (all 64-bit longwords) and offsets from ESP:
+**   SS GS FS ES DS EDI ESI EBP ESP EBX EDX ECX EAX
+**   0  8  16 24 32 40  48  56  64  72  80  88  96
+**
+**   R8  R9  R10 R11 R12 R13 R14 R15 vec cod RIP CS  RFL
+**   104 112 120 128 136 144 152 160 168 176 184 192 200
+**   
 ** Stack contents (all 32-bit longwords) and offsets from ESP:
 **
 **   SS GS FS ES DS EDI ESI EBP ESP EBX EDX ECX EAX vec cod EIP CS EFL
@@ -126,8 +120,8 @@ isr_save_32:
 **
 ** Set up parameters for the ISR call.
 */
-	movl	52(%esp),%eax	// get vector number and error code
-	movl	56(%esp),%ebx
+	movq	168(%rsp),%rdi	// get vector number and error code
+	movq	176(%rsp),%rsi
 
 /*
 ** MOD for 20135 CSCI452
@@ -136,24 +130,21 @@ isr_save_32:
 	.globl	_current
 	.globl	_system_esp
 
-	movl	_current, %edx	// save context pointer for the current proc
-	movl	%esp, (%edx)	// (must be the first PCB field)
+	movq	_current, %rdx	// save context pointer for the current proc
+	movq	%rsp, (%rdx)	// (must be the first PCB field)
 
 		// note:  this is inherently non-reeentrant!
-	movl	_system_esp, %esp	// switch to OS stack
+	movq	_system_esp, %rsp	// switch to OS stack
 
 /*
 ** END MOD for 20135 CSCI452
 */
-	pushq	%rbx		// put them on the top of the stack ...
-	pushq	%rax		// ... as parameters for the ISR
 
 /*
 ** Call the ISR
 */
-	movl	__isr_table(,%eax,4),%ebx
+	movq	__isr_table(,%eax,8),%rbx
 	call	*%rbx
-	addl	$8,%esp		// pop the two parameters
 
 /*
 ** Context restore begins here
@@ -165,8 +156,8 @@ __isr_restore:
 ** MOD for 20135 CSCI452
 */
 
-	movl	_current, %ebx	// return to user stack
-	movl	(%ebx), %esp	// ESP now points to context save area
+	movq	_current, %rbx	// return to user stack
+	movq	(%rbx), %rsp	// ESP now points to context save area
 
 /*
 ** END MOD for 20135 CSCI452
@@ -199,15 +190,17 @@ __isr_restore:
 
 	.globl  _system_time
 
-	movl    12(%ebx), %eax  // get PID and PPID of this process
-	pushl   %eax
-	pushl   _system_time    // and the current system time
-	pushl	%esp		// and the context pointer
+	xorq	%rax, %rax	// clear RAX
+	movl    20(%rbx), %eax  // get PID and PPID of this process
+	pushq   %rax
+	pushq   _system_time    // and the current system time
+	pushq	%rsp		// and the context pointer
 
 /*
 ** END MOD for 20135 CSCI452
 */
 
+	//TODO: Fix calling convention
 	pushq	$fmt
 	pushq	$1
 	pushq	$0
@@ -216,7 +209,7 @@ __isr_restore:
 /*
 ** MOD for 20135 CSCI452
 */
-	addl	$24, %esp	// now six things to remove
+	addq	$48, %rsp	// now six things to remove
 /*
 ** END MOD for 20135 CSCI452
 */
@@ -229,41 +222,29 @@ __isr_restore:
 /*
 ** Restore the context.
 */
-	/* TODO FIX THIS
-	popl	%ss		// restore the segment registers
-	popl	%gs
-	popl	%fs
-	popl	%es
-	popl	%ds
-	popa			// restore others */
-	addl	$8, %esp	// discard the error code and vector
-	ljmp $GDT_CODE64, $isr_restore_64
-
-.code64
-isr_restore_64:
-	subq $24, %rsp
-	pushq %rax
-	// before:
-	// 0   32  36  40  44
-	// RAX RIP CS  RFL RSP SS
-	// after:
-	//     8   16  24  32  40
-	xorq %rax, %rax
-	movl 32(%rsp), %eax
-	movq %rax, 8(%rsp)
-	movl 36(%rsp), %eax
-	movq %rax, 16(%rsp)
-	movl 40(%rsp), %eax
-	movq %rax, 24(%rsp)
-	movl 44(%rsp), %eax
-	movq %rax, 32(%rsp)
-
-	movq %ss, %rax
-	movq %rax, 40(%rsp)
-
-	popq %rax
+	popq	%gs
+	popq	%fs
+	popq	%rax
+	movw	%ax, %es
+	popq	%rax
+	movw	%ax, %ds
+	popq	%rdi
+	popq	%rsi
+	popq	%rbp
+	popq	%rbx
+	popq	%rdx
+	popq	%rcx
+	popq	%rax
+	popq	%r8
+	popq	%r9
+	popq	%r10
+	popq	%r11
+	popq	%r12
+	popq	%r13
+	popq	%r14
+	popq	%r15
+	addq	$16, %rsp	// discard the error code and vector
 	iretq			// and return
-.code32
 
 #ifdef ISR_DEBUGGING_CODE
 /*

@@ -44,7 +44,7 @@ unsigned int	max_x, max_y;
 #endif
 
 #define	VIDEO_ADDR(x,y)	( unsigned short * ) \
-		( VIDEO_BASE_ADDR + 2 * ( (y) * SCREEN_X_SIZE + (x) ) )
+		( VIDEO_BASE_ADDR + 2 * ( (unsigned long long)(y) * SCREEN_X_SIZE + (unsigned long long)(x) ) )
 
 /*
 ** Support routines.
