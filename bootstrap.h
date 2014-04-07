@@ -41,6 +41,7 @@
 /*
 ** The Page Tables
 */
+#define PML4_SEGMENT	0x1000
 #define PML4_ADDRESS	0x10000
 #define	PDPT_ADDRESS	0x11000
 #define PDT_ADDRESS		0x12000

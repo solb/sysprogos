@@ -514,11 +514,13 @@ build_pts:
 	pushl	%edi
 	pushw	%es
 
-	movl	$PML4_ADDRESS, %edi
-	movl	%edi, %cr3
-	xorl	%eax, %eax
-	movw	%ax, %es
+	movl	$PML4_ADDRESS, %eax
+	movl	%eax, %cr3
+	movl	$PML4_SEGMENT, %eax
+	movl	%eax, %es
+	xorl	%edi, %edi
 	movl	$PAGE_LENS, %ecx
+	xorl	%eax, %eax
 
 clr_pts_loop:
 	movl	%eax, %es:(%edi)
@@ -526,16 +528,16 @@ clr_pts_loop:
 	decl	%ecx
 	jnz		clr_pts_loop
 
-	movl	$PML4_ADDRESS, %edi
+	movl	$0, %edi
 	movl	$(PDPT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
 
-	movl	$PDPT_ADDRESS, %edi
+	movl	$(PDPT_ADDRESS - PML4_ADDRESS), %edi
 	movl	$(PDT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
 
-	movl	$PDT_ADDRESS, %edi
+	movl	$(PDT_ADDRESS - PML4_ADDRESS), %edi
 	movl	$(PT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
 
-	movl	$PT_ADDRESS, %edi
+	movl	$(PT_ADDRESS - PML4_ADDRESS), %edi
 	movl	$512, %ecx
 	movl	$(PAGE_PRESENT | PAGE_RW), %edx
 
