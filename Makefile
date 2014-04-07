@@ -1,5 +1,5 @@
 #
-# SCCS ID: @(#)Makefile	1.14	10/15/12
+# SCCS ID: %W%	%G%
 #
 # Makefile to control the compiling, assembling and linking of
 # standalone programs in the DSL.  Used for both 4003-406 and
@@ -23,7 +23,7 @@ U_LIBS	=
 #	SP2_CONFIG		enable SP2-specific startup variations
 #	REPORT_MYSTERY_INTS	print a message on interrupt 0x27
 #
-USER_OPTIONS = -DCLEAR_BSS_SEGMENT
+USER_OPTIONS = -DCLEAR_BSS_SEGMENT -DISR_DEBUGGING_CODE SP2_CONFIG
 
 #
 # YOU SHOULD NOT NEED TO CHANGE ANYTHING BELOW THIS POINT!!!

@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	@(#)bootstrap.S	1.7	01/29/11
+** SCCS ID:	@(#)bootstrap.S	1.8	4/2/14
 **
 ** File:	bootstrap.S
 **
@@ -429,7 +429,7 @@ switch:
 	**
 	** The old code for this:
 	**
-	**	.byte	06xx, 0xEA
+	**	.byte	0x66, 0xEA
 	**	.long	TARGET_ADDRESS
 	**	.word	GDT_CODE
 	*/

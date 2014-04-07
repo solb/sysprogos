@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	@(#)isr_stubs.S	1.6	10/14/06
+** SCCS ID:	%W%	%G%
 **
 ** File:	isr_stubs.S
 **
@@ -100,6 +100,23 @@ isr_save:
 	pushl	%eax		// ... as parameters for the ISR
 
 /*
+** MOD for 20135 CSCI452
+*/
+
+	.globl	_current
+	.globl	_system_esp
+
+	movl	_current, %edx	// save context pointer for the current proc
+	movl	%esp, (%edx)	// (must be the first PCB field)
+
+		// note:  this is inherently non-reeentrant!
+	movl	_system_esp, %esp	// switch to OS stack
+
+/*
+** END MOD for 20135 CSCI452
+*/
+
+/*
 ** Call the ISR
 */
 	movl	__isr_table(,%eax,4),%ebx
@@ -112,6 +129,17 @@ isr_save:
 
 __isr_restore:
 
+/*
+** MOD for 20135 CSCI452
+*/
+
+	movl	_current, %ebx	// return to user stack
+	movl	(%ebx), %esp	// ESP now points to context save area
+
+/*
+** END MOD for 20135 CSCI452
+*/
+
 #ifdef ISR_DEBUGGING_CODE
 /*
 ** DEBUGGING CODE PART 1
@@ -123,11 +151,43 @@ __isr_restore:
 ** By default, it prints out the CPU context being restored; it
 ** relies on the standard save sequence (see above).
 */
+
+/*
+** MOD for 20135 CSCI452
+*/
+
+	/*
+	** In addition to the basic context information, print
+	** the current system time and the PID and PPID of the
+	** process whose context is being restored.
+	**
+	** THE CONSTANT IN THIS movl INSTRUCTION MUST BE CHANGED
+	** IF THE LOCATION OF EITHER FIELD IN THE PCB CHANGES!
+	*/
+
+	.globl  _system_time
+
+	movl    12(%ebx), %eax  // get PID and PPID of this process
+	pushl   %eax
+	pushl   _system_time    // and the current system time
+
+/*
+** END MOD for 20135 CSCI452
+*/
+
 	pushl	$fmt
 	pushl	$1
 	pushl	$0
 	call	c_printf_at
-	addl	$12,%esp
+
+/*
+** MOD for 20135 CSCI452
+*/
+	addl	$20, %esp	// now five things to remove
+/*
+** END MOD for 20135 CSCI452
+*/
+
 /*
 ** END OF DEBUGGING CODE PART 1
 */
@@ -149,7 +209,14 @@ __isr_restore:
 /*
 ** DEBUGGING CODE PART 2
 */
-fmt:	.ascii	" ss=%08x  gs=%08x  fs=%08x  es=%08x  ds=%08x\n"
+/*
+** MOD for 20135 CSCI452
+*/
+fmt:	.ascii	"time %08x ppid/pid %08x\n"
+	.ascii	" ss=%08x  gs=%08x  fs=%08x  es=%08x  ds=%08x\n"
+/*
+** END MOD for 20135 CSCI452
+*/
 	.ascii	"edi=%08x esi=%08x ebp=%08x esp=%08x ebx=%08x\n"
 	.ascii	"edx=%08x ecx=%08x eax=%08x vec=%08x cod=%08x\n"
 	.string	"eip=%08x  cs=%08x efl=%08x\n"
