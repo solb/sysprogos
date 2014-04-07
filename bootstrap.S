@@ -414,7 +414,7 @@ switch:
 ** use the full offsets from the beginning of the segment (0000:0000);
 ** however, we were loaded at 0000:7c00, so we need to add that in.
 */
-	lidt	idt_48 + BOOT_ADDRESS
+	//lidt	idt_48 + BOOT_ADDRESS
 	lgdt	gdt_48 + BOOT_ADDRESS
 
 	movl	%cr0, %eax					/* get current CR0 */
@@ -585,7 +585,7 @@ code_seg:	/* limit FFFFF, base 0, R/E code seg, 32-bit 4K */
 	.word	0x0000
 	.byte	0x00
 	.byte	0x9A	/* 1 00 1 1010: present, prio 0, C/D, R/E code */
-	.byte	0xEF	/* 1 1 10 1111: 4K, 64-bit, 0, 0, limit[19:16] */
+	.byte	0xAF	/* 1 0 10 1111: 4K, 16-bit (not really), 64-bit, 0, limit[19:16] */
 	.byte	0x00
 
 data_seg:	/* limit FFFFF, base 0, R/W data seg, 32-bit 4K */
