@@ -43,7 +43,7 @@ unsigned int	max_x, max_y;
 #endif
 
 #define	VIDEO_ADDR(x,y)	( unsigned short * ) \
-		( VIDEO_BASE_ADDR + 2 * ( (y) * SCREEN_X_SIZE + (x) ) )
+		( VIDEO_BASE_ADDR + 2 * ( (unsigned long long)(y) * SCREEN_X_SIZE + (unsigned long long)(x) ) )
 
 /*
 ** Support routines.
@@ -506,6 +506,25 @@ void c_printf_at( unsigned int x, unsigned int y, char *fmt, ... ){
 
 void c_printf( char *fmt, ... ){
 	__c_do_printf( -1, -1, &fmt );
+}
+
+void c_puthex(long int x) {
+	static const char *hexchars = "0123456789abcdef";
+	char buf[17];
+	buf[16] = '\0';
+	long int num = x;
+	for (int i = 15; i >= 0; --i) {
+		buf[i] = hexchars[num & 0xf];
+		num >>= 4;
+	}
+	char *ptr = buf;
+	while (*ptr == '0' && *ptr != '\0') {
+		++ptr;
+	}
+	if (*ptr == '\0') {
+		--ptr;
+	}
+	c_puts(ptr);
 }
 
 unsigned char scan_code[ 2 ][ 128 ] = {

@@ -37,10 +37,12 @@ void ( *__isr_table[ 256 ] )( int vector, int code );
 ** Description:	Format of an IDT entry.
 */
 typedef struct	{
-	short	offset_15_0;
-	short	segment_selector;
-	short	flags;
-	short	offset_31_16;
+	unsigned short	offset_15_0;
+	unsigned short	segment_selector;
+	unsigned short	flags;
+	unsigned short	offset_31_16;
+	unsigned int	offset_63_32;
+	unsigned int	must_be_zero;
 } IDT_Gate;
 
 /*
@@ -59,7 +61,13 @@ typedef struct	{
 **		to ever occur.  It handles them by calling panic.
 */
 static void __default_unexpected_handler( int vector, int code ){
-	c_printf( "\nVector=0x%02x, code=%d\n", vector, code );
+	//c_printf( "\nVector=0x%02x, code=%d\n", vector, code );
+	//FIXME: use printf instead once it is fixed
+	c_puts( "\nVector=0x");
+	c_puthex(vector);
+	c_puts( ", code=0x");
+	c_puthex(code);
+	c_puts("\n");
 	__panic( "Unexpected interrupt" );
 }
 
@@ -73,6 +81,7 @@ static void __default_unexpected_handler( int vector, int code ){
 ** Description: Default handler for interrupts we expect may occur but
 **		are not handling (yet).  Just reset the PIC and return.
 */
+
 static void __default_expected_handler( int vector, int code ){
 	if( vector >= 0x20 && vector < 0x30 ){
 		__outb( PIC_MASTER_CMD_PORT, PIC_EOI );
@@ -160,12 +169,13 @@ static void init_pic( void ){
 static void set_idt_entry( int entry, void ( *handler )( void ) ){
 	IDT_Gate *g = (IDT_Gate *)IDT_ADDRESS + entry;
 
-	g->offset_15_0 = (int)handler & 0xffff;
+	g->offset_15_0 = (unsigned short)handler & 0xffff;
 	g->segment_selector = 0x0010;
 	g->flags = IDT_PRESENT | IDT_DPL_0 | IDT_INT32_GATE;
-	g->offset_31_16 = (int)handler >> 16 & 0xffff;
+	g->offset_31_16 = ((unsigned int)handler >> 16) & 0xffff;
+	g->offset_63_32 = ((unsigned long long)handler >> 32) & 0xffffffff;
+	g->must_be_zero = 0;
 }
-
 
 /*
 ** Name:	init_idt
@@ -206,7 +216,11 @@ static void init_idt( void ){
 */
 void __panic( char *reason ){
 	__asm( "cli" );
-	c_printf( "\nPANIC: %s\nHalting...", reason );
+	//c_printf( "\nPANIC: %s\nHalting...", reason );
+	//FIXME: use printf once it is fixed
+	c_puts( "\nPANIC: ");
+	c_puts(reason);
+	c_puts("\nHalting...");
 	for(;;){
 		;
 	}

@@ -414,7 +414,7 @@ switch:
 ** use the full offsets from the beginning of the segment (0000:0000);
 ** however, we were loaded at 0000:7c00, so we need to add that in.
 */
-	//lidt	idt_48 + BOOT_ADDRESS
+	lidt	idt_48 + BOOT_ADDRESS
 	lgdt	gdt_48 + BOOT_ADDRESS
 
 	movl	%cr0, %eax					/* get current CR0 */

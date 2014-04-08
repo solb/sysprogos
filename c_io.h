@@ -179,6 +179,7 @@ void c_puts_at( unsigned int x, unsigned int y, char *str );
 ** Arguments:	coordinates, printf-style format, optional values
 */
 void c_printf_at( unsigned int x, unsigned int y, char *fmt, ... );
+void c_puthex(long int x);
 
 /*
 ** Name:	c_clearscreen
