@@ -34,17 +34,21 @@
 */
 
 #define	ISR(vector)			\
+	.code64				; \
 	.globl	__isr_##vector		; \
 __isr_##vector:				; \
-	pushl	$0			; \
-	pushl	$vector			; \
-	jmp	isr_save
+	pushq	$0			; \
+	pushq	$vector			; \
+	jmp	isr_save		; \
+	.code32
 
 #define	ERR_ISR(vector)		\
+	.code64				; \
 	.globl	__isr_##vector		; \
 __isr_##vector:				; \
-	pushl	$vector			; \
-	jmp	isr_save
+	pushq	$vector			; \
+	jmp	isr_save		; \
+	.code32
 
 	.globl	__isr_table
 	.globl	__isr_restore
@@ -64,8 +68,33 @@ __isr_##vector:				; \
 ********************************************************************
 */
 
+.code64
 isr_save:
-
+	pushq %rax
+	// before:
+	// 0   8   16  24  32 40
+	// RAX vec cod RIP CS RFL
+	// after:
+	//     28  32  36  40 44
+	movl 40(%rsp), %eax
+	movl %eax, 44(%rsp)
+	movl 32(%rsp), %eax
+	movl %eax, 40(%rsp)
+	movl 24(%rsp), %eax
+	movl %eax, 36(%rsp)
+	movl 16(%rsp), %eax
+	movl %eax, 32(%rsp)
+	movl 8(%rsp), %eax
+	movl %eax, 28(%rsp)
+	movq 0(%rsp), %rax
+	addq $28, %rsp
+	pushq $GDT_CODE
+	pushq $0
+	movl $isr_save_32, 0(%rsp)
+	lretq
+	//ljmp $GDT_CODE, $isr_save_32
+.code32
+isr_save_32:
 /*
 ** Begin by saving the state
 **
@@ -143,7 +172,28 @@ __isr_restore:
 	popl	%ds
 	popa			// restore others
 	addl	$8, %esp	// discard the error code and vector
-	iret			// and return
+	ljmp $GDT_CODE64, $isr_restore_64
+
+.code64
+isr_restore_64:
+	subq $12, %rsp
+	pushq %rax
+	// before:
+	// 0   20  24  28
+	// RAX RIP CS  RFL
+	// after:
+	//     8   16  24
+	xorq %rax, %rax
+	movl 20(%rsp), %eax
+	movq %rax, 8(%rsp)
+	movl 24(%rsp), %eax
+	movq %rax, 16(%rsp)
+	movl 28(%rsp), %eax
+	movq %rax, 24(%rsp)
+
+	popq %rax
+	iretq			// and return
+.code32
 
 #ifdef ISR_DEBUGGING_CODE
 /*

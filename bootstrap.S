@@ -604,6 +604,14 @@ stack_seg:	/* limit FFFFF, base 0, R/W data seg, 32-bit 4K */
 	.byte	0xCF
 	.byte	0x00
 
+code64_seg:	/* limit FFFFF, base 0, R/E code seg, 64-bit 4K */
+	.word	0xFFFF
+	.word	0x0000
+	.byte	0x00
+	.byte	0x9A	/* 1 00 1 1010: present, prio 0, C/D, R/E code */
+	.byte	0xAF	/* 1 0 10 1111: 4K, 16-bit (not really), 64-bit, 0, limit[19:16] */
+	.byte	0x00
+
 end_gdt:
 gdt_len = end_gdt - start_gdt
 

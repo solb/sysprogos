@@ -163,7 +163,7 @@ static void set_idt_entry( int entry, void ( *handler )( void ) ){
 	IDT_Gate *g = (IDT_Gate *)IDT_ADDRESS + entry;
 
 	g->offset_15_0 = (unsigned short)handler & 0xffff;
-	g->segment_selector = 0x0010;
+	g->segment_selector = 0x0028;
 	g->flags = IDT_PRESENT | IDT_DPL_0 | IDT_INT32_GATE;
 	g->offset_31_16 = ((unsigned int)handler >> 16) & 0xffff;
 	g->offset_63_32 = ((unsigned long long)handler >> 32) & 0xffffffff;
