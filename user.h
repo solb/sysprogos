@@ -42,28 +42,28 @@
 */
 
 //	user	          baseline system calls in use
-		// xit rch wch ws  spn slp gpr spr gp  gpp gt
-#define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .
-#define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .
-#define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .
-#define	SPAWN_D	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_E	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_F	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_G	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_H	//  .   .   .   .   .   .   .   .   .   .   .
+		// xit rch wch ws  spn slp gpr spr gp  gpp gt bog
+#define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .  .
+#define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .  .
+#define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .  .
+#define	SPAWN_D	//  X   .   X   .   X   .   .   .   .   .   .  .
+#define	SPAWN_E	//  X   .   X   .   .   X   .   .   X   .   .  .
+#define	SPAWN_F	//  X   .   X   .   .   X   .   .   X   .   .  .
+#define	SPAWN_G	//  X   .   X   .   .   X   .   .   X   .   .  .
+#define	SPAWN_H	//  .   .   X   .   .   .   .   .   .   .   .  .
 // no user i
-#define	SPAWN_J	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_K	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_L	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_M	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_N	//  .   .   .   .   .   .   .   .   .   .   .
+#define	SPAWN_J	//  X   .   X   .   X   .   .   .   .   .   .  .
+#define	SPAWN_K	//  X   .   X   .   X   X   .   .   .   .   .  .
+#define	SPAWN_L	//  X   .   X   .   X   X   .   .   .   .   X  .
+#define	SPAWN_M	//  X   .   X   .   .   .   .   X   .   .   .  .
+#define	SPAWN_N	//  X   .   X   .   .   .   .   X   .   .   .  .
 // no user O
-#define	SPAWN_P	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_Q	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_R	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_S	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_T	//  .   .   .   .   .   .   .   .   .   .   .
-#define	SPAWN_U	//  .   .   .   .   .   .   .   .   .   .   .
+#define	SPAWN_P	//  X   .   X   .   .   X   .   .   .   .   X  .
+#define	SPAWN_Q	//  X   .   X   .   .   .   .   .   .   .   .  X
+#define	SPAWN_R	//  X   X   X   .   .   X   .   .   .   .   .  .
+#define	SPAWN_S	//  X   .   X   .   .   X   .   .   .   .   .  .
+#define	SPAWN_T	//  X   .   X   .   .   .   X   X   X   .   .  .
+#define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
 // no user V
 
 /*
@@ -71,10 +71,10 @@
 ** should never be spawned directly.
 */
 
-// user W:	    .   .   .   .   .   .   .   .   .   .   .
-// user X:	    .   .   .   .   .   .   .   .   .   .   .
-// user Y:	    .   .   .   .   .   .   .   .   .   .   .
-// user Z:	    .   .   .   .   .   .   .   .   .   .   .
+// user W:	    X   .   X   .   .   X   .   .   X   .   .  .
+// user X:	    X   .   X   .   .   X   .   .   X   X   .  .
+// user Y:	    X   .   X   .   .   X   .   .   .   .   .  .
+// user Z:	    X   .   X   .   .   .   .   .   X   X   .  .
 
 
 /*
@@ -84,7 +84,7 @@
 /*
 ** init - initial user process
 **
-** after spawning the other user processes, loops forever calling wait()
+** after spawning the other user processes, becomes the idle process
 */
 
 void init( void );

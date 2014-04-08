@@ -70,17 +70,23 @@ int readch( void );
 ** writech - write a single character to the SIO
 **
 ** usage:	writech(ch);
+**
+** returns:
+**      the character that was written
 */
 
-void writech( char ch );
+int writech( char ch );
 
 /*
 ** writes - write a single character to the SIO
 **
 ** usage:	writes(ch);
+**
+** returns:
+**      the number of characters written
 */
 
-void writes( char *str );
+int writes( char *str );
 
 /*
 ** spawn - create a new process running a different program

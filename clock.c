@@ -178,5 +178,5 @@ void _clock_init( void ) {
 
         // announce that we have initialized the clock module
 
-        c_puts( " CLOCK" );
+        c_puts( " clock" );
 }

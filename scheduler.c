@@ -63,7 +63,7 @@ void _sched_init( void ) {
 	
 	// report that we have finished
 
-	c_puts( " SCHED" );
+	c_puts( " sched" );
 }
 
 /*

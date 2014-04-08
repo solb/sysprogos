@@ -68,7 +68,7 @@ void _stack_init( void ) {
 	
 	// report that we have finished
 
-	c_puts( " STACKS" );
+	c_puts( " stacks" );
 }
 
 /*

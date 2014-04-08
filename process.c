@@ -72,7 +72,7 @@ void _pcb_init( void ) {
 
 	// report that we have finished
 
-	c_puts( " PCB" );
+	c_puts( " pcb" );
 }
 
 /*

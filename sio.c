@@ -324,7 +324,7 @@ void _sio_init( void ) {
 	** Report that we're done.
 	*/
 
-	c_puts( " SIO" );
+	c_puts( " sio" );
 
 }
 

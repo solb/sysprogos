@@ -79,9 +79,25 @@ queue_t _sleeping;	// sleeping processes
 */
 
 static void _sys_isr( int vector, int code ) {
-	uint_t syscode;
+	uint32_t code= _current->context->eax;
 
-	// TO BE COMPLETED
+	// verify that we were given a legal code
+
+	if( code >= N_SYSCALLS ) {
+
+		// nope - report it...
+
+		c_printf( "*** _sys_isr, PID %d syscall %d\n",
+			_current->pid, code );
+
+		// ...and force it to exit()
+
+		code = SYS_exit;
+	}
+
+	// invoke the appropriate syscall handler
+
+	*(_syscalls[code])( _current );
 
 	// tell the PIC we're done
 
@@ -293,15 +309,28 @@ static void _sys_writes( pcb_t *pcb ) {
 ** implements:  int spawn(void (*entry)(void));
 **
 ** returns:
-**      0 in new process
-**	pid of new process in original process
-**	-1 on error
+**	pid of new process in original process, or -1 on error
 */
 
 static void _sys_spawn( pcb_t *pcb ) {
-	
-	// TO BE COMPLETED
+	pcb_t *new;
 
+	// farm out all the work to this supporting routine
+
+	new = _create_process( pcb->pid, ARG1(pcb) );
+
+	if( new != NULL ) {
+
+		// it succeeded - tell the parent and schedule the child
+		RET(pcb) = new->pid
+		_schedule( new );
+
+	} else {
+
+		// it failed - tell the parent
+		RET(pcb) = -1;
+
+	}
 }
 
 
@@ -382,5 +411,5 @@ void _sys_init( void ) {
 
 	__install_isr( INT_VEC_SYSCALL, _sys_isr );
 
-	c_puts( " SYSCALL" );
+	c_puts( " syscall" );
 }

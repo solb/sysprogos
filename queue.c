@@ -136,7 +136,7 @@ void _que_init( void ) {
 
 	// report that we have finished
 
-	c_puts( " QUEUES" );
+	c_puts( " queues" );
 }
 
 /*
