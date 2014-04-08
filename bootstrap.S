@@ -362,7 +362,7 @@ gdt_48:
 	.quad	GDT_ADDRESS
 
 idt_48:
-	.word	0x0800		/* 256 interrupts */
+	.word	0x1000		/* 256 interrupts */
 	.quad	IDT_ADDRESS
 
 /*
