@@ -10,6 +10,11 @@
 ** Description:	Dummy main program
 */
 #include "c_io.h"
+#include "support.h"
+
+void fake_syscall(int vector, int code) {
+	c_puts("Fake syscall called.\n");
+}
 
 int main(void) {
 	c_puts("Starting to check PTs\n");
@@ -20,6 +25,11 @@ int main(void) {
 		}
 	}
 	c_puts("Verified all PTs\n");
+
+	c_puts("Installing isr 80\n");
+	__install_isr(80, fake_syscall);
+	c_puts("Installed ISR. Invoking\n");
+	__asm__("int $80");
 
 	c_puts("Hello, world!\n");
 	return(0);
