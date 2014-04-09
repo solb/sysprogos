@@ -350,3 +350,61 @@ __isr_stub_table:
 	.long	__isr_0xf4, __isr_0xf5, __isr_0xf6, __isr_0xf7
 	.long	__isr_0xf8, __isr_0xf9, __isr_0xfa, __isr_0xfb
 	.long	__isr_0xfc, __isr_0xfd, __isr_0xfe, __isr_0xff
+
+.globl test_int_handler
+test_int_handler:
+	xorl	%eax, %eax
+	xorl	%ebx, %ebx
+	xorl	%ecx, %ecx
+	xorl	%edx, %edx
+	xorl	%esi, %esi
+	xorl	%edi, %edi
+	xorl	%ebp, %ebp
+	testl	%eax, %eax
+	ret
+
+.globl test_int_caller
+test_int_caller:
+	pushl	%ebx
+	pushl	%esi
+	pushl	%edi
+	pushl	%ebp
+
+	movl	$1, %eax
+	movl	$2, %ebx
+	movl	$3, %ecx
+	movl	$4, %edx
+	movl	$5, %esi
+	movl	$6, %edi
+	movl	$7, %ebp
+	cmpl	%edx, %ecx
+	int		$80
+
+	jge		test_int_caller_fail
+	cmpl	$1, %eax
+	jne		test_int_caller_fail
+	cmpl	$2, %ebx
+	jne		test_int_caller_fail
+	cmpl	$3, %ecx
+	jne		test_int_caller_fail
+	cmpl	$4, %edx
+	jne		test_int_caller_fail
+	cmpl	$5, %esi
+	jne		test_int_caller_fail
+	cmpl	$6, %edi
+	jne		test_int_caller_fail
+	cmpl	$7, %ebp
+	jne		test_int_caller_fail
+
+	movl	$1, %eax
+	jmp		test_int_caller_done
+
+test_int_caller_fail:
+	movl	$0, %eax
+
+test_int_caller_done:
+	popl	%ebp
+	popl	%edi
+	popl	%esi
+	popl	%ebx
+	ret
