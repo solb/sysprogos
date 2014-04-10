@@ -72,22 +72,22 @@ __isr_##vector:				; \
 isr_save:
 	pushq %rax
 	// before:
-	// 0   8   16  24  32 40
-	// RAX vec cod RIP CS RFL
+	// 0   8   16  24  32 40  48  56
+	// RAX vec cod RIP CS RFL RSP SS
 	// after:
-	//     28  32  36  40 44
+	//     44  48  52  56 60
 	movl 40(%rsp), %eax
-	movl %eax, 44(%rsp)
+	movl %eax, 60(%rsp)
 	movl 32(%rsp), %eax
-	movl %eax, 40(%rsp)
+	movl %eax, 56(%rsp)
 	movl 24(%rsp), %eax
-	movl %eax, 36(%rsp)
+	movl %eax, 52(%rsp)
 	movl 16(%rsp), %eax
-	movl %eax, 32(%rsp)
+	movl %eax, 48(%rsp)
 	movl 8(%rsp), %eax
-	movl %eax, 28(%rsp)
+	movl %eax, 44(%rsp)
 	movq 0(%rsp), %rax
-	addq $28, %rsp
+	addq $44, %rsp
 	pushq $GDT_CODE
 	pushq $0
 	movl $isr_save_32, 0(%rsp)
