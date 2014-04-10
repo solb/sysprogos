@@ -189,20 +189,20 @@ bootstrap.o: bootstrap.h
 startup.o: bootstrap.h
 isr_stubs.o: bootstrap.h
 ulibs.o: syscall.h common.h
-c_io.o: c_io.h startup.h support.h /home/fac/wrc/include/x86arch.h
-support.o: startup.h support.h c_io.h /home/fac/wrc/include/x86arch.h
+c_io.o: c_io.h startup.h support.h x86arch.h
+support.o: startup.h support.h c_io.h x86arch.h
 support.o: bootstrap.h
-clock.o: common.h /home/fac/wrc/include/x86arch.h startup.h clock.h process.h
+clock.o: common.h x86arch.h startup.h clock.h process.h
 clock.o: stack.h queue.h scheduler.h sio.h syscall.h
 klibc.o: common.h
 process.o: common.h process.h clock.h stack.h queue.h
 queue.o: common.h queue.h process.h clock.h stack.h
 scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h
 sio.o: common.h sio.h queue.h process.h clock.h stack.h scheduler.h system.h
-sio.o: startup.h /home/fac/wrc/include/uart.h /home/fac/wrc/include/x86arch.h
+sio.o: startup.h uart.h x86arch.h
 stack.o: common.h stack.h queue.h
 syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
-syscall.o: sio.h support.h startup.h /home/fac/wrc/include/x86arch.h
+syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
 system.o: sio.h queue.h scheduler.h user.h ulib.h
 ulibc.o: common.h
