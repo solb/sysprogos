@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)isr_stubs.S	1.7	4/9/14
 **
 ** File:	isr_stubs.S
 **
@@ -96,8 +96,6 @@ isr_save:
 */
 	movl	52(%esp),%eax	// get vector number and error code
 	movl	56(%esp),%ebx
-	pushl	%ebx		// put them on the top of the stack ...
-	pushl	%eax		// ... as parameters for the ISR
 
 /*
 ** MOD for 20135 CSCI452
@@ -115,6 +113,8 @@ isr_save:
 /*
 ** END MOD for 20135 CSCI452
 */
+	pushl	%ebx		// put them on the top of the stack ...
+	pushl	%eax		// ... as parameters for the ISR
 
 /*
 ** Call the ISR
@@ -170,6 +170,7 @@ __isr_restore:
 	movl    12(%ebx), %eax  // get PID and PPID of this process
 	pushl   %eax
 	pushl   _system_time    // and the current system time
+	pushl	%esp		// and the context pointer
 
 /*
 ** END MOD for 20135 CSCI452
@@ -183,7 +184,7 @@ __isr_restore:
 /*
 ** MOD for 20135 CSCI452
 */
-	addl	$20, %esp	// now five things to remove
+	addl	$24, %esp	// now six things to remove
 /*
 ** END MOD for 20135 CSCI452
 */
@@ -212,7 +213,7 @@ __isr_restore:
 /*
 ** MOD for 20135 CSCI452
 */
-fmt:	.ascii	"time %08x ppid/pid %08x\n"
+fmt:	.ascii	"context %08x time %08x ppid/pid %08x\n"
 	.ascii	" ss=%08x  gs=%08x  fs=%08x  es=%08x  ds=%08x\n"
 /*
 ** END MOD for 20135 CSCI452

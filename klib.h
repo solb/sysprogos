@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)klib.h	1.1	4/9/14
 **
 ** File:	klib.h
 **
@@ -80,6 +80,14 @@ void _kmemclr( register byte_t *buf, register uint32_t len );
 */
 
 void _kmemcpy( register byte_t *dst, register byte_t *src, register uint32_t len );
+
+/*
+** _kstrlen - calculate the length of a NUL-terminated string
+**
+** usage:  n = _kstrlen( str );
+*/
+
+uint32_t _kstrlen( register char *str );
 
 /*
 ** _kpanic - kernel-level panic routine

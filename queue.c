@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)queue.c	1.1	4/9/14
 **
 ** File:	queue.c
 **
@@ -126,6 +126,7 @@ int _compare_time( register void *p1, register void *p2 ) {
 */
 
 void _que_init( void ) {
+	int i;
 	
 	// create the list of link nodes
 
@@ -186,7 +187,7 @@ void _que_insert( queue_t *queue, void *data ) {
 	// note that inserting a NULL pointer is not prohibited
 
 	if( queue == NULL ) {
-		return( BAD_PARAM );
+		return;
 	}
 	
 	// allocate a link for the insertion
@@ -199,6 +200,7 @@ void _que_insert( queue_t *queue, void *data ) {
 	// copy the supplied data into the new link
 
 	new->data = data;
+	new->next = NULL;
 	
 	/*
 	** handle the special cases of an empty queue and an unordered
@@ -224,9 +226,9 @@ void _que_insert( queue_t *queue, void *data ) {
 	*/
 
 	prev = NULL;
-	curr = queue->head;
+	curr = queue->first;
 	while( curr != NULL ) {
-		if( queue->compare(curr->data,new) > 0 ) {
+		if( queue->compare(curr->data,new->data) > 0 ) {
 			break;
 		}
 		prev = curr;
@@ -263,6 +265,8 @@ void _que_insert( queue_t *queue, void *data ) {
 	if( curr == NULL ) {
 		queue->last = new;
 	}
+
+	queue->size += 1;
 	
 }
 
@@ -274,7 +278,7 @@ void _que_insert( queue_t *queue, void *data ) {
 ** returns a pointer to the removed data item, or NULL
 */
 
-void *_que_remove( queue_t *queue, void **data ) {
+void *_que_remove( queue_t *queue ) {
 	linknode_t *node;
 	void *data;
 	
@@ -300,6 +304,8 @@ void *_que_remove( queue_t *queue, void **data ) {
 		if( queue->first == NULL ) {
 			queue->last = NULL;
 			queue->size = 0;
+		} else {
+			queue->size -= 1;
 		}
 	
 		// release the Kraken..., uh, link
@@ -344,7 +350,7 @@ void *_que_peek( queue_t *queue ) {
 
 void _que_dump( char *which, queue_t *queue ) {
 	linknode_t *tmp;
-
+	int i;
 
 	c_printf( "%s: ", which );
 	if( queue == NULL ) {
@@ -358,8 +364,13 @@ void _que_dump( char *which, queue_t *queue ) {
 	
 	if( _que_length(queue) > 0 ) {
 		c_puts( " data: " );
-		for( linknode_t *tmp = queue->first; tmp != NULL; tmp = tmp->next ) {
+		i = 0;
+		for( tmp = queue->first; tmp != NULL; tmp = tmp->next ) {
 			c_printf( " [%x]", (uint32_t) tmp->data );
+			if( ++i > 10 ) break;
+		}
+		if( tmp != NULL ) {
+			c_puts( " ..." );
 		}
 		c_puts( "\n" );
 	}

@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)scheduler.c	1.1	4/9/14
 **
 ** File:	scheduler.c
 **
@@ -54,7 +54,7 @@ void _sched_init( void ) {
 	// reset all the MLQ levels
 
 	for( int i = 0; i < N_READYQ; ++i ) {
-		_q_reset( &_ready[i], NULL );
+		_que_reset( &_ready[i], NULL );
 	}
 	
 	// no current process, initially
@@ -102,7 +102,7 @@ void _schedule( pcb_t *pcb ) {
 */
 
 void _dispatch( void ) {
-	pcb_t *pcb;
+	pcb_t *new;
 	
 	// select a process from the highest-priority
 	// ready queue that is not empty

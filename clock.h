@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)clock.h	1.1	4/9/14
 **
 ** File:	clock.h
 **
@@ -44,7 +44,7 @@
 
 // pseudo function to convert seconds to ticks
 
-#define	seconds_to_ticks(n)	(seconds_to_ms((n)) * CLOCK_FREQUENCY)
+#define	seconds_to_ticks(n)	(ms_to_ticks(seconds_to_ms((n))))
 
 // pseudo function to convert ticks to (truncated) seconds
 

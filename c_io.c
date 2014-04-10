@@ -710,11 +710,6 @@ void c_io_init( void ){
 	*/
 	__install_isr( INT_VEC_KEYBOARD, __c_keyboard_isr );
 
-	/*
-	** Report that we're done
-	*/
-
-	c_puts( " c_io" );
 }
 
 #ifdef SA_DEBUG

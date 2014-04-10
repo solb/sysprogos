@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)stack.c	1.1	4/9/14
 **
 ** File:	stack.c
 **
@@ -58,7 +58,7 @@ void _stack_init( void ) {
 	
 	// clear the free stack queue
 
-	_q_reset( &_free_stacks, NULL );
+	_que_reset( &_free_stacks, NULL );
 	
 	// "free" all the stacks
 

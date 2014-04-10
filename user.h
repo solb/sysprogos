@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)user.h	1.1	4/9/14
 **
 ** File:	user.h
 **
@@ -46,7 +46,7 @@
 #define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .  .
-#define	SPAWN_D	//  X   .   X   .   X   .   .   .   .   .   .  .
+// #define	SPAWN_D	//  X   .   X   .   X   .   .   .   .   .   .  .
 #define	SPAWN_E	//  X   .   X   .   .   X   .   .   X   .   .  .
 #define	SPAWN_F	//  X   .   X   .   .   X   .   .   X   .   .  .
 #define	SPAWN_G	//  X   .   X   .   .   X   .   .   X   .   .  .

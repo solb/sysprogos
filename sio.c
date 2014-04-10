@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)sio.c	1.1	4/9/14
 **
 ** File:	sio.c
 **
@@ -121,8 +121,6 @@ static void _sio_isr( int vector, int code ) {
 	pcb_t *pcb;
 	int eir, lsr, msr;
 	int ch;
-	int stat;
-	int *ptr;
 
 	//
 	// Must process all pending events; loop until the EIR
@@ -164,9 +162,7 @@ static void _sio_isr( int vector, int code ) {
 						 "serial wakeup remove failed",
 						 NOT_EMPTY_QUEUE );
 				}
-				ptr = (int *) (ARG(pcb)[1]);
-				*ptr = ch & 0xff;
-				RET(pcb) = SUCCESS;
+				RET(pcb) = ch & 0xff;
 				_schedule( pcb );
 
 			} else {

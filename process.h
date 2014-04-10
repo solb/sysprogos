@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)process.h	1.1	4/9/14
 **
 ** File:	process.h
 **
@@ -31,9 +31,8 @@
 #define	RUNNING		3
 #define	SLEEPING	4
 #define	BLOCKED		5
-#define	WAITING		6
 
-#define	N_STATES	7
+#define	N_STATES	6
 
 // process priorities
 
@@ -44,6 +43,7 @@
 #define	PRIO_DEFAULT	PRIO_STD
 
 #define	N_PRIOS		3
+#define	PRIO_LAST	PRIO_LOW
 
 // PID of the initial user process
 
@@ -58,12 +58,12 @@
 #include "clock.h"
 #include "stack.h"
 
-// ARG(p) - access argument from user stack of process
+// ARGn(p) - access argument #n register from process context
 //
-// ARG(p)[0]: return address
-// ARG(p)[n]: argument #n
+// IF THE PARAMETER PASSING MECHANISM CHANGES, SO MUST THESE
 
-#define ARG(p)  ((uint32_t *) ((p)->context + 1))
+#define	ARG1(pcb)	((pcb)->context->ecx)
+#define	ARG2(pcb)	((pcb)->context->edx)
 
 // RET(p) - access return value register in process context
 
@@ -167,6 +167,8 @@ void _pcb_free( pcb_t *pcb );
 */
 
 void _pcb_dump( const char *which, pcb_t *pcb );
+
+void _context_dump( const char *which, context_t *context );
 
 #endif
 

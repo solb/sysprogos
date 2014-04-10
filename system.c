@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)system.c	1.1	4/9/14
 **
 ** File:	system.c
 **
@@ -67,18 +67,18 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 	
 	// allocate the new structures
 
-	pcb = _pcb_alloc();
-	if( pcb == NULL ) {
+	new = _pcb_alloc();
+	if( new == NULL ) {
 		return( NULL );
 	}
 
 	// clear all the fields in the PCB
 
-	_kmemclr( (void *) pcb, sizeof(pcb_t) );
+	_kmemclr( (void *) new, sizeof(pcb_t) );
 
 	new->stack = _stack_alloc();
 	if( new->stack == NULL ) {
-		_pcb_free(pcb);
+		_pcb_free( new );
 		return( NULL );
 	}
 
@@ -99,7 +99,7 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 
 	// first, create a pointer to the longword after the stack
 
-	ptr = (uint32_t *) (new->stack + 1)
+	ptr = (uint32_t *) (new->stack + 1);
 
 	// save the buffering 0 at the end
 
@@ -108,7 +108,7 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 	// fake a return address so that if the user function returns
 	// without calling exit(), we return "into" exit()
 
-	*--ptr = exit;
+	*--ptr = (uint32_t) exit;
 
 	// locate the context save area
 
@@ -203,10 +203,13 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	pcb = _create_process( 0, init );
+	pcb = _create_process( 0, (uint32_t) init );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}
+
+	_pcb_dump( "initial", pcb );
+	_context_dump( "initial", pcb->context );
 
 	// make this the first process
 

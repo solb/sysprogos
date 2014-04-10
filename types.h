@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)types.h	1.1	4/9/14
 **
 ** File:	types.h
 **

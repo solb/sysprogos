@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)common.h	1.1	4/9/14
 **
 ** File:	common.h
 **

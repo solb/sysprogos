@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)queue.h	1.1	4/9/14
 **
 ** File:	queue.h
 **
@@ -52,6 +52,7 @@ typedef struct link {
 typedef struct queue {
 	linknode_t *first;		// first entry
 	linknode_t *last;		// last entry
+	uint32_t size;			// number of entries
 	int (*compare)( void *one, void *two );	// ordering routine
 } queue_t;
 

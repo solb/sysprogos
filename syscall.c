@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)syscall.c	1.1	4/9/14
 **
 ** File:	syscall.c
 **
@@ -29,17 +29,6 @@
 /*
 ** PRIVATE DEFINITIONS
 */
-
-// access to user-supplied arguments
-//
-// IF THE PARAMETER PASSING MECHANISM CHANGES, SO MUST THESE
-
-#define	ARG1(pcb)	((pcb)->context->ecx)
-#define	ARG2(pcb)	((pcb)->context->edx)
-
-// access to the "return value" register save area
-
-#define	RET(pcb)	((pcb)->context->eax)
 
 /*
 ** PRIVATE DATA TYPES
@@ -79,25 +68,26 @@ queue_t _sleeping;	// sleeping processes
 */
 
 static void _sys_isr( int vector, int code ) {
-	uint32_t code= _current->context->eax;
+	uint32_t which= _current->context->eax;
 
 	// verify that we were given a legal code
 
-	if( code >= N_SYSCALLS ) {
+	if( which >= N_SYSCALLS ) {
 
 		// nope - report it...
 
 		c_printf( "*** _sys_isr, PID %d syscall %d\n",
-			_current->pid, code );
+			_current->pid, which );
 
 		// ...and force it to exit()
 
-		code = SYS_exit;
+		which = SYS_exit;
 	}
 
 	// invoke the appropriate syscall handler
 
-	*(_syscalls[code])( _current );
+	// should work in C99: _syscalls[which]( _current );
+	(*_syscalls[which])( _current );
 
 	// tell the PIC we're done
 
@@ -179,7 +169,7 @@ static void _sys_getprio( pcb_t *pcb ) {
 
 static void _sys_setprio( pcb_t *pcb ) {
 	prio_t prio = ARG1(pcb);
-		
+
 	// verify that the priority is legal
 	//
 	// if it isn't, use the default priority
@@ -293,13 +283,13 @@ static void _sys_writech( pcb_t *pcb ) {
 */
 
 static void _sys_writes( pcb_t *pcb ) {
-	char *str = ARG1(pcb);
+	char *str = (char *) ARG1(pcb);
 
 	// this is almost insanely simple, but it does separate
 	// the low-level device access fromm the higher-level
 	// syscall implementation
 
-	RET(pcb) = _sio_writes( str );
+	RET(pcb) = _sio_writes( str, _kstrlen(str) );
 
 }
 
@@ -322,7 +312,7 @@ static void _sys_spawn( pcb_t *pcb ) {
 	if( new != NULL ) {
 
 		// it succeeded - tell the parent and schedule the child
-		RET(pcb) = new->pid
+		RET(pcb) = new->pid;
 		_schedule( new );
 
 	} else {

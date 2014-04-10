@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)syscall.h	1.1	4/9/14
 **
 ** File:	syscall.h
 **

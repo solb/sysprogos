@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)klibc.c	1.1	4/9/14
 **
 ** File:	klibc.c
 **
@@ -96,6 +96,23 @@ void _kmemcpy( register byte_t *dst, register byte_t *src, register uint32_t len
 		*dst++ = *src++;
 	}
 
+}
+
+
+/*
+** _kstrlen - calculate the length of a NUL-terminated string
+**
+** usage:  n = _kstrlen( str );
+*/
+
+uint32_t _kstrlen( register char *str ) {
+	register uint32_t len = 0;
+
+	while( *str++ ) {
+		++len;
+	}
+
+	return( len );
 }
 
 

@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)clock.c	1.1	4/9/14
 **
 ** File:	clock.c
 **
@@ -22,6 +22,7 @@
 #include "queue.h"
 #include "scheduler.h"
 #include "sio.h"
+#include "syscall.h"
 
 /*
 ** PRIVATE DEFINITIONS
@@ -85,7 +86,7 @@ static void _clock_isr( int vector, int code ) {
 	while( _que_length(&_sleeping) != 0 ) {
 		// peek at the first sleeper
 		pcb = (pcb_t *) _que_peek( &_sleeping );
-		if( PCB == NULL ) {
+		if( pcb == NULL ) {
 			_kpanic( "_clock_isr",
 			    "NULL from non-empty sleep queue",
 			    EMPTY_QUEUE );
@@ -123,17 +124,16 @@ static void _clock_isr( int vector, int code ) {
 	}
 
 #ifdef DUMP_QUEUES
-	// Approximately every 20 seconds, dump the queues, and
+	// Approximately every 10 seconds, dump the queues, and
 	// print the contents of the SIO buffers.
 
-	if( (_system_time % seconds_to_ticks(20)) == 0 ) {
+	if( (_system_time % seconds_to_ticks(10)) == 0 ) {
 		c_printf( "Queue contents @%08x\n", _system_time );
 		_que_dump( "ready[0]", &_ready[0] );
 		_que_dump( "ready[1]", &_ready[1] );
 		_que_dump( "ready[2]", &_ready[2] );
 		_que_dump( "sleep", &_sleeping );
 		_que_dump( "read", &_reading );
-		_que_dump( "wait", &_waiting );
 		_sio_dump();
 	}
 #endif

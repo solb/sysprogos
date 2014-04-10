@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)process.c	1.1	4/9/14
 **
 ** File:	process.c
 **
@@ -130,7 +130,6 @@ void _pcb_dump( const char *which, pcb_t *pcb ) {
 		case RUNNING:	c_puts( "RUNNING" ); break;
 		case SLEEPING:	c_puts( "SLEEPING" ); break;
 		case BLOCKED:	c_puts( "BLOCKED" ); break;
-		case WAITING:	c_puts( "WAITING" ); break;
 		default:	c_printf( "? (%d)", pcb->state );
 	}
 
@@ -146,4 +145,29 @@ void _pcb_dump( const char *which, pcb_t *pcb ) {
 
 	c_printf( " context %08x stack %08x\n",
 		  (uint32_t) pcb->context, (uint32_t) pcb->stack );
+}
+
+/*
+** _context_dump(context)
+*/
+
+void _context_dump( const char *which, context_t *context ) {
+
+	c_printf( "%s: ", which );
+	if( context == NULL ) {
+		c_puts( " NULL???\n" );
+		return;
+	}
+
+	c_printf( "\n\t ss %08x  gs %08x  fs %08x  es %08x\n",
+		context->ss, context->gs, context->fs, context->es );
+	c_printf( "\t ds %08x edi %08x esi %08x ebp %08x\n",
+		context->ds, context->edi, context->esi, context->ebp );
+	c_printf( "\tesp %08x ebx %08x edx %08x ecx %08x\n",
+		context->esp, context->ebx, context->edx, context->ecx );
+	c_printf( "\teax %08x vec %08x cod %08x eip %08x\n",
+		context->eax, context->vector, context->code, context->eip );
+	c_printf( "\t cs %08x efl %08x\n",
+		context->cs, context->eflags );
+
 }

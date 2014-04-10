@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	%W%	%G%
+** SCCS ID:	@(#)defs.h	1.1	4/9/14
 **
 ** File:	defs.h
 **
