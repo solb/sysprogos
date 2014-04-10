@@ -1,5 +1,5 @@
 /*
-** SCCS ID:	@(#)c_io.c	1.13	03/08/10
+** SCCS ID:	@(#)c_io.c	1.14	4/8/14
 **
 ** File:	c_io.c
 **
@@ -709,6 +709,7 @@ void c_io_init( void ){
 	** Set up the interrupt handler for the keyboard
 	*/
 	__install_isr( INT_VEC_KEYBOARD, __c_keyboard_isr );
+
 }
 
 #ifdef SA_DEBUG
