@@ -237,21 +237,25 @@ __isr_restore:
 
 .code64
 isr_restore_64:
-	subq $12, %rsp
+	subq $28, %rsp
 	pushq %rax
 	// before:
-	// 0   20  24  28
-	// RAX RIP CS  RFL
+	// 0   36  40  44
+	// RAX RIP CS  RFL RSP SS
 	// after:
-	//     8   16  24
+	//     8   16  24  32  40
 	xorq %rax, %rax
-	movl 20(%rsp), %eax
+	movl 36(%rsp), %eax
 	movq %rax, 8(%rsp)
-	movl 24(%rsp), %eax
+	movl 40(%rsp), %eax
 	movq %rax, 16(%rsp)
-	movl 28(%rsp), %eax
+	movl 44(%rsp), %eax
 	movq %rax, 24(%rsp)
-
+	movq %ss, %rax
+	movq %rax, 40(%rsp)
+	movq %rsp, %rax
+	addq $48, %rax
+	movq %rax, 32(%rsp)
 	popq %rax
 	iretq			// and return
 .code32
