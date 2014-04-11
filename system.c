@@ -110,6 +110,8 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 
 	*--ptr = (uint32_t) exit;
 
+	uint32_t *top_stack = ptr;
+
 	// locate the context save area
 
 	new->context = ((context_t *) ptr) - 1;
@@ -124,6 +126,7 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 	new->context->fs     = GDT_DATA;
 	new->context->gs     = GDT_DATA;
 	new->context->eflags = DEFAULT_EFLAGS;
+	new->context->esp    = top_stack;
 
 	// fill in the remaining important fields
 

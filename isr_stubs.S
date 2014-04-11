@@ -75,19 +75,21 @@ isr_save:
 	// 0   8   16  24  32 40  48  56
 	// RAX vec cod RIP CS RFL RSP SS
 	// after:
-	//     44  48  52  56 60
-	movl 40(%rsp), %eax
+	//     40  44  48  52 56  60
+	movl 48(%rsp), %eax
 	movl %eax, 60(%rsp)
-	movl 32(%rsp), %eax
+	movl 40(%rsp), %eax
 	movl %eax, 56(%rsp)
-	movl 24(%rsp), %eax
+	movl 32(%rsp), %eax
 	movl %eax, 52(%rsp)
-	movl 16(%rsp), %eax
+	movl 24(%rsp), %eax
 	movl %eax, 48(%rsp)
-	movl 8(%rsp), %eax
+	movl 16(%rsp), %eax
 	movl %eax, 44(%rsp)
+	movl 8(%rsp), %eax
+	movl %eax, 40(%rsp)
 	movq 0(%rsp), %rax
-	addq $44, %rsp
+	addq $40, %rsp
 	pushq $GDT_CODE
 	pushq $0
 	movl $isr_save_32, 0(%rsp)
@@ -237,25 +239,26 @@ __isr_restore:
 
 .code64
 isr_restore_64:
-	subq $28, %rsp
+	subq $24, %rsp
 	pushq %rax
 	// before:
-	// 0   36  40  44
+	// 0   32  36  40  44
 	// RAX RIP CS  RFL RSP SS
 	// after:
 	//     8   16  24  32  40
 	xorq %rax, %rax
-	movl 36(%rsp), %eax
+	movl 32(%rsp), %eax
 	movq %rax, 8(%rsp)
-	movl 40(%rsp), %eax
+	movl 36(%rsp), %eax
 	movq %rax, 16(%rsp)
-	movl 44(%rsp), %eax
+	movl 40(%rsp), %eax
 	movq %rax, 24(%rsp)
+	movl 44(%rsp), %eax
+	movq %rax, 32(%rsp)
+
 	movq %ss, %rax
 	movq %rax, 40(%rsp)
-	movq %rsp, %rax
-	addq $48, %rax
-	movq %rax, 32(%rsp)
+
 	popq %rax
 	iretq			// and return
 .code32
