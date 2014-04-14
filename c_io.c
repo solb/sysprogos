@@ -19,6 +19,7 @@
 #include "startup.h"
 #include "support.h"
 #include "x86arch.h"
+#include <stdarg.h>
 
 /*
 ** Video parameters, and state variables
@@ -396,9 +397,7 @@ static int padstr( int x, int y, char *str, int len, int width, int leftadjust, 
 	return x;
 }
 
-static void __c_do_printf( int x, int y, char **f ){
-	char	*fmt = *f;
-	int	*ap;
+static void __c_do_printf( int x, int y, char *fmt, va_list args ){
 	char	buf[ 12 ];
 	char	ch;
 	char	*str;
@@ -410,7 +409,6 @@ static void __c_do_printf( int x, int y, char **f ){
 	/*
 	** Get characters from the format string and process them
 	*/
-	ap = (int *)( f + 1 );
 	while( (ch = *fmt++) != '\0' ){
 		/*
 		** Is it the start of a format code?
@@ -444,34 +442,29 @@ static void __c_do_printf( int x, int y, char **f ){
 			*/
 			switch( ch ){
 			case 'c':
-				// ch = *( (int *)ap )++;
-				ch = *ap++;
+				ch = va_arg(args, int);
 				buf[ 0 ] = ch;
 				buf[ 1 ] = '\0';
 				x = padstr( x, y, buf, 1, width, leftadjust, padchar );
 				break;
 
 			case 'd':
-				// len = cvtdec( buf, *( (int *)ap )++ );
-				len = cvtdec( buf, *ap++ );
+				len = cvtdec( buf, va_arg(args, int) );
 				x = padstr( x, y, buf, len, width, leftadjust, padchar );
 				break;
 
 			case 's':
-				// str = *( (char **)ap )++;
-				str = (char *) (*ap++);
+				str = va_arg(args, char*);
 				x = padstr( x, y, str, -1, width, leftadjust, padchar );
 				break;
 
 			case 'x':
-				// len = cvthex( buf, *( (int *)ap )++ );
-				len = cvthex( buf, *ap++ );
+				len = cvthex( buf, va_arg(args, int) );
 				x = padstr( x, y, buf, len, width, leftadjust, padchar );
 				break;
 
 			case 'o':
-				// len = cvtoct( buf, *( (int *)ap )++ );
-				len = cvtoct( buf, *ap++ );
+				len = cvtoct( buf, va_arg(args, int) );
 				x = padstr( x, y, buf, len, width, leftadjust, padchar );
 				break;
 
@@ -501,11 +494,17 @@ static void __c_do_printf( int x, int y, char **f ){
 }
 
 void c_printf_at( unsigned int x, unsigned int y, char *fmt, ... ){
-	__c_do_printf( x, y, &fmt );
+	va_list v;
+	va_start(v, fmt);
+	__c_do_printf( x, y, fmt, v );
+	va_end(v);
 }
 
 void c_printf( char *fmt, ... ){
-	__c_do_printf( -1, -1, &fmt );
+	va_list v;
+	va_start(v, fmt);
+	__c_do_printf( -1, -1, fmt, v );
+	va_end(v);
 }
 
 unsigned char scan_code[ 2 ][ 128 ] = {
