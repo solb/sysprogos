@@ -219,3 +219,14 @@ __pause:
 	hlt
 	leave
 	ret
+
+/*
+** __inst_tss: install the TSS
+**		void __inst_tss( void );
+*/
+	.globl __inst_tss
+
+__inst_tss:
+	movl	$(GDT_TSS | 03), %eax
+	ltr		%ax
+	ret

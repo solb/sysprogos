@@ -12,10 +12,13 @@
 
 #define	__SP_KERNEL__
 
+#include "bootstrap.h"
 #include "common.h"
 
 #include "stack.h"
 #include "queue.h"
+
+#include "klib.h"
 
 /*
 ** PRIVATE DEFINITIONS
@@ -69,6 +72,20 @@ void _stack_init( void ) {
 	// report that we have finished
 
 	c_puts( " stacks" );
+}
+
+/*
+** Name:	_stack_mktss
+**
+** Description: Initialize the Task-Segment Selector (TSS) so that
+** 		we'll be able to jump from ring 3 back to ring 0.
+*/
+void _stack_mktss( void ){
+	uint32_t *tss = (uint32_t *)TSS_ADDRESS;
+	_kmemclr((byte_t *)TSS_ADDRESS, TSS_SIZE);
+	tss[TSS_SS0] = GDT_STACK;
+	tss[TSS_ESP0] = (uint32_t)_system_esp;
+	__inst_tss();
 }
 
 /*

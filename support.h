@@ -36,6 +36,13 @@ void __panic( char *reason );
 void __init_interrupts( void );
 
 /*
+** Name:	__init_tss
+**
+** Description: Sets up the Task-Segment Selector.
+*/
+void __init_tss( void );
+
+/*
 ** Name:	__install_isr
 **
 ** Description:	Call this routine to install your interrupt handler for

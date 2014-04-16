@@ -189,13 +189,14 @@ void _init( void ) {
 	c_puts( "\n" );
 
 	/*
-	** Create the initial system ESP
+	** Create the initial system ESP and populate the TSS
 	**
-	** This will be the address of the next-to-last
+	** The former will be the address of the next-to-last
 	** longword in the system stack.
 	*/
 
 	_system_esp = ((uint32_t *) ( (&_system_stack) + 1)) - 2;
+	_stack_mktss();
 
 	/*
 	** Create the initial process

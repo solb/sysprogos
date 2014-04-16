@@ -32,12 +32,22 @@
 #define	GDT_DATA	0x0018		/* All of memory, R/W */
 #define	GDT_STACK	0x0020		/* All of memory, R/W */
 #define	GDT_CODE64	0x0028		/* All of memory, R/E */
+#define GDT_TSS		0x0030		/* Location of the TSS structure, E */
 
 /*
 ** The Interrupt Descriptor Table (0000:2500 - 0000:2D00)
 */
 #define	IDT_SEGMENT	0x00000250
 #define IDT_ADDRESS	0x00002500
+
+/*
+** The Task State Segment
+*/
+#define TSS_SEGMENT 0x00000350
+#define TSS_ADDRESS	0x00003500
+#define TSS_SIZE	0x002C
+#define TSS_ESP0	1
+#define	TSS_SS0		2
 
 /*
 ** The Page Tables

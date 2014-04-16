@@ -51,4 +51,11 @@ int __get_flags( void );
 */
 void __pause( void );
 
+/*
+** Name:	__inst_tss: install the TSS
+**
+** Description: Install the TSS
+*/
+void __inst_tss( void );
+
 #endif

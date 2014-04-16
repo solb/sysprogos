@@ -612,6 +612,14 @@ code64_seg:	/* limit FFFFF, base 0, R/E code seg, 64-bit 4K */
 	.byte	0xAF	/* 1 0 10 1111: 4K, 16-bit (not really), 64-bit, 0, limit[19:16] */
 	.byte	0x00
 
+tss_seg: 	/* limit TSS_SIZE, base TSS_SEGMENT, E system segment */
+	.word	TSS_SIZE
+	.word	TSS_ADDRESS
+	.byte	0x00
+	.byte	0x89	/* present, execute-only */
+	.byte	0x40	/* 32-bit (no joke), not 64-bit, 0, limit[19:16] */
+	.byte	0x00
+
 end_gdt:
 gdt_len = end_gdt - start_gdt
 
