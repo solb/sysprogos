@@ -119,12 +119,12 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 	// fill in the non-zero entries in the context save area
 
 	new->context->eip    = entry;
-	new->context->cs     = GDT_CODE;
-	new->context->ss     = GDT_STACK;
-	new->context->ds     = GDT_DATA;
-	new->context->es     = GDT_DATA;
-	new->context->fs     = GDT_DATA;
-	new->context->gs     = GDT_DATA;
+	new->context->cs     = GDT_USREXEC;
+	new->context->ss     = GDT_USRNOEX;
+	new->context->ds     = GDT_USRNOEX;
+	new->context->es     = GDT_USRNOEX;
+	new->context->fs     = GDT_USRNOEX;
+	new->context->gs     = GDT_USRNOEX;
 	new->context->eflags = DEFAULT_EFLAGS;
 	new->context->esp    = top_stack;
 

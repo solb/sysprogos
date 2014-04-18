@@ -33,6 +33,8 @@
 #define	GDT_STACK	0x0020		/* All of memory, R/W */
 #define	GDT_CODE64	0x0028		/* All of memory, R/E */
 #define GDT_TSS		0x0030		/* Location of the TSS structure, E */
+#define GDT_USREXEC	(0x0038 | 03)
+#define GDT_USRNOEX	(0x0040 | 03)
 
 /*
 ** The Interrupt Descriptor Table (0000:2500 - 0000:2D00)
@@ -45,9 +47,8 @@
 */
 #define TSS_SEGMENT 0x00000350
 #define TSS_ADDRESS	0x00003500
-#define TSS_SIZE	0x002C
+#define TSS_SIZE	104
 #define TSS_ESP0	1
-#define	TSS_SS0		2
 
 /*
 ** The Page Tables
@@ -60,6 +61,7 @@
 #define PAGE_LENS		0x1000	// 0x4000 words, moving by DWORD
 #define PAGE_PRESENT	0x1
 #define PAGE_RW			0x2
+#define PAGE_USER		0x4
 
 /*
 ** Physical Memory Map Table (0000:2D00 - 0000:2D08)

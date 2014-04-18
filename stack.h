@@ -71,6 +71,13 @@ void _stack_init( void );
 stack_t *_stack_alloc( void );
 
 /*
+** Name:	_stack_mktss
+**
+** initialize the Task-Segment Selector (TSS)
+*/
+void _stack_mktss( void );
+
+/*
 ** _stack_free(stack)
 **
 ** deallocate a stack, putting it into the list of available stacks

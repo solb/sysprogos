@@ -85,7 +85,6 @@ typedef uint8_t		quantum_t;
 // register save code in isr_stubs.S!!!!
 
 typedef struct context {
-	uint32_t ss;
 	uint32_t gs;
 	uint32_t fs;
 	uint32_t es;
@@ -104,6 +103,7 @@ typedef struct context {
 	uint32_t cs;
 	uint32_t eflags;
 	uint32_t esp;
+	uint32_t ss;
 } context_t;
 
 // process control block

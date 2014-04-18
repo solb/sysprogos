@@ -70,26 +70,40 @@ __isr_##vector:				; \
 
 .code64
 isr_save:
+	pushq %rcx
 	pushq %rax
-	// before:
-	// 0   8   16  24  32 40  48  56
-	// RAX vec cod RIP CS RFL RSP SS
-	// after:
-	//     40  44  48  52 56  60
+	// system stack before:
+	// 0   8   16  24  32  40 48  56  64
+	// RAX RCX vec cod RIP CS RFL RSP SS
+	// user stack after:
+	//         0   4   8   12 16  20  24
+	movq 56(%rsp), %rcx
+	subq $28, %rcx
+	movl 64(%rsp), %eax
+	movl %eax, 24(%rcx)
+	movl 56(%rsp), %eax
+	movl %eax, 20(%rcx)
 	movl 48(%rsp), %eax
-	movl %eax, 60(%rsp)
+	movl %eax, 16(%rcx)
 	movl 40(%rsp), %eax
-	movl %eax, 56(%rsp)
+	movl %eax, 12(%rcx)
 	movl 32(%rsp), %eax
-	movl %eax, 52(%rsp)
+	movl %eax, 8(%rcx)
 	movl 24(%rsp), %eax
-	movl %eax, 48(%rsp)
+	movl %eax, 4(%rcx)
 	movl 16(%rsp), %eax
-	movl %eax, 44(%rsp)
-	movl 8(%rsp), %eax
-	movl %eax, 40(%rsp)
-	movq 0(%rsp), %rax
-	addq $40, %rsp
+	movl %eax, 0(%rcx)
+
+	// update the ss
+	movl $GDT_STACK, %eax
+	movl %eax, %ss
+
+	// switch to the user stack
+	movq %rsp, %rax
+	movq %rcx, %rsp
+	movq 8(%rax), %rcx
+	movq 0(%rax), %rax
+
 	pushq $GDT_CODE
 	pushq $0
 	movl $isr_save_32, 0(%rsp)
@@ -113,20 +127,19 @@ isr_save_32:
 	pushl	%es
 	pushl	%fs
 	pushl	%gs
-	pushl	%ss
 
 /*
 ** Stack contents (all 32-bit longwords) and offsets from ESP:
 **
-**   SS GS FS ES DS EDI ESI EBP ESP EBX EDX ECX EAX vec cod EIP CS EFL
-**   0  4  8  12 16 20  24  28  32  36  40  44  48  52  56  60  64 68
+**   GS FS ES DS EDI ESI EBP ESP EBX EDX ECX EAX vec cod EIP CS EFL ESP SS 
+**   0  4  8  12 16  20  24  28  32  36  40  44  48  52  56  60 64  68  72
 **
 ** Note that the saved ESP is the contents before the PUSHA.
 **
 ** Set up parameters for the ISR call.
 */
-	movl	52(%esp),%eax	// get vector number and error code
-	movl	56(%esp),%ebx
+	movl	48(%esp),%eax	// get vector number and error code
+	movl	52(%esp),%ebx
 
 /*
 ** MOD for 20135 CSCI452
@@ -228,7 +241,6 @@ __isr_restore:
 /*
 ** Restore the context.
 */
-	popl	%ss		// restore the segment registers
 	popl	%gs
 	popl	%fs
 	popl	%es
@@ -239,24 +251,23 @@ __isr_restore:
 
 .code64
 isr_restore_64:
-	subq $24, %rsp
+	subq $20, %rsp
 	pushq %rax
 	// before:
-	// 0   32  36  40  44
+	// 0   28  32  36  40  44
 	// RAX RIP CS  RFL RSP SS
 	// after:
 	//     8   16  24  32  40
 	xorq %rax, %rax
-	movl 32(%rsp), %eax
+	movl 28(%rsp), %eax
 	movq %rax, 8(%rsp)
-	movl 36(%rsp), %eax
+	movl 32(%rsp), %eax
 	movq %rax, 16(%rsp)
-	movl 40(%rsp), %eax
+	movl 36(%rsp), %eax
 	movq %rax, 24(%rsp)
-	movl 44(%rsp), %eax
+	movl 40(%rsp), %eax
 	movq %rax, 32(%rsp)
-
-	movq %ss, %rax
+	movl 44(%rsp), %eax
 	movq %rax, 40(%rsp)
 
 	popq %rax
