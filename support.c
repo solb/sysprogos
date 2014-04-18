@@ -17,6 +17,7 @@
 #include "c_io.h"
 #include "x86arch.h"
 #include "bootstrap.h"
+#include "syscall.h"
 
 /*
 ** Global variables and local data types.
@@ -171,6 +172,24 @@ static void set_idt_entry( int entry, void ( *handler )( void ) ){
 }
 
 /*
+** Name:	set_idt_dpl
+**
+** Description: Enable calls to the specified IDT from the given rings
+** Arguments:	The vector number and ring number
+*/
+static void set_idt_dpl( int entry, unsigned short ring ){
+	if(ring > 3){
+		__panic( "Unexpected privilege ring" );
+	}
+
+	IDT_Gate *g = (IDT_Gate *)IDT_ADDRESS + entry;
+	unsigned short tmp_flags = g->flags;
+	tmp_flags &= ~IDT_DPL_MASK;
+	tmp_flags |= ring << (8+5); // There are 8 bits of low-order zeroes
+	g->flags = tmp_flags;
+}
+
+/*
 ** Name:	init_idt
 **
 ** Description: Initialize the Interrupt Descriptor Table (IDT).  This
@@ -191,6 +210,9 @@ static void init_idt( void ){
 		set_idt_entry( i, __isr_stub_table[ i ] );
 		__install_isr( i, __default_unexpected_handler );
 	}
+
+	// Allow userspace syscall interrupts
+	set_idt_dpl( INT_VEC_SYSCALL, 3 );
 
 	/*
 	** Install the handlers for interrupts that have a specific handler.
