@@ -172,6 +172,13 @@ __isr_restore:
 ** MOD for 20135 CSCI452
 */
 
+
+	.globl  _system_time
+
+	movq	$0, %rdi
+	movq	$1, %rsi
+	movq	$fmt, %rdx
+	movq	%rsp, %rcx		// get the context pointer
 	/*
 	** In addition to the basic context information, print
 	** the current system time and the PID and PPID of the
@@ -180,29 +187,11 @@ __isr_restore:
 	** THE CONSTANT IN THIS movl INSTRUCTION MUST BE CHANGED
 	** IF THE LOCATION OF EITHER FIELD IN THE PCB CHANGES!
 	*/
-
-	.globl  _system_time
-
-	xorq	%rax, %rax	// clear RAX
+	movq    _system_time, %r8    // and the current system time
 	movl    20(%rbx), %eax  // get PID and PPID of this process
-	pushq   %rax
-	pushq   _system_time    // and the current system time
-	pushq	%rsp		// and the context pointer
+	movq	%rax, %r9
+	call	c_printf_at
 
-/*
-** END MOD for 20135 CSCI452
-*/
-
-	//TODO: Fix calling convention
-	pushq	$fmt
-	pushq	$1
-	pushq	$0
-	//call	c_printf_at
-
-/*
-** MOD for 20135 CSCI452
-*/
-	addq	$48, %rsp	// now six things to remove
 /*
 ** END MOD for 20135 CSCI452
 */
