@@ -48,12 +48,13 @@ CPP = cpp
 CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES)
 
 CC = gcc
-CFLAGS = -m32 -std=c99 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
+CFLAGS = -std=c99 -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
 
 AS = as
-ASFLAGS = --32
+ASFLAGS = --64
 
-LD = ld -melf_i386
+LD = ld
+LDFLAGS_KERN = -z max-page-size=0x1000
 
 #		
 # Transformation rules - these ensure that all compilation
@@ -125,10 +126,10 @@ prog.out: $(OBJECTS)
 	$(LD) -o prog.out $(OBJECTS)
 
 prog.o:	$(OBJECTS)
-	$(LD) -o prog.o -Ttext 0x20000 $(OBJECTS) $(U_LIBS)
+	$(LD) $(LDFLAGS_KERN) -o prog.o -Ttext 0x20000 $(OBJECTS) $(U_LIBS)
 
 prog.b:	prog.o
-	$(LD) -o prog.b -s --oformat binary -Ttext 0x20000 prog.o
+	$(LD) $(LDFLAGS_KERN) -o prog.b -s --oformat binary -Ttext 0x20000 prog.o
 
 #
 # Targets for copying bootable image onto boot devices

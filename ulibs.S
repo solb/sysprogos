@@ -39,7 +39,7 @@ name:                             ; \
 #define SYSCALL1(name) \
 	.globl	name              ; \
 name:                             ; \
-	movl	4(%esp), %ecx     ; \
+	movq	%rdi, %rcx     ; \
 	movl	$SYS_##name, %eax ; \
 	int	$INT_VEC_SYSCALL  ; \
 	ret
@@ -47,8 +47,8 @@ name:                             ; \
 #define SYSCALL2(name) \
 	.globl	name              ; \
 name:                             ; \
-	movl	4(%esp), %ecx     ; \
-	movl	8(%esp), %edx     ; \
+	movq	%rdi, %rcx     ; \
+	movq	%rsi, %rdx     ; \
 	movl	$SYS_##name, %eax ; \
 	int	$INT_VEC_SYSCALL  ; \
 	ret

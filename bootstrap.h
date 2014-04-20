@@ -32,9 +32,9 @@
 #define	GDT_DATA	0x0018		/* All of memory, R/W */
 #define	GDT_STACK	0x0020		/* All of memory, R/W */
 #define	GDT_CODE64	0x0028		/* All of memory, R/E */
-#define GDT_TSS		0x0030		/* Location of the TSS structure, E */
-#define GDT_USREXEC	(0x0038 | 03)
-#define GDT_USRNOEX	(0x0040 | 03)
+#define GDT_TSS		0x0030		/* Location of the TSS structure, E (TWICE AS LONG!!)*/
+#define GDT_USREXEC	(0x0040 | 03)
+#define GDT_USRNOEX	(0x0048 | 03)
 
 /*
 ** The Interrupt Descriptor Table (0000:2500 - 0000:2D00)

@@ -580,12 +580,12 @@ linear_seg:	/* limit FFFFF, base 0, R/W data seg, 32-bit 4K */
 	.byte	0xCF	/* granularity */
 	.byte	0x00	/* base[31:24] */
 
-code_seg:	/* limit FFFFF, base 0, R/E code seg, 32-bit 4K */
+code64_seg:	/* limit FFFFF, base 0, R/E code seg, 32-bit 4K */
 	.word	0xFFFF
 	.word	0x0000
 	.byte	0x00
 	.byte	0x9A	/* 1 00 1 1010: present, prio 0, C/D, R/E code */
-	.byte	0xCF	/* 1 1 00 1111: 4K, 32-bit, 0, 0, limit[19:16] */
+	.byte	0xAF	/* 1 1 10 1111: 4K, 64-bit, 0, 0, limit[19:16] */
 	.byte	0x00
 
 data_seg:	/* limit FFFFF, base 0, R/W data seg, 32-bit 4K */
@@ -604,12 +604,12 @@ stack_seg:	/* limit FFFFF, base 0, R/W data seg, 32-bit 4K */
 	.byte	0xCF
 	.byte	0x00
 
-code64_seg:	/* limit FFFFF, base 0, R/E code seg, 64-bit 4K */
+code32_seg:	/* limit FFFFF, base 0, R/E code seg, 64-bit 4K */
 	.word	0xFFFF
 	.word	0x0000
 	.byte	0x00
 	.byte	0x9A	/* 1 00 1 1010: present, prio 0, C/D, R/E code */
-	.byte	0xAF	/* 1 0 10 1111: 4K, 16-bit (not really), 64-bit, 0, limit[19:16] */
+	.byte	0xEF	/* 1 0 10 1111: 4K, 16-bit (not really), 64-bit, 0, limit[19:16] */
 	.byte	0x00
 
 tss_seg: 	/* limit TSS_SIZE, base TSS_SEGMENT, E system segment */
@@ -619,6 +619,11 @@ tss_seg: 	/* limit TSS_SIZE, base TSS_SEGMENT, E system segment */
 	.byte	0x89	/* present, execute-only */
 	.byte	0x40	/* 32-bit (no joke), not 64-bit, 0, limit[19:16] */
 	.byte	0x00
+
+	.word	0x00
+	.word	0x00
+	.word	0x00
+	.word	0x00
 
 usrexec_seg:
 	.word	0xFFFF

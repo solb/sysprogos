@@ -62,12 +62,12 @@
 //
 // IF THE PARAMETER PASSING MECHANISM CHANGES, SO MUST THESE
 
-#define	ARG1(pcb)	((pcb)->context->ecx)
-#define	ARG2(pcb)	((pcb)->context->edx)
+#define	ARG1(pcb)	((pcb)->context->rcx)
+#define	ARG2(pcb)	((pcb)->context->rdx)
 
 // RET(p) - access return value register in process context
 
-#define RET(p)  ((p)->context->eax)
+#define RET(p)  ((p)->context->rax)
 
 /*
 ** Types
@@ -85,25 +85,32 @@ typedef uint8_t		quantum_t;
 // register save code in isr_stubs.S!!!!
 
 typedef struct context {
-	uint32_t gs;
-	uint32_t fs;
-	uint32_t es;
-	uint32_t ds;
-	uint32_t edi;
-	uint32_t esi;
-	uint32_t ebp;
-	uint32_t fake_esp;
-	uint32_t ebx;
-	uint32_t edx;
-	uint32_t ecx;
-	uint32_t eax;
-	uint32_t vector;
-	uint32_t code;
-	uint32_t eip;
-	uint32_t cs;
-	uint32_t eflags;
-	uint32_t esp;
-	uint32_t ss;
+	uint64_t gs;
+	uint64_t fs;
+	uint64_t es;
+	uint64_t ds;
+	uint64_t rdi;
+	uint64_t rsi;
+	uint64_t rbp;
+	uint64_t rbx;
+	uint64_t rdx;
+	uint64_t rcx;
+	uint64_t rax;
+	uint64_t r8;
+	uint64_t r9;
+	uint64_t r10;
+	uint64_t r11;
+	uint64_t r12;
+	uint64_t r13;
+	uint64_t r14;
+	uint64_t r15;
+	uint64_t vector;
+	uint64_t code;
+	uint64_t rip;
+	uint64_t cs;
+	uint64_t rflags;
+	uint64_t rsp;
+	uint64_t ss;
 } context_t;
 
 // process control block
@@ -111,9 +118,10 @@ typedef struct context {
 // members are ordered by size
 
 typedef struct pcb {
-	// 32-bit fields
+	// 64-bit fields
 	context_t	*context;	// context save area pointer
 	stack_t		*stack;		// per-process runtime stack
+	// 32-bit-fields
 	time_t		wakeup;		// for sleeping process
 	// 16-bit fields
 	pid_t		pid;		// our pid

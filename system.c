@@ -61,9 +61,9 @@
 **      pointer to the new PCB
 */
 
-pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
+pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 	pcb_t *new;
-	uint32_t *ptr;
+	uint64_t *ptr;
 	
 	// allocate the new structures
 
@@ -99,7 +99,7 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 
 	// first, create a pointer to the longword after the stack
 
-	ptr = (uint32_t *) (new->stack + 1);
+	ptr = (uint64_t *) (new->stack + 1);
 
 	// save the buffering 0 at the end
 
@@ -108,9 +108,9 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 	// fake a return address so that if the user function returns
 	// without calling exit(), we return "into" exit()
 
-	*--ptr = (uint32_t) exit;
+	*--ptr = (uint64_t) exit;
 
-	uint32_t *top_stack = ptr;
+	uint64_t *top_stack = ptr;
 
 	// locate the context save area
 
@@ -118,15 +118,15 @@ pcb_t *_create_process( pid_t ppid, uint32_t entry ) {
 
 	// fill in the non-zero entries in the context save area
 
-	new->context->eip    = entry;
+	new->context->rip    = entry;
 	new->context->cs     = GDT_USREXEC;
 	new->context->ss     = GDT_USRNOEX;
 	new->context->ds     = GDT_USRNOEX;
 	new->context->es     = GDT_USRNOEX;
 	new->context->fs     = GDT_USRNOEX;
 	new->context->gs     = GDT_USRNOEX;
-	new->context->eflags = DEFAULT_EFLAGS;
-	new->context->esp    = top_stack;
+	new->context->rflags = DEFAULT_EFLAGS;
+	new->context->rsp    = (uint64_t)top_stack;
 
 	// fill in the remaining important fields
 
@@ -207,7 +207,7 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	pcb = _create_process( 0, (uint32_t) init );
+	pcb = _create_process( 0, (uint64_t) init );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}

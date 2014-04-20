@@ -68,7 +68,7 @@ queue_t _sleeping;	// sleeping processes
 */
 
 static void _sys_isr( int vector, int code ) {
-	uint32_t which= _current->context->eax;
+	uint64_t which= _current->context->rax;
 
 	// verify that we were given a legal code
 
