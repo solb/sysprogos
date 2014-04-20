@@ -21,6 +21,7 @@
 #include "syscall.h"
 #include "sio.h"
 #include "scheduler.h"
+#include "memory.h"
 
 // need init() address
 #include "user.h"
@@ -178,6 +179,7 @@ void _init( void ) {
 
 	c_puts( "Module init: " );
 
+	_mem_init();
 	_que_init();		// must be first
 	_pcb_init();
 	_stack_init();

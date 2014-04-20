@@ -9,9 +9,9 @@
 # User supplied files
 #
 U_C_SRC = clock.c klibc.c process.c queue.c scheduler.c sio.c \
-	stack.c syscall.c system.c ulibc.c user.c
+	stack.c syscall.c system.c ulibc.c user.c memory.c
 U_C_OBJ = clock.o klibc.o process.o queue.o scheduler.o sio.o \
-	stack.o syscall.o system.o ulibc.o user.o
+	stack.o syscall.o system.o ulibc.o user.o memory.o
 U_S_SRC = klibs.S ulibs.S
 U_S_OBJ = klibs.o ulibs.o
 U_H_SRC = clock.h common.h defs.h klib.h process.h queue.h \
@@ -190,25 +190,25 @@ depend:
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-bootstrap.o: bootstrap.h
+bootstrap.o: bootstrap.h x86arch.h
 startup.o: bootstrap.h
 isr_stubs.o: bootstrap.h
 ulibs.o: syscall.h common.h
-c_io.o: c_io.h startup.h support.h x86arch.h
-support.o: startup.h support.h c_io.h x86arch.h
-support.o: bootstrap.h
-clock.o: common.h x86arch.h startup.h clock.h process.h
-clock.o: stack.h queue.h scheduler.h sio.h syscall.h
+c_io.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+support.o: startup.h support.h c_io.h x86arch.h bootstrap.h syscall.h
+support.o: common.h
+clock.o: common.h x86arch.h startup.h clock.h process.h stack.h queue.h
+clock.o: scheduler.h sio.h syscall.h
 klibc.o: common.h
 process.o: common.h process.h clock.h stack.h queue.h
 queue.o: common.h queue.h process.h clock.h stack.h
 scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h
 sio.o: common.h sio.h queue.h process.h clock.h stack.h scheduler.h system.h
-sio.o: startup.h uart.h x86arch.h
-stack.o: common.h stack.h queue.h
+sio.o: startup.h ./uart.h x86arch.h
+stack.o: bootstrap.h common.h stack.h queue.h klib.h
 syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
 syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
-system.o: sio.h queue.h scheduler.h user.h ulib.h
+system.o: sio.h queue.h scheduler.h memory.h user.h ulib.h
 ulibc.o: common.h
 user.o: common.h user.h c_io.h
