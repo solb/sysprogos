@@ -630,7 +630,7 @@ usrexec_seg:
 	.word	0x0000
 	.byte	0x00
 	.byte	0xFA
-	.byte	0xCF
+	.byte	0xAF
 	.byte	0x00
 
 usrnoex_seg:
@@ -638,7 +638,7 @@ usrnoex_seg:
 	.word	0x0000
 	.byte	0x00
 	.byte	0xF2
-	.byte	0xCF
+	.byte	0xAF
 	.byte	0x00
 
 end_gdt:
