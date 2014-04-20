@@ -122,6 +122,10 @@ usb.image: bootstrap.b prog.b prog.nl BuildImage #prog.dis
 floppy.image: bootstrap.b prog.b prog.nl BuildImage #prog.dis 
 	./BuildImage -d floppy -o floppy.image -b bootstrap.b prog.b 0x20000
 
+hd.img: usb.image
+	- [ ! -e hd.img ] && bximage -q -hd -mode=flat -size=10 hd.img
+	dd if=usb.image of=hd.img conv=notrunc
+
 prog.out: $(OBJECTS)
 	$(LD) -o prog.out $(OBJECTS)
 
