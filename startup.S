@@ -217,3 +217,13 @@ __pause:
 	hlt
 	leave
 	ret
+
+/*
+** __get_cr2: get a copy of CR2
+** 		void* __get_cr2( void );
+*/
+	.globl __get_cr2
+
+__get_cr2:
+	movq	%cr2, %rax
+	ret

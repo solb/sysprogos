@@ -51,4 +51,11 @@ int __get_flags( void );
 */
 void __pause( void );
 
+/*
+** Name:	__get_cr2
+**
+** Description: Get a copy of CR2
+*/
+void* __get_cr2( void );
+
 #endif

@@ -16,9 +16,9 @@ U_S_SRC = user_start.S ulibs.S
 U_S_OBJ = user_start.o ulibs.o
 U_H_SRC = clock.h common.h defs.h process.h queue.h \
 	scheduler.h sio.h stack.h syscall.h system.h types.h ulib.h user.h
-K_C_SRC = c_io.c support.c clock.c klibc.c process.c queue.c scheduler.c sio.c \
+K_C_SRC = c_io.c support.c clock.c klibc.c process.c memory.c queue.c scheduler.c sio.c \
 	stack.c syscall.c system.c
-K_C_OBJ = c_io.o support.o clock.o klibc.o process.o queue.o scheduler.o sio.o \
+K_C_OBJ = c_io.o support.o clock.o klibc.o process.o memory.o queue.o scheduler.o sio.o \
 	stack.o syscall.o system.o
 K_S_SRC = startup.S isr_stubs.S klibs.S
 K_S_OBJ = startup.o isr_stubs.o klibs.o
@@ -208,6 +208,6 @@ stack.o: common.h stack.h queue.h
 syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
 syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
-system.o: sio.h queue.h scheduler.h user.h ulib.h
+system.o: sio.h queue.h scheduler.h memory.h user.h ulib.h
 ulibc.o: common.h
 user.o: common.h user.h c_io.h
