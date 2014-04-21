@@ -22,12 +22,6 @@
 #include "sio.h"
 #include "scheduler.h"
 
-// need init() address
-#include "user.h"
-
-// need the exit() prototype
-#include "ulib.h"
-
 /*
 ** PRIVATE DEFINITIONS
 */
@@ -108,7 +102,9 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 	// fake a return address so that if the user function returns
 	// without calling exit(), we return "into" exit()
 
-	*--ptr = (uint64_t) exit;
+	//FIXME: don't know the address of the userspace exit function
+	//*--ptr = (uint64_t) exit;
+	*--ptr = (uint64_t) 0;
 
 	uint64_t *top_stack = ptr;
 
@@ -206,7 +202,8 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	pcb = _create_process( 0, (uint64_t) init );
+	//FIXME: maybe we shouldn't hardcode the address of init?
+	pcb = _create_process( 0, (uint64_t) 0x60000 );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}
