@@ -1,18 +1,22 @@
 #
-# SCCS ID: @(#)Makefile	1.14	10/15/12
+# SCCS ID: %W%	%G%
 #
 # Makefile to control the compiling, assembling and linking of
-# standalone programs in the DSL.  Used for both 4003-406 and
-# 4003-506 (with appropriate tweaking).
+# standalone programs in the DSL.
 #
 
 #
 # User supplied files
 #
-U_C_SRC = main.c
-U_C_OBJ = main.o
-U_S_SRC =
-U_S_OBJ =
+U_C_SRC = clock.c klibc.c process.c queue.c scheduler.c sio.c \
+	stack.c syscall.c system.c ulibc.c user.c
+U_C_OBJ = clock.o klibc.o process.o queue.o scheduler.o sio.o \
+	stack.o syscall.o system.o ulibc.o user.o
+U_S_SRC = klibs.S ulibs.S
+U_S_OBJ = klibs.o ulibs.o
+U_H_SRC = clock.h common.h defs.h klib.h process.h queue.h \
+	scheduler.h sio.h stack.h syscall.h system.h types.h ulib.h user.h
+
 U_LIBS	=
 
 #
@@ -23,7 +27,7 @@ U_LIBS	=
 #	SP2_CONFIG		enable SP2-specific startup variations
 #	REPORT_MYSTERY_INTS	print a message on interrupt 0x27
 #
-USER_OPTIONS = -DCLEAR_BSS_SEGMENT
+USER_OPTIONS = -DDUMP_QUEUES -DCLEAR_BSS_SEGMENT -DISR_DEBUGGING_CODE -DSP2_CONFIG
 
 #
 # YOU SHOULD NOT NEED TO CHANGE ANYTHING BELOW THIS POINT!!!
@@ -44,12 +48,13 @@ CPP = cpp
 CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES)
 
 CC = gcc
-CFLAGS = -m32 -std=c99 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
+CFLAGS = -std=c99 -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
 
 AS = as
-ASFLAGS = --32
+ASFLAGS = --64
 
-LD = ld -melf_i386
+LD = ld
+LDFLAGS_KERN = -z max-page-size=0x1000
 
 #		
 # Transformation rules - these ensure that all compilation
@@ -121,10 +126,10 @@ prog.out: $(OBJECTS)
 	$(LD) -o prog.out $(OBJECTS)
 
 prog.o:	$(OBJECTS)
-	$(LD) -o prog.o -Ttext 0x20000 $(OBJECTS) $(U_LIBS)
+	$(LD) $(LDFLAGS_KERN) -o prog.o -Ttext 0x20000 $(OBJECTS) $(U_LIBS)
 
 prog.b:	prog.o
-	$(LD) -o prog.b -s --oformat binary -Ttext 0x20000 prog.o
+	$(LD) $(LDFLAGS_KERN) -o prog.b -s --oformat binary -Ttext 0x20000 prog.o
 
 #
 # Targets for copying bootable image onto boot devices
@@ -161,7 +166,8 @@ clean:
 #
 
 prog.nl: prog.o
-	nm -Bng prog.o | pr -w80 -3 > prog.nl
+	# nm -Bng prog.o | pr -w80 -3 > prog.nl
+	nm -Bn prog.o | pr -w80 -3 > prog.nl
 
 #
 # Generate a disassembly
@@ -180,3 +186,25 @@ depend:
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
+bootstrap.o: bootstrap.h
+startup.o: bootstrap.h
+isr_stubs.o: bootstrap.h
+ulibs.o: syscall.h common.h
+c_io.o: c_io.h startup.h support.h x86arch.h
+support.o: startup.h support.h c_io.h x86arch.h
+support.o: bootstrap.h
+clock.o: common.h x86arch.h startup.h clock.h process.h
+clock.o: stack.h queue.h scheduler.h sio.h syscall.h
+klibc.o: common.h
+process.o: common.h process.h clock.h stack.h queue.h
+queue.o: common.h queue.h process.h clock.h stack.h
+scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h
+sio.o: common.h sio.h queue.h process.h clock.h stack.h scheduler.h system.h
+sio.o: startup.h uart.h x86arch.h
+stack.o: common.h stack.h queue.h
+syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
+syscall.o: sio.h support.h startup.h x86arch.h
+system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
+system.o: sio.h queue.h scheduler.h user.h ulib.h
+ulibc.o: common.h
+user.o: common.h user.h c_io.h

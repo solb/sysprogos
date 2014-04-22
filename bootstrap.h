@@ -31,6 +31,7 @@
 #define	GDT_CODE	0x0010		/* All of memory, R/E */
 #define	GDT_DATA	0x0018		/* All of memory, R/W */
 #define	GDT_STACK	0x0020		/* All of memory, R/W */
+#define	GDT_CODE64	0x0028		/* All of memory, R/E */
 
 /*
 ** The Interrupt Descriptor Table (0000:2500 - 0000:2D00)
