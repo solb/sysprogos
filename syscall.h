@@ -32,10 +32,11 @@
 #define	SYS_getpid		8
 #define	SYS_getppid		9
 #define	SYS_gettime		10
+#define	SYS_c_putchar_at	11
 
 // number of "real" system calls
 
-#define	N_SYSCALLS	11
+#define	N_SYSCALLS	12
 
 // dummy system call code to test the syscall ISR
 

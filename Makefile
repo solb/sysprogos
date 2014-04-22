@@ -8,17 +8,17 @@
 #
 # User supplied files
 #
-U_C_SRC = c_io_fake.c \
+U_C_SRC = c_io_user.c c_io_shared.c \
 	ulibc.c user.c
-U_C_OBJ = c_io_fake.o \
+U_C_OBJ = c_io_user.o c_io_shared.o \
 	ulibc.o user.o
 U_S_SRC = user_start.S ulibs.S
 U_S_OBJ = user_start.o ulibs.o
 U_H_SRC = clock.h common.h defs.h process.h queue.h \
 	scheduler.h sio.h stack.h syscall.h system.h types.h ulib.h user.h
-K_C_SRC = c_io.c support.c clock.c klibc.c process.c memory.c queue.c scheduler.c sio.c \
+K_C_SRC = c_io_shared.c c_io_kern.c support.c clock.c klibc.c process.c memory.c queue.c scheduler.c sio.c \
 	stack.c syscall.c system.c
-K_C_OBJ = c_io.o support.o clock.o klibc.o process.o memory.o queue.o scheduler.o sio.o \
+K_C_OBJ = c_io_shared.o c_io_kern.o support.o clock.o klibc.o process.o memory.o queue.o scheduler.o sio.o \
 	stack.o syscall.o system.o
 K_S_SRC = startup.S isr_stubs.S klibs.S
 K_S_OBJ = startup.o isr_stubs.o klibs.o
