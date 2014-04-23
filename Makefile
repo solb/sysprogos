@@ -108,7 +108,7 @@ BOOT_SRC = bootstrap.S
 U_OBJECTS = $(U_S_OBJ) $(U_C_OBJ)
 K_OBJECTS = $(K_S_OBJ) $(K_C_OBJ)
 
-SOURCES = $(BOOT_SRC) $(S_SRC) $(C_SRC)
+SOURCES = $(BOOT_SRC) $(U_S_SRC) $(U_C_SRC) $(K_C_SRC) $(K_S_SRC)
 
 #
 # Targets for remaking bootable image of the program
@@ -189,25 +189,28 @@ depend:
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-bootstrap.o: bootstrap.h
-startup.o: bootstrap.h
-isr_stubs.o: bootstrap.h
+bootstrap.o: bootstrap.h x86arch.h
 ulibs.o: syscall.h common.h
-c_io.o: c_io.h startup.h support.h x86arch.h
-support.o: startup.h support.h c_io.h x86arch.h
-support.o: bootstrap.h
-clock.o: common.h x86arch.h startup.h clock.h process.h
-clock.o: stack.h queue.h scheduler.h sio.h syscall.h
+c_io_user.o: c_io.h
+c_io_shared.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+ulibc.o: common.h
+user.o: common.h user.h c_io.h
+c_io_shared.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+c_io_kern.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+support.o: startup.h support.h c_io.h x86arch.h bootstrap.h
+clock.o: common.h x86arch.h startup.h clock.h process.h stack.h queue.h
+clock.o: scheduler.h sio.h syscall.h
 klibc.o: common.h
 process.o: common.h process.h clock.h stack.h queue.h
+memory.o: common.h startup.h x86arch.h
 queue.o: common.h queue.h process.h clock.h stack.h
 scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h
 sio.o: common.h sio.h queue.h process.h clock.h stack.h scheduler.h system.h
-sio.o: startup.h uart.h x86arch.h
+sio.o: startup.h ./uart.h x86arch.h
 stack.o: common.h stack.h queue.h
 syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
 syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
-system.o: sio.h queue.h scheduler.h memory.h user.h ulib.h
-ulibc.o: common.h
-user.o: common.h user.h c_io.h
+system.o: sio.h queue.h scheduler.h memory.h
+startup.o: bootstrap.h
+isr_stubs.o: bootstrap.h
