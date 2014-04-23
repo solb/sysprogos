@@ -217,3 +217,35 @@ __pause:
 	hlt
 	leave
 	ret
+
+/*
+** __inst_tss: install the TSS
+**		void __inst_tss( void );
+*/
+	.globl __inst_tss
+
+__inst_tss:
+	movl	$(GDT_TSS | 03), %eax
+	ltr		%ax
+	ret
+
+/*
+** __inv_tlb: invalidate the translation lookaside buffer
+**		void __inv_tlb( void );
+*/
+	.globl __inv_tlb
+
+__inv_tlb:
+	movq	%cr3, %rax
+	movq	%rax, %cr3
+	ret
+
+/*
+** __get_cr2: get a copy of CR2
+** 		void *__get_cr2( void );
+*/
+	.globl __get_cr2
+
+__get_cr2:
+	movq	%cr2, %rax
+	ret

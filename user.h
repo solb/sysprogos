@@ -66,6 +66,8 @@
 #define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
 // no user V
 
+#define SPAWN_NULLPTR
+
 /*
 ** Users W-Z are spawned from other processes; they
 ** should never be spawned directly.

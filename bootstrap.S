@@ -529,17 +529,17 @@ clr_pts_loop:
 	jnz		clr_pts_loop
 
 	movl	$0, %edi
-	movl	$(PDPT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
+	movl	$(PDPT_ADDRESS | PAGE_PRESENT | PAGE_RW | PAGE_USER), %es:(%edi)
 
 	movl	$(PDPT_ADDRESS - PML4_ADDRESS), %edi
-	movl	$(PDT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
+	movl	$(PDT_ADDRESS | PAGE_PRESENT | PAGE_RW | PAGE_USER), %es:(%edi)
 
 	movl	$(PDT_ADDRESS - PML4_ADDRESS), %edi
-	movl	$(PT_ADDRESS | PAGE_PRESENT | PAGE_RW), %es:(%edi)
+	movl	$(PT_ADDRESS | PAGE_PRESENT | PAGE_RW | PAGE_USER), %es:(%edi)
 
 	movl	$(PT_ADDRESS - PML4_ADDRESS), %edi
 	movl	$512, %ecx
-	movl	$(PAGE_PRESENT | PAGE_RW), %edx
+	movl	$(PAGE_PRESENT | PAGE_RW | PAGE_USER), %edx
 
 populate_pt_loop:
 	movl	%edx, %es:(%edi)
@@ -610,6 +610,35 @@ code32_seg:	/* limit FFFFF, base 0, R/E code seg, 64-bit 4K */
 	.byte	0x00
 	.byte	0x9A	/* 1 00 1 1010: present, prio 0, C/D, R/E code */
 	.byte	0xEF	/* 1 0 10 1111: 4K, 16-bit (not really), 64-bit, 0, limit[19:16] */
+	.byte	0x00
+
+tss_seg: 	/* limit TSS_SIZE, base TSS_SEGMENT, E system segment */
+	.word	TSS_SIZE
+	.word	TSS_ADDRESS
+	.byte	0x00
+	.byte	0x89	/* present, execute-only */
+	.byte	0x40	/* 32-bit (no joke), not 64-bit, 0, limit[19:16] */
+	.byte	0x00
+
+	.word	0x00
+	.word	0x00
+	.word	0x00
+	.word	0x00
+
+usrexec_seg:
+	.word	0xFFFF
+	.word	0x0000
+	.byte	0x00
+	.byte	0xFA
+	.byte	0xAF
+	.byte	0x00
+
+usrnoex_seg:
+	.word	0xFFFF
+	.word	0x0000
+	.byte	0x00
+	.byte	0xF2
+	.byte	0xAF
 	.byte	0x00
 
 end_gdt:

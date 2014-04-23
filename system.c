@@ -21,6 +21,7 @@
 #include "syscall.h"
 #include "sio.h"
 #include "scheduler.h"
+#include "memory.h"
 
 // need init() address
 #include "user.h"
@@ -108,7 +109,9 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 	// fake a return address so that if the user function returns
 	// without calling exit(), we return "into" exit()
 
-	*--ptr = (uint64_t) exit;
+	//FIXME: don't know the address of the userspace exit function
+	//*--ptr = (uint64_t) exit;
+	*--ptr = (uint64_t) 0;
 
 	uint64_t *top_stack = ptr;
 
@@ -119,12 +122,12 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 	// fill in the non-zero entries in the context save area
 
 	new->context->rip    = entry;
-	new->context->cs     = GDT_CODE;
-	new->context->ss     = GDT_STACK;
-	new->context->ds     = GDT_DATA;
-	new->context->es     = GDT_DATA;
-	new->context->fs     = GDT_DATA;
-	new->context->gs     = GDT_DATA;
+	new->context->cs     = GDT_USREXEC;
+	new->context->ss     = GDT_USRNOEX;
+	new->context->ds     = GDT_USRNOEX;
+	new->context->es     = GDT_USRNOEX;
+	new->context->fs     = GDT_USRNOEX;
+	new->context->gs     = GDT_USRNOEX;
 	new->context->rflags = DEFAULT_EFLAGS;
 	new->context->rsp    = (uint64_t)top_stack;
 
@@ -178,6 +181,7 @@ void _init( void ) {
 
 	c_puts( "Module init: " );
 
+	_mem_init();
 	_que_init();		// must be first
 	_pcb_init();
 	_stack_init();
@@ -189,13 +193,14 @@ void _init( void ) {
 	c_puts( "\n" );
 
 	/*
-	** Create the initial system ESP
+	** Create the initial system ESP and populate the TSS
 	**
-	** This will be the address of the next-to-last
+	** The former will be the address of the next-to-last
 	** longword in the system stack.
 	*/
 
 	_system_esp = ((uint32_t *) ( (&_system_stack) + 1)) - 2;
+	_stack_mktss();
 
 	/*
 	** Create the initial process
@@ -206,7 +211,8 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	pcb = _create_process( 0, (uint64_t) init );
+	//FIXME: maybe we shouldn't hardcode the address of init?
+	pcb = _create_process( 0, (uint64_t) 0x60000 );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}

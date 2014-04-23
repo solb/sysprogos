@@ -124,3 +124,23 @@ void _dispatch( void ) {
 
 	_kpanic( "_dispatch", "no non-empty ready queue", EMPTY_QUEUE );
 }
+
+/*
+** _terminate()
+**
+** go all Arnold on the current process
+*/
+
+void _terminate( void ) {
+	if( _current->pid == 1 )
+		_kpanic( "_terminate", "attempted to kill init", FAILURE );
+
+	// tear down the PCB structure
+
+	_stack_free( _current->stack );
+	_pcb_free( _current );
+
+	// if this was the current process, we need a new one
+
+	_dispatch();
+}

@@ -66,16 +66,51 @@ __isr_##vector:				; \
 
 isr_save:
 /*
-** Begin by saving the state
+** We just jumped from ring 3 to ring 0, so we're now on the system stack,
+** which currently looks like this:
 **
-** At this point, the stack looks like this:
+** initial:	        0   8   16  24 32  40  48
+** 			RAX RCX vec cod RIP CS RFL RSP SS
+** switch:	0   8   16  24  32  40 48  56  64
 **
-**  esp ->  vector #		saved by the entry macro
-**	    error code, or 0	saved by the hardware, or the entry macro
-**	    saved RIP		saved by the hardware
-**	    saved CS		saved by the hardware
-**	    saved RFLAGS	saved by the hardware
+** explanations:
+** 		vector	:= saved by entry macro
+**		error	:= saved by hardware or entry macro
+** 		RIP		:= saved by hardware
+** 		CS		:= hardware
+** 		RFL		:= hardware
+** 		RSP		:= hardware
+** 		SS		:= hardware
 */
+	// get ahold of the user stack pointer in RCX
+	pushq	%rcx
+	pushq	%rax
+	movq	56(%rsp), %rcx
+
+	// schlep data from the system stack to the user one
+	subq	$56, %rcx
+	movq	64(%rsp), %rax
+	movq	%rax, 48(%rcx)
+	movq	56(%rsp), %rax
+	movq	%rax, 40(%rcx)
+	movq	48(%rsp), %rax
+	movq	%rax, 32(%rcx)
+	movq	40(%rsp), %rax
+	movq	%rax, 24(%rcx)
+	movq	32(%rsp), %rax
+	movq	%rax, 16(%rcx)
+	movq	24(%rsp), %rax
+	movq	%rax, 8(%rcx)
+	movq	16(%rsp), %rax
+	movq	%rax, 0(%rcx)
+
+	// switch back to the user stack
+	movq	%rsp, %rax
+	movq	%rcx, %rsp
+	movq	8(%rax), %rcx
+	movq	0(%rax), %rax
+
+	// save the general-purpose registers
 	pushq	%r15
 	pushq	%r14
 	pushq	%r13
@@ -92,6 +127,7 @@ isr_save:
 	pushq	%rsi
 	pushq	%rdi
 
+	// save the segment registers
 	xorq	%rdx, %rdx
 	movw	%ds, %dx
 	pushq	%rdx
@@ -101,19 +137,17 @@ isr_save:
 	pushq	%rdx
 	movw	%gs, %dx
 	pushq	%rdx
-	
-
 /*
-** Stack contents (all 64-bit longwords) and offsets from ESP:
-**   GS FS ES DS EDI ESI EBP EBX EDX ECX EAX
-**   0  8  16 24 32  40  48  56  64  72  80
+** User stack contents:
 **
-**   R8 R9 R10 R11 R12 R13 R14 R15 vec cod RIP CS  RFL RSP SS
-**   88 96 104 112 120 128 136 144 152 160 168 176 184 192 200
-**   
-** Set up parameters for the ISR call.
+**                                                                       0   8   16  24  32  40  48
+** GS FS ES DS RDI RSI RBP RBX RDX RCX RAX R8 R9 R10 R11 R12 R13 R14 R15 vec cod RIP CS  RFL RSP SS
+** 0  8  16 24 32  40  48  56  64  72  80  88 96 104 112 120 128 136 144 152 160 168 176 184 192 200
+**
+** Now, we need to set up parameters for the ISR call.
 */
-	movq	152(%rsp),%rdi	// get vector number and error code
+	// get vector number and error code
+	movq	152(%rsp),%rdi
 	movq	160(%rsp),%rsi
 
 /*
@@ -204,8 +238,10 @@ __isr_restore:
 /*
 ** Restore the context.
 */
-	popq	%gs
-	popq	%fs
+	popq	%rax
+	movw	%ax, %gs
+	popq	%rax
+	movw	%ax, %fs
 	popq	%rax
 	movw	%ax, %es
 	popq	%rax
@@ -225,8 +261,9 @@ __isr_restore:
 	popq	%r13
 	popq	%r14
 	popq	%r15
+
 	addq	$16, %rsp	// discard the error code and vector
-	iretq			// and return
+	iretq				// and return
 
 #ifdef ISR_DEBUGGING_CODE
 /*

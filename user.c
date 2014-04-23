@@ -625,6 +625,18 @@ void user_z( void ) {
 
 }
 
+/*
+ * User NULLPTR attempts to dereference a null pointer.
+ */
+void user_nullptr( void ) {
+	writes( "NULLPTR on the way" );
+	int *addr = NULL;
+	int value = *addr;
+	writech( 'a' + value );
+	writes( "NULLPTR successful" );
+	exit();
+}
+
 
 /*
 ** SYSTEM PROCESSES
@@ -642,11 +654,11 @@ void init( void ) {
 	prio_t prio, prio2;
 	time_t time;
 
-	c_puts( "Starting init()\n" );
+	//c_puts( "Starting init()\n" );
 
 	prio = setprio( PRIO_HIGH );
 	prio = getprio();
-	c_printf( "Init started, now at priority %d\n", prio );
+	//c_printf( "Init started, now at priority %d\n", prio );
 
 	writech( '$' );
 
@@ -810,6 +822,14 @@ void init( void ) {
 	}
 #endif
 
+#ifdef SPAWN_NULLPTR
+	pid = spawn( user_nullptr );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user NULLPTR failed\n" );
+		exit();
+	}
+#endif
+
 	writech( '!' );
 
 	/*
@@ -820,8 +840,8 @@ void init( void ) {
 	time = gettime();
 	prio = setprio( PRIO_LOW );
 	prio2 = getprio();
-	c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
-		time, prio, prio2 );
+	//c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
+		//time, prio, prio2 );
 
 	writech( '.' );
 

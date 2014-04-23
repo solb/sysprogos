@@ -16,6 +16,14 @@
 #define	IDT_PADDR	0x2400
 
 /*
+** Name:	__blame_and_punish
+**
+** Description: Checks whether the supervisor or userspace was responsible for an exception.
+** 		In the former case, panics the kernel; in the latter, kills the current process.
+*/
+void __blame_and_punish(void);
+
+/*
 ** Name:	__panic
 **
 ** Description:	Called when we find an unrecoverable error, this
@@ -34,6 +42,13 @@ void __panic( char *reason );
 **		the PIC.
 */
 void __init_interrupts( void );
+
+/*
+** Name:	__init_tss
+**
+** Description: Sets up the Task-Segment Selector.
+*/
+void __init_tss( void );
 
 /*
 ** Name:	__install_isr
