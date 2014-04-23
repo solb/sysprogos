@@ -132,6 +132,9 @@ void _dispatch( void ) {
 */
 
 void _terminate( void ) {
+	if( _current->pid == 1 )
+		_kpanic( "_terminate", "attempted to kill init", FAILURE );
+
 	// tear down the PCB structure
 
 	_stack_free( _current->stack );
