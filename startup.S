@@ -230,6 +230,17 @@ __inst_tss:
 	ret
 
 /*
+** __inv_tlb: invalidate the translation lookaside buffer
+**		void __inv_tlb( void );
+*/
+	.globl __inv_tlb
+
+__inv_tlb:
+	movq	%cr3, %rax
+	movq	%rax, %cr3
+	ret
+
+/*
 ** __get_cr2: get a copy of CR2
 ** 		void* __get_cr2( void );
 */

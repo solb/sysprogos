@@ -59,6 +59,13 @@ void __pause( void );
 void __inst_tss( void );
 
 /*
+** Name:	__inv_tlb
+**
+** Description: Invalidate the translation lookaside buffer
+*/
+void __inv_tlb( void );
+
+/*
 ** Name:	__get_cr2
 **
 ** Description: Get a copy of CR2

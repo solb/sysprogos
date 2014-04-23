@@ -625,6 +625,18 @@ void user_z( void ) {
 
 }
 
+/*
+ * User NULLPTR attempts to dereference a null pointer.
+ */
+void user_nullptr( void ) {
+	writes( "NULLPTR on the way" );
+	int *addr = NULL;
+	int value = *addr;
+	writech( 'a' + value );
+	writes( "NULLPTR successful" );
+	exit();
+}
+
 
 /*
 ** SYSTEM PROCESSES
@@ -806,6 +818,14 @@ void init( void ) {
 	pid = spawn( user_v );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user V failed\n" );
+		exit();
+	}
+#endif
+
+#ifdef SPAWN_NULLPTR
+	pid = spawn( user_nullptr );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user NULLPTR failed\n" );
 		exit();
 	}
 #endif
