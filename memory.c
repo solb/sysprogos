@@ -22,12 +22,11 @@ static void __protect_system_pages(void) {
 	uint64_t *pt = (uint64_t *)PT_ADDRESS;
 	*pt &= ~PAGE_USER;
 	__inv_tlb();
-	// TODO I believe the user stack is being allocated within page 0
 }
 
 static void __page_fault_handler(int vector, int code) {
 	c_printf("Page fault: code %d addr 0x%x\n", code, __get_cr2());
-	_kpanic("mem", "Page fault", FAILURE);
+	__blame_and_punish();
 }
 
 /*

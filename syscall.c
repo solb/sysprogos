@@ -196,17 +196,8 @@ static void _sys_setprio( pcb_t *pcb ) {
 */
 
 static void _sys_exit( pcb_t *pcb ) {
-	
-	// tear down the PCB structure
-
-	_stack_free( pcb->stack );
-	_pcb_free( pcb );
-
-	// if this was the current process, we need a new one
-
-	if( pcb == _current ) {
-		_dispatch();
-	}
+	// Kill the current process
+	_terminate();
 }
 
 /*

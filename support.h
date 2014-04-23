@@ -16,6 +16,14 @@
 #define	IDT_PADDR	0x2400
 
 /*
+** Name:	__blame_and_punish
+**
+** Description: Checks whether the supervisor or userspace was responsible for an exception.
+** 		In the former case, panics the kernel; in the latter, kills the current process.
+*/
+void __blame_and_punish(void);
+
+/*
 ** Name:	__panic
 **
 ** Description:	Called when we find an unrecoverable error, this

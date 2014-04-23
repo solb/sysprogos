@@ -50,9 +50,7 @@
 #define	SPAWN_E	//  X   .   X   .   .   X   .   .   X   .   .  .
 #define	SPAWN_F	//  X   .   X   .   .   X   .   .   X   .   .  .
 #define	SPAWN_G	//  X   .   X   .   .   X   .   .   X   .   .  .
-#if 0
 #define	SPAWN_H	//  .   .   X   .   .   .   .   .   .   .   .  .
-#endif
 // no user i
 #define	SPAWN_J	//  X   .   X   .   X   .   .   .   .   .   .  .
 #define	SPAWN_K	//  X   .   X   .   X   X   .   .   .   .   .  .
