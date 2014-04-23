@@ -353,6 +353,19 @@ static void _sys_sleep( pcb_t *pcb ) {
 	_dispatch();
 }
 
+static void _sys_c_putchar_at( pcb_t *pcb ) {
+	int32_t x = (int32_t)ARG1(pcb);
+	int32_t y = (int32_t)ARG2(pcb);
+	uint32_t c = ARG3(pcb);
+	//TODO: sanity check values
+
+	if (x < 0 || y < 0) {
+		c_putchar((unsigned int)c);
+	} else {
+		c_putchar_at((unsigned int)x, (unsigned int)y, (unsigned int)c);
+	}
+}
+
 /*
 ** PUBLIC FUNCTIONS
 */
@@ -387,6 +400,7 @@ void _sys_init( void ) {
 	_syscalls[ SYS_getpid ]    = _sys_getpid;
 	_syscalls[ SYS_getppid ]   = _sys_getppid;
 	_syscalls[ SYS_gettime ]   = _sys_gettime;
+	_syscalls[ SYS_c_putchar_at ]   = _sys_c_putchar_at;
 
 	// install our ISR
 
