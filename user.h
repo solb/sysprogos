@@ -67,6 +67,8 @@
 // no user V
 
 #define SPAWN_NULLPTR
+#define SPAWN_BELOWSTACKS
+#define SPAWN_ABOVEUSER
 
 /*
 ** Users W-Z are spawned from other processes; they
