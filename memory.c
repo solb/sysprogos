@@ -9,6 +9,7 @@
 
 #define __SP_KERNEL__
 
+#include "memory.h"
 #include "common.h"
 
 #include "bootstrap.h"

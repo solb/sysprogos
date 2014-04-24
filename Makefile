@@ -213,7 +213,7 @@ clock.o: common.h x86arch.h startup.h clock.h process.h stack.h queue.h
 clock.o: scheduler.h sio.h syscall.h
 klibc.o: common.h
 process.o: common.h process.h clock.h stack.h queue.h
-memory.o: common.h bootstrap.h startup.h x86arch.h
+memory.o: memory.h common.h bootstrap.h stack.h startup.h x86arch.h
 queue.o: common.h queue.h process.h clock.h stack.h
 scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h
 sio.o: common.h sio.h queue.h process.h clock.h stack.h scheduler.h system.h
