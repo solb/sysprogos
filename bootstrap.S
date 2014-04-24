@@ -408,6 +408,7 @@ switch:
 	call	build_pts
 	call	set_pae
 	call	set_lm
+	call	do_e820
 
 /*
 ** The IDTR and GDTR are loaded relative to this segment, so we must
@@ -564,6 +565,41 @@ set_lm:
 	orl		$MSR_EFER_LM, %eax
 	wrmsr
 	ret
+
+do_e820:
+	xorl	%ebx, %ebx
+	movl	$E820_SEGMENT, %eax
+	movl	%eax, %es
+	movl	$24, %edi
+	movl	$0x534D4150, %edx
+	movl	$0xE820, %eax
+	movl	$24, %ecx
+	int	$0x15
+	jc	e820_fail
+	cmpl	$0x534D4150, %eax
+	jne	e820_fail
+do_e820_loop:
+	addl	$24, %edi
+	movl	$0xE820, %eax
+	movl	$24, %ecx
+	int	$0x15
+	jc	e820_done
+	testl	%ebx, %ebx
+	jz	e820_done
+	jmp	do_e820_loop
+err_e820:
+	.asciz	"E820 err\n\r"
+e820_fail:
+	movw	$err_e820,%si /* can't proceed, */
+	call	dispMsg		/* print message and freeze. */
+	jmp	.
+	
+e820_done:
+	movl	%edi, %es:0 //save size of table
+	ret
+
+
+
 
 /*
 ** The GDT.  This cannot be created in C because the bootstrap is not

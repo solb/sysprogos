@@ -63,6 +63,9 @@
 #define PAGE_RW			0x2
 #define PAGE_USER		0x4
 
+#define E820_ADDRESS	0x14000
+#define	E820_SEGMENT	(E820_ADDRESS>>4)
+
 /*
 ** Physical Memory Map Table (0000:2D00 - 0000:2D08)
 */
