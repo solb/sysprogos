@@ -39,6 +39,12 @@ U_LIBS	=
 USER_OPTIONS = -DDUMP_QUEUES -DCLEAR_BSS_SEGMENT -DISR_DEBUGGING_CODE -DSP2_CONFIG
 
 #
+# Program load points
+#
+KERNEL_ADDRESS = 0x20000
+USERSPACE_ADDRESS = 0x60000
+
+#
 # YOU SHOULD NOT NEED TO CHANGE ANYTHING BELOW THIS POINT!!!
 #
 # Compilation/assembly control
@@ -54,7 +60,7 @@ INCLUDES = -I. -I/home/fac/wrc/include
 #
 CPP = cpp
 # CPPFLAGS = $(USER_OPTIONS) -nostdinc -I- $(INCLUDES)
-CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES)
+CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES) -DUSERSPACE_ADDRESS=$(USERSPACE_ADDRESS)
 
 CC = gcc
 CFLAGS = -std=c99 -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
@@ -117,26 +123,26 @@ SOURCES = $(BOOT_SRC) $(U_S_SRC) $(U_C_SRC) $(K_C_SRC) $(K_S_SRC)
 #
 
 usb.image: bootstrap.b kern.b userspace.b kern.nl BuildImage #kern.dis 
-	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b 0x20000 userspace.b 0x60000
+	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b $(KERNEL_ADDRESS) userspace.b $(USERSPACE_ADDRESS)
 
 floppy.image: bootstrap.b kern.b kern.nl BuildImage #kern.dis 
-	./BuildImage -d floppy -o floppy.image -b bootstrap.b kern.b 0x20000
+	./BuildImage -d floppy -o floppy.image -b bootstrap.b kern.b $(KERNEL_ADDRESS)
 
 kern.o: $(K_OBJECTS)
-	$(LD) $(LDFLAGS_KERN) -o kern.o -Ttext 0x20000 $(K_OBJECTS) $(U_LIBS)
+	$(LD) $(LDFLAGS_KERN) -o kern.o -Ttext $(KERNEL_ADDRESS) $(K_OBJECTS) $(U_LIBS)
 
 hd.img: usb.image
 	- [ ! -e hd.img ] && bximage -q -hd -mode=flat -size=10 hd.img
 	dd if=usb.image of=hd.img conv=notrunc
 
 kern.b:	kern.o
-	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext 0x20000 kern.o
+	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext $(KERNEL_ADDRESS) kern.o
 
 userspace.o: $(U_OBJECTS)
-	$(LD) $(LDFLAGS_KERN) -o userspace.o -Ttext 0x60000 $(U_OBJECTS) $(U_LIBS)
+	$(LD) $(LDFLAGS_KERN) -o userspace.o -Ttext $(USERSPACE_ADDRESS) $(U_OBJECTS) $(U_LIBS)
 
 userspace.b:	userspace.o
-	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext 0x60000 userspace.o
+	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext $(USERSPACE_ADDRESS) userspace.o
 
 #
 # Targets for copying bootable image onto boot devices
