@@ -51,6 +51,8 @@ typedef unsigned int	uint32_t;
 typedef long		int64_t;
 typedef unsigned long	uint64_t;
 
+typedef int64_t		ptrdiff_t;
+
 // user-visible process-related types
 
 typedef	uint16_t	pid_t;		// process id

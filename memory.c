@@ -49,6 +49,17 @@ static void __page_fault_handler(int vector, int code) {
 ** PUBLIC FUNCTIONS
 */
 
+void _mem_dump_e820_table(void) {
+	e820_entry_t *start = (e820_entry_t*)0x14000;
+	uint64_t table_size = (uint64_t)start->start;
+	start++;
+	uint64_t num_entries = table_size/sizeof(e820_entry_t);
+	c_printf("Dumping %d E820 table entries:\n");
+	for (e820_entry_t *ptr = start; ptr < start + num_entries; ptr++) {
+		c_printf("R: (0x%x -> 0x%x): %d\n", ptr->start, ptr->start + ptr->length, ptr->type);
+	}
+}
+
 /*
 ** _mem_init()
 **
@@ -57,4 +68,5 @@ static void __page_fault_handler(int vector, int code) {
 void _mem_init(void) {
 	__install_isr(INT_VEC_PAGE_FAULT, __page_fault_handler);
 	__expose_user_pages();
+	_mem_dump_e820_table();
 }
