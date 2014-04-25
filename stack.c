@@ -32,7 +32,7 @@
 ** PRIVATE GLOBAL VARIABLES
 */
 
-static stack_t _stacks[ N_STACKS ];	// user process stacks
+static stack_t *_stacks = USERSPACE_ADDRESS - N_STACKS * sizeof(stack_t);	// user process stacks
 static queue_t _free_stacks;		// list of available stacks
 
 /*
@@ -65,6 +65,7 @@ void _stack_init( void ) {
 	
 	// "free" all the stacks
 
+	_kmemclr( _stacks, N_STACKS * sizeof(stack_t) );
 	for( i = 0; i < N_STACKS; ++i ) {
 		_stack_free( &_stacks[i] );
 	}

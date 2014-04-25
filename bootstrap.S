@@ -539,7 +539,7 @@ clr_pts_loop:
 
 	movl	$(PT_ADDRESS - PML4_ADDRESS), %edi
 	movl	$512, %ecx
-	movl	$(PAGE_PRESENT | PAGE_RW | PAGE_USER), %edx
+	movl	$(PAGE_PRESENT | PAGE_RW), %edx
 
 populate_pt_loop:
 	movl	%edx, %es:(%edi)

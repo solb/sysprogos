@@ -629,14 +629,41 @@ void user_z( void ) {
  * User NULLPTR attempts to dereference a null pointer.
  */
 void user_nullptr( void ) {
-	writes( "NULLPTR on the way" );
-	int *addr = NULL;
-	int value = *addr;
-	writech( 'a' + value );
-	writes( "NULLPTR successful" );
+	c_printf( "About to dereference a NULL pointer...\n" );
+	uint64_t *addr = NULL;
+	uint64_t value = *addr;
+	c_printf( "ERROR: Successfully dereferenced NULL and found %d!\n", value );
 	exit();
 }
 
+/*
+** User BELOWSTACKS attempts to dereference the memory just below the userspace stacks.
+*/
+void user_belowstacks( void ) {
+	uint64_t *addr = (uint64_t *)0x60000 - 0x19000;
+	uint64_t value = *addr;
+	c_printf( "Value at beginning of user stack space: %d\n", value );
+	c_printf( "About to dereference below user stacks...\n" );
+	--addr;
+	value = *addr;
+	c_printf( "ERROR: Allowed to steal this value from below the user stacks: %d\n", value );
+	exit();
+}
+
+/*
+** User ABOVEUSER attempts to dereference the memory just above the userspace bss.
+*/
+void user_aboveuser( void ) {
+	uint64_t *addr = (uint64_t *)0x70000;
+	--addr;
+	uint64_t value = *addr;
+	c_printf( "Value at end of userland-accessible region: %d\n", value );
+	c_printf( "About to dereference past the end of userland...\n" );
+	++addr;
+	value = *addr;
+	c_printf( "ERROR: Allowed to steal this value from at world's end: %d\n", value );
+	exit();
+}
 
 /*
 ** SYSTEM PROCESSES
@@ -654,11 +681,12 @@ void init( void ) {
 	prio_t prio, prio2;
 	time_t time;
 
-	//c_puts( "Starting init()\n" );
+	c_puts( "Starting init()\n" );
 
 	prio = setprio( PRIO_HIGH );
 	prio = getprio();
-	//c_printf( "Init started, now at priority %d\n", prio );
+	c_printf( "Init started, now at priority %d\n", prio );
+	for(unsigned waste = 0; waste < 1000000000; ++waste);
 
 	writech( '$' );
 
@@ -826,6 +854,22 @@ void init( void ) {
 	pid = spawn( user_nullptr );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user NULLPTR failed\n" );
+		exit();
+	}
+#endif
+
+#ifdef SPAWN_BELOWSTACKS
+	pid = spawn( user_belowstacks );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user BELOWSTACKS failed\n" );
+		exit();
+	}
+#endif
+
+#ifdef SPAWN_ABOVEUSER
+	pid = spawn( user_aboveuser );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user ABOVEUSER failed\n" );
 		exit();
 	}
 #endif

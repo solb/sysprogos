@@ -211,8 +211,7 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	//FIXME: maybe we shouldn't hardcode the address of init?
-	pcb = _create_process( 0, (uint64_t) 0x60000 );
+	pcb = _create_process( 0, (uint64_t) USERSPACE_ADDRESS );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}
