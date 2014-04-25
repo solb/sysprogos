@@ -50,6 +50,26 @@ static void __page_fault_handler(int vector, int code) {
 */
 
 /*
+** _mem_page_frame_alloc: watermark page frame allocator
+*/
+void *_mem_page_frame_alloc(void) {
+	static uint64_t page_counter = 0;
+	void *result = DYNAMIC_MEM_LOW + (page_counter<<12);
+	++page_counter;
+	if (result >= DYNAMIC_MEM_HIGH) {
+		_kpanic("mem", "OUT OF DYNAMIC MEMORY", FAILURE);
+	}
+	return result;
+}
+
+/*
+** _mem_page_frame_free: watermark page frame "deallocator"
+*/
+void _mem_page_frame_free(void *page) {
+	//I'm FREE!
+}
+
+/*
 ** _mem_init()
 **
 ** Initialize the memory protection module
