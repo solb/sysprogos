@@ -69,6 +69,44 @@ void _mem_page_frame_free(void *page) {
 	//I'm FREE!
 }
 
+#define SCRATCH_PAGE ((void*)0x1ff000)
+static int scratch_page_mapped = 0;
+
+/*
+** _mem_map_page: map the given physical address of a page frame into virtual memory
+** returns the address where the page is mapped.
+**
+** NOTE: currently this can only map one page at a time, and will panic if a page is already
+** mapped in the scratch area. mapped memory must be unmapped with _mem_unmap_page when done
+** being used.
+*/
+void *_mem_map_page(void *page) {
+	if (scratch_page_mapped) {
+		_kpanic("mem", "tried to map scratch page while already mapped", FAILURE);
+	}
+	scratch_page_mapped = 1;
+	uint64_t *kernel_page_table = PT_ADDRESS;
+	kernel_page_table[(uint64_t)SCRATCH_PAGE>>12] = (uint64_t)page | PAGE_PRESENT;
+	__inv_tlb();
+	return SCRATCH_PAGE;
+}
+
+/*
+** _mem_unmap_page: unmaps the given virtual address from virtual memory
+*/
+void _mem_unmap_page(void *addr) {
+	if (addr != SCRATCH_PAGE) {
+		_kpanic("mem", "tried to unmap a non-scratch page", FAILURE);
+	}
+	if (!scratch_page_mapped) {
+		_kpanic("mem", "tried to unmap a non-mapped page", FAILURE);
+	}
+	uint64_t *kernel_page_table = PT_ADDRESS;
+	kernel_page_table[(uint64_t)addr>>12] = 0;
+	__inv_tlb();
+	scratch_page_mapped = 0;
+}
+
 /*
 ** _mem_init()
 **

@@ -20,5 +20,7 @@ void _mem_init(void);
 
 void *_mem_page_frame_alloc(void);
 void _mem_page_frame_free(void *page);
+void *_mem_map_page(void *page);
+void _mem_unmap_page(void *addr);
 
 #endif
