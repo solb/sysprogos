@@ -9,8 +9,8 @@
 
 #define __SP_KERNEL__
 
-#include "memory.h"
 #include "common.h"
+#include "memory.h"
 
 #include "bootstrap.h"
 #include "stack.h"
@@ -52,20 +52,20 @@ static void __page_fault_handler(int vector, int code) {
 /*
 ** _mem_page_frame_alloc: watermark page frame allocator
 */
-void *_mem_page_frame_alloc(void) {
+physaddr_t _mem_page_frame_alloc(void) {
 	static uint64_t page_counter = 0;
 	void *result = DYNAMIC_MEM_LOW + (page_counter<<12);
 	++page_counter;
 	if (result >= DYNAMIC_MEM_HIGH) {
 		_kpanic("mem", "OUT OF DYNAMIC MEMORY", FAILURE);
 	}
-	return result;
+	return (physaddr_t){result};
 }
 
 /*
 ** _mem_page_frame_free: watermark page frame "deallocator"
 */
-void _mem_page_frame_free(void *page) {
+void _mem_page_frame_free(physaddr_t page) {
 	//I'm FREE!
 }
 
@@ -80,13 +80,13 @@ static int scratch_page_mapped = 0;
 ** mapped in the scratch area. mapped memory must be unmapped with _mem_unmap_page when done
 ** being used.
 */
-void *_mem_map_page(void *page) {
+void *_mem_map_page(physaddr_t page) {
 	if (scratch_page_mapped) {
 		_kpanic("mem", "tried to map scratch page while already mapped", FAILURE);
 	}
 	scratch_page_mapped = 1;
 	uint64_t *kernel_page_table = PT_ADDRESS;
-	kernel_page_table[(uint64_t)SCRATCH_PAGE>>12] = (uint64_t)page | PAGE_PRESENT;
+	kernel_page_table[(uint64_t)SCRATCH_PAGE>>12] = (uint64_t)(page.addr) | PAGE_PRESENT;
 	__inv_tlb();
 	return SCRATCH_PAGE;
 }

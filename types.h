@@ -70,6 +70,12 @@ typedef uint32_t	time_t;
 
 typedef uint8_t		status_t;
 
+// physical address type
+
+typedef struct {
+	void *addr;
+} physaddr_t;
+
 #endif
 
 /*

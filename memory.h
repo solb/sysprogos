@@ -18,9 +18,9 @@
 void _mem_init(void);
 
 
-void *_mem_page_frame_alloc(void);
-void _mem_page_frame_free(void *page);
-void *_mem_map_page(void *page);
+physaddr_t _mem_page_frame_alloc(void);
+void _mem_page_frame_free(physaddr_t page);
+void *_mem_map_page(physaddr_t page);
 void _mem_unmap_page(void *addr);
 
 #endif
