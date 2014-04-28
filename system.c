@@ -21,6 +21,7 @@
 #include "syscall.h"
 #include "sio.h"
 #include "scheduler.h"
+#include "filesys.h"
 
 // need init() address
 #include "user.h"
@@ -182,6 +183,7 @@ void _init( void ) {
 	_sio_init();
 	_sys_init();
 	_clock_init();
+	_filesys_init();
 
 	c_puts( "\n" );
 
