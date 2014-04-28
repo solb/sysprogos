@@ -22,9 +22,15 @@
 /*
 ** Defines Filesystem constants
 */
-#define FS_SIZE_MB = 2;				//Size of the File system (in MB)
-#define CLUSTER_SIZE = 4096; 		//Size of a cluster (in bytes)
-#define SECTORS_PER_CLUSTER = 8;	//Number of sectors in a cluster
+#define FS_SIZE_MB			2		//Size of the File system (in MB)
+#define CLUSTER_SIZE		4096 	//Size of a cluster (in bytes)
+#define SECTORS_PER_CLUSTER	8		//Number of sectors in a cluster
+
+
+/*
+** Defines the location at which the filesystem memory begins
+*/
+#define FS_MEM_LOC	 0;
 
 /*
 ** Start of C-only definitions
@@ -57,7 +63,7 @@ typedef struct fat32_bs {
 	uint_t		total_sectors_32; //For FAT32, must be Non-zero
 	
 	//FAT 32 Specific
-	uint_t		table_size_32;
+	uint_t		table_size_32;	//Count of sectors used for the FAT
 	ushort_t	extended_flags;
 	ushort_t	fat_version;
 	uint_t		root_cluster;
@@ -97,10 +103,23 @@ typedef struct file {
 ** Globals
 */
 
+/*
+** Pointer to the starting memory address of the filesystem
+*/
+ubyte_t *filesystem;
+
 
 /*
 ** Prototypes
 */
+
+
+/*
+** _filesys_init()
+**
+** initializes the FAT32 filesystem
+*/
+void _filesys_init( void );
 
 
 #endif
