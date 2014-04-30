@@ -641,7 +641,7 @@ void user_nullptr( void ) {
 ** User BELOWSTACKS attempts to dereference the memory just below the userspace stacks.
 */
 void user_belowstacks( void ) {
-	uint64_t *addr = (uint64_t *)0x60000 - 0x19000;
+	uint64_t *addr = (uint64_t *)(0x60000 - 0x19000);
 	uint64_t value = *addr;
 	c_printf( "Value at beginning of user stack space: %d\n", value );
 	c_printf( "About to dereference below user stacks...\n" );

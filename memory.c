@@ -115,8 +115,8 @@ void _mem_map_user_pagetab(physaddr_t frame) {
 }
 
 void _mem_unmap_user_pagetab() {
-	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS + 1});
-	*pdt_entry = 0LL;
+	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS});
+	pdt_entry[1] = 0LL;
 	_mem_unmap_page(pdt_entry);
 }
 
