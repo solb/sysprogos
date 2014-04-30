@@ -32,6 +32,7 @@
 /*
 ** PRIVATE DEFINITIONS
 */
+#define VIRTUAL_STACK_PAGE_ADDR ((void *)0x3ff000)
 
 /*
 ** PRIVATE DATA TYPES
@@ -64,7 +65,7 @@
 
 pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 	pcb_t *new;
-	uint64_t *ptr;
+	physaddr_t stack;
 	
 	// allocate the new structures
 
@@ -77,15 +78,21 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 
 	_kmemclr( (void *) new, sizeof(pcb_t) );
 
-	new->stack = _stack_alloc();
-	if( new->stack == NULL ) {
-		_pcb_free( new );
-		return( NULL );
+	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
+	for(uint64_t count = 0; count < PAGES_PER_USERSPACE_PROCESS; ++count) {
+		physaddr_t pf = _mem_page_frame_alloc();
+		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
+		void *mapped = _mem_map_page(pf);
+		_kmemcpy(mapped, (void *)(USERSPACE_PHYS_ADDRESS + (count << 12)), PAGE_SIZE);
+		_mem_unmap_page(mapped);
 	}
 
-	// clear the stack
-
-	_kmemclr( (void *) new->stack, sizeof(stack_t) );
+	new->pagetab = _mem_page_frame_alloc();
+	uint64_t *table_inmem = _mem_map_page(new->pagetab);
+	_kmemcpy((void *)table_inmem, (void *)table, PAGES_PER_USERSPACE_PROCESS * sizeof(uint64_t));
+	stack = _mem_page_frame_alloc();
+	table_inmem[NUM_PTES - 1] = (uint64_t)stack.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
+	_mem_unmap_page(table_inmem);
 
 	/*
 	** We need to set up the initial stack contents for the new
@@ -100,7 +107,8 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 
 	// first, create a pointer to the longword after the stack
 
-	ptr = (uint64_t *) (new->stack + 1);
+	void *mapped = _mem_map_page( stack );
+	uint64_t *ptr = (uint64_t *)( mapped + PAGE_SIZE );
 
 	// save the buffering 0 at the end
 
@@ -117,19 +125,22 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 
 	// locate the context save area
 
-	new->context = ((context_t *) ptr) - 1;
+	context_t *context = ((context_t *) ptr) - 1;
 
 	// fill in the non-zero entries in the context save area
 
-	new->context->rip    = entry;
-	new->context->cs     = GDT_USREXEC;
-	new->context->ss     = GDT_USRNOEX;
-	new->context->ds     = GDT_USRNOEX;
-	new->context->es     = GDT_USRNOEX;
-	new->context->fs     = GDT_USRNOEX;
-	new->context->gs     = GDT_USRNOEX;
-	new->context->rflags = DEFAULT_EFLAGS;
-	new->context->rsp    = (uint64_t)top_stack;
+	context->rip    = entry;
+	context->cs     = GDT_USREXEC;
+	context->ss     = GDT_USRNOEX;
+	context->ds     = GDT_USRNOEX;
+	context->es     = GDT_USRNOEX;
+	context->fs     = GDT_USRNOEX;
+	context->gs     = GDT_USRNOEX;
+	context->rflags = DEFAULT_EFLAGS;
+	context->rsp    = (uint64_t)(VIRTUAL_STACK_PAGE_ADDR + ((void *)top_stack - mapped));
+
+	_mem_unmap_page( mapped );
+	new->context = (context_t *)(VIRTUAL_STACK_PAGE_ADDR + ((void *)context - mapped));
 
 	// fill in the remaining important fields
 
@@ -211,13 +222,12 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	pcb = _create_process( 0, (uint64_t) USERSPACE_ADDRESS );
+	pcb = _create_process( 0, (uint64_t) USERSPACE_VIRT_ADDRESS );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}
 
 	_pcb_dump( "initial", pcb );
-	_context_dump( "initial", pcb->context );
 
 	// make this the first process
 

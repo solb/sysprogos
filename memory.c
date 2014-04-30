@@ -22,24 +22,11 @@
 */
 
 /*
-** __expose_user_pages()
-**
-** allow access to pages for the userspace stack and the USERSPACE_SIZE bytes after the beginning of userspace code
-*/
-static void __expose_user_pages(void) {
-	uint64_t *pt = (uint64_t *)PT_ADDRESS + ((USERSPACE_ADDRESS - N_STACKS * sizeof(stack_t)) >> 12);
-	do {
-		*pt |= PAGE_USER;
-	}
-	while(++pt < (uint64_t *)PT_ADDRESS + ((USERSPACE_ADDRESS + USERSPACE_SIZE) >> 12));
-	__inv_tlb();
-}
-
-/*
 ** __page_fault_handler(int, int)
 **
 ** ISR for #PF exceptions
 */
+#include "scheduler.h"
 static void __page_fault_handler(int vector, int code) {
 	c_printf("Page fault: code %d addr 0x%x\n", code, __get_cr2());
 	__blame_and_punish();
@@ -69,6 +56,20 @@ void _mem_page_frame_free(physaddr_t page) {
 	//I'm FREE!
 }
 
+/*
+** _mem_page_table_free: deallocate a page table and all its backing page frames
+*/
+void _mem_page_table_free(physaddr_t pt) {
+	uint64_t *entries = _mem_map_page(pt);
+	for(unsigned index = 0; index < NUM_PTES; ++index) {
+		if(entries[index] & PAGE_PRESENT) {
+			_mem_page_frame_free((physaddr_t){(void *)(entries[index] & ~0xfff)});
+		}
+	}
+	_mem_unmap_page(entries);
+	_mem_page_frame_free(pt);
+}
+
 #define SCRATCH_PAGE ((void*)0x1ff000)
 static int scratch_page_mapped = 0;
 
@@ -85,7 +86,7 @@ void *_mem_map_page(physaddr_t page) {
 		_kpanic("mem", "tried to map scratch page while already mapped", FAILURE);
 	}
 	scratch_page_mapped = 1;
-	uint64_t *kernel_page_table = PT_ADDRESS;
+	uint64_t *kernel_page_table = (uint64_t *)PT_ADDRESS;
 	kernel_page_table[(uint64_t)SCRATCH_PAGE>>12] = (uint64_t)(page.addr) | PAGE_PRESENT;
 	__inv_tlb();
 	return SCRATCH_PAGE;
@@ -101,10 +102,22 @@ void _mem_unmap_page(void *addr) {
 	if (!scratch_page_mapped) {
 		_kpanic("mem", "tried to unmap a non-mapped page", FAILURE);
 	}
-	uint64_t *kernel_page_table = PT_ADDRESS;
+	uint64_t *kernel_page_table = (uint64_t *)PT_ADDRESS;
 	kernel_page_table[(uint64_t)addr>>12] = 0;
 	__inv_tlb();
 	scratch_page_mapped = 0;
+}
+
+void _mem_map_user_pagetab(physaddr_t frame) {
+	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS});
+	pdt_entry[1] = (uint64_t)frame.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
+	_mem_unmap_page(pdt_entry);
+}
+
+void _mem_unmap_user_pagetab() {
+	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS + 1});
+	*pdt_entry = 0LL;
+	_mem_unmap_page(pdt_entry);
 }
 
 /*
@@ -114,5 +127,4 @@ void _mem_unmap_page(void *addr) {
 */
 void _mem_init(void) {
 	__install_isr(INT_VEC_PAGE_FAULT, __page_fault_handler);
-	__expose_user_pages();
 }

@@ -15,6 +15,7 @@
 #include "user.h"
 
 #include "c_io.h"
+#include "clock.h"
 
 /*
 ** USER PROCESSES
