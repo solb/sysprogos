@@ -638,24 +638,24 @@ void user_nullptr( void ) {
 }
 
 /*
-** User BELOWSTACKS attempts to dereference the memory just below the userspace stacks.
+** User BELOWSTACK attempts to dereference the memory just below the userspace stacks.
 */
-void user_belowstacks( void ) {
-	uint64_t *addr = (uint64_t *)(0x60000 - 0x19000);
+void user_belowstack( void ) {
+	uint64_t *addr = (uint64_t *)(0x400000 - 0x1000);
 	uint64_t value = *addr;
 	c_printf( "Value at beginning of user stack space: %d\n", value );
-	c_printf( "About to dereference below user stacks...\n" );
+	c_printf( "About to dereference below user stack...\n" );
 	--addr;
 	value = *addr;
-	c_printf( "ERROR: Allowed to steal this value from below the user stacks: %d\n", value );
+	c_printf( "ERROR: Allowed to steal this value from below the user stack: %d\n", value );
 	exit();
 }
 
 /*
-** User ABOVEUSER attempts to dereference the memory just above the userspace bss.
+** User ABOVESTACK attempts to dereference the memory just above the userspace bss.
 */
-void user_aboveuser( void ) {
-	uint64_t *addr = (uint64_t *)0x70000;
+void user_abovestack( void ) {
+	uint64_t *addr = (uint64_t *)0x400000;
 	--addr;
 	uint64_t value = *addr;
 	c_printf( "Value at end of userland-accessible region: %d\n", value );
@@ -859,18 +859,18 @@ void init( void ) {
 	}
 #endif
 
-#ifdef SPAWN_BELOWSTACKS
-	pid = spawn( user_belowstacks );
+#ifdef SPAWN_BELOWSTACK
+	pid = spawn( user_belowstack );
 	if( pid < 0 ) {
-		c_printf( "init, spawn() user BELOWSTACKS failed\n" );
+		c_printf( "init, spawn() user BELOWSTACK failed\n" );
 		exit();
 	}
 #endif
 
-#ifdef SPAWN_ABOVEUSER
-	pid = spawn( user_aboveuser );
+#ifdef SPAWN_ABOVESTACK
+	pid = spawn( user_abovestack );
 	if( pid < 0 ) {
-		c_printf( "init, spawn() user ABOVEUSER failed\n" );
+		c_printf( "init, spawn() user ABOVESTACK failed\n" );
 		exit();
 	}
 #endif
