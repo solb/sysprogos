@@ -13,6 +13,8 @@
 #ifndef _STACK_H_
 #define _STACK_H_
 
+#define __SP_KERNEL__
+
 #include "common.h"
 
 /*
@@ -68,7 +70,7 @@ void _stack_init( void );
 ** returns a pointer to the stack, or NULL on failure
 */
 
-stack_t *_stack_alloc( void );
+physaddr_t _stack_alloc( void );
 
 /*
 ** Name:	_stack_mktss
@@ -83,7 +85,7 @@ void _stack_mktss( void );
 ** deallocate a stack, putting it into the list of available stacks
 */
 
-void _stack_free( stack_t *stack );
+void _stack_free( physaddr_t stack );
 
 #endif
 

@@ -12,6 +12,8 @@
 **
 */
 
+#define __SP_KERNEL__
+
 #include "startup.h"
 #include "support.h"
 #include "c_io.h"

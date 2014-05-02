@@ -143,8 +143,7 @@ void _pcb_dump( const char *which, pcb_t *pcb ) {
 
 	c_printf( "\n q %d wake %08x", pcb->quantum, pcb->wakeup );
 
-	c_printf( " context %08x stack %08x\n",
-		  (uint32_t) pcb->context, (uint32_t) pcb->stack );
+	c_printf( " context %08x\n", (uint32_t) pcb->context );
 }
 
 /*

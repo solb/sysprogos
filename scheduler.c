@@ -15,6 +15,7 @@
 #include "common.h"
 
 #include "scheduler.h"
+#include "memory.h"
 
 /*
 ** PRIVATE DEFINITIONS
@@ -113,6 +114,7 @@ void _dispatch( void ) {
 			new = (pcb_t *) _que_remove( &_ready[i] );
 			if( new != NULL ) {
 				_current = new;
+				_mem_map_user_pagetab( _current->pagetab );
 				_current->quantum = QUANTUM_DEFAULT;
 				_current->state = RUNNING;
 				return;
@@ -137,10 +139,11 @@ void _terminate( void ) {
 
 	// tear down the PCB structure
 
-	_stack_free( _current->stack );
+	_mem_unmap_user_pagetab();
+	_mem_page_table_free( _current->pagetab );
 	_pcb_free( _current );
 
-	// if this was the current process, we need a new one
+	// this was the current process, so we need a new one
 
 	_dispatch();
 }

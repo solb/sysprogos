@@ -23,9 +23,13 @@
 ** General (C and/or assembly) definitions
 */
 
-#ifndef __SP_ASM__
+// process priorities
 
-#include "process.h"
+#define	PRIO_HIGH	0
+#define	PRIO_STD	1
+#define	PRIO_LOW	2
+
+#ifndef __SP_ASM__
 
 /*
 ** Start of C-only definitions

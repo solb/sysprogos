@@ -23,6 +23,9 @@
 
 #define	N_PCBS		N_PROCESSES
 
+// number of pages allocated to each user binary (excluding stack page)
+#define PAGES_PER_USERSPACE_PROCESS 6
+
 // process states
 
 #define	FREE		0
@@ -121,7 +124,7 @@ typedef struct context {
 typedef struct pcb {
 	// 64-bit fields
 	context_t	*context;	// context save area pointer
-	stack_t		*stack;		// per-process runtime stack
+	physaddr_t	pagetab;		// per-process page table
 	// 32-bit-fields
 	time_t		wakeup;		// for sleeping process
 	// 16-bit fields

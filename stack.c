@@ -17,6 +17,7 @@
 
 #include "stack.h"
 #include "queue.h"
+#include "memory.h"
 
 #include "klib.h"
 
@@ -31,9 +32,6 @@
 /*
 ** PRIVATE GLOBAL VARIABLES
 */
-
-static stack_t *_stacks = USERSPACE_ADDRESS - N_STACKS * sizeof(stack_t);	// user process stacks
-static queue_t _free_stacks;		// list of available stacks
 
 /*
 ** PUBLIC GLOBAL VARIABLES
@@ -57,22 +55,7 @@ uint32_t *_system_esp;			// OS stack pointer
 */
 
 void _stack_init( void ) {
-	int i;
-	
-	// clear the free stack queue
-
-	_que_reset( &_free_stacks, NULL );
-	
-	// "free" all the stacks
-
-	_kmemclr( _stacks, N_STACKS * sizeof(stack_t) );
-	for( i = 0; i < N_STACKS; ++i ) {
-		_stack_free( &_stacks[i] );
-	}
-	
-	// report that we have finished
-
-	c_puts( " stacks" );
+	// No-op!
 }
 
 /*
@@ -96,9 +79,12 @@ void _stack_mktss( void ){
 ** returns a pointer to the stack, or NULL on failure
 */
 
-stack_t *_stack_alloc( void ) {
-	// pull the first available stack off the free queue
-	return( (stack_t *) _que_remove( &_free_stacks ) );
+physaddr_t _stack_alloc( void ) {
+	physaddr_t physical = _mem_page_frame_alloc();
+	void *mapped = _mem_map_page( physical );
+	_kmemclr( mapped, PAGE_SIZE );
+	_mem_unmap_page( mapped );
+	return physical;
 }
 
 /*
@@ -107,15 +93,6 @@ stack_t *_stack_alloc( void ) {
 ** deallocate a stack, putting it into the list of available stacks
 */
 
-void _stack_free( stack_t *stack ) {
-	
-	// sanity check:  avoid deallocating a NULL pointer
-	if( stack == NULL ) {
-		// this should probably be an error
-		return;
-	}
-
-	// return the stack to the free list
-
-	_que_insert( &_free_stacks, (void *) stack );
+void _stack_free( physaddr_t stack ) {
+	_mem_page_frame_free( stack );
 }
