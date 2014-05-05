@@ -108,16 +108,32 @@ void _mem_unmap_page(void *addr) {
 	scratch_page_mapped = 0;
 }
 
+/*
+** _mem_map_user_pagetab: map the page table of the current process at index 1
+*/
 void _mem_map_user_pagetab(physaddr_t frame) {
 	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS});
 	pdt_entry[1] = (uint64_t)frame.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 	_mem_unmap_page(pdt_entry);
 }
 
-void _mem_unmap_user_pagetab() {
+/*
+** _mem_unmap_user_pagetab: unmap the first (the userspace) page table
+*/
+void _mem_unmap_user_pagetab(void) {
 	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS});
 	pdt_entry[1] = 0LL;
 	_mem_unmap_page(pdt_entry);
+}
+
+/*
+** _mem_kill_overflowing_process: terminate a process that didn't leave us
+** 			 enough room on its stack to store a context_t
+*/
+void _mem_kill_overflowing_process(void) {
+	c_printf( "Killing misbehaving process...\n\n" );
+	c_printf( "You've got to reel in your stack space requirements, man!\n" );
+	_terminate();
 }
 
 /*

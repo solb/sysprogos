@@ -52,6 +52,9 @@
 
 #define	PID_INIT	1
 
+// Address of the beginning of the current_ process's stack
+#define VIRTUAL_STACK_PAGE_ADDR 0x3ff000
+
 #ifndef __SP_ASM__
 
 /*

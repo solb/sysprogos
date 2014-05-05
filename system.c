@@ -32,7 +32,6 @@
 /*
 ** PRIVATE DEFINITIONS
 */
-#define VIRTUAL_STACK_PAGE_ADDR ((void *)0x3ff000)
 
 /*
 ** PRIVATE DATA TYPES

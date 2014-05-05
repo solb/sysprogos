@@ -226,4 +226,4 @@ syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
 system.o: sio.h queue.h scheduler.h memory.h user.h ulib.h
 startup.o: bootstrap.h
-isr_stubs.o: bootstrap.h
+isr_stubs.o: bootstrap.h process.h common.h clock.h stack.h

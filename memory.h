@@ -31,5 +31,6 @@ void *_mem_map_page(physaddr_t page);
 void _mem_unmap_page(void *addr);
 void _mem_map_user_pagetab(physaddr_t frame);
 void _mem_unmap_user_pagetab(void);
+void _mem_kill_overflowing_process(void);
 
 #endif
