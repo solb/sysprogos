@@ -885,8 +885,9 @@ void init( void ) {
 	time = gettime();
 	prio = setprio( PRIO_LOW );
 	prio2 = getprio();
-	//c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
-		//time, prio, prio2 );
+
+	c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
+		time, prio, prio2 );
 
 	writech( '.' );
 
