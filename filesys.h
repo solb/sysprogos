@@ -20,14 +20,6 @@
 #ifndef __SP_ASM__
 
 /*
-** Defines Filesystem constants
-*/
-#define FS_SIZE_MB			2		//Size of the File system (in MB)
-#define CLUSTER_SIZE		4096 	//Size of a cluster (in bytes)
-#define SECTORS_PER_CLUSTER	8		//Number of sectors in a cluster
-
-
-/*
 ** Defines the location at which the filesystem memory begins
 */
 #define FS_MEM_LOC	 0;
