@@ -30,7 +30,7 @@
 /*
 ** Defines the location at which the filesystem memory begins
 */
-#define FS_MEM_LOC	 0;
+#define FS_MEM_LOC	 FILESYSTEM_VIRT_ADDRESS;
 
 
 /*

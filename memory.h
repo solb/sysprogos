@@ -13,7 +13,7 @@
 // The size of the userspace memory, in bytes (excluding the stacks)
 #define USERSPACE_SIZE	0x10000
 
-#define DYNAMIC_MEM_LOW ((void*)0x100000)
+#define DYNAMIC_MEM_LOW ((void*)0x300000)
 #define DYNAMIC_MEM_HIGH ((void*)0xcd33d000)
 
 /*

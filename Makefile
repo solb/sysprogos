@@ -41,8 +41,8 @@ USER_OPTIONS = -DCLEAR_BSS_SEGMENT -DISR_DEBUGGING_CODE -DSP2_CONFIG
 # Program load points
 #
 KERNEL_ADDRESS = 0x20000
-USERSPACE_PHYS_ADDRESS = 0x60000
-USERSPACE_VIRT_ADDRESS = 0x200000
+FILESYSTEM_PHYS_ADDRESS = 0x40000
+FILESYSTEM_VIRT_ADDRESS = 0x40000
 
 #
 # YOU SHOULD NOT NEED TO CHANGE ANYTHING BELOW THIS POINT!!!
@@ -60,7 +60,7 @@ INCLUDES = -I. -I/home/fac/wrc/include
 #
 CPP = cpp
 # CPPFLAGS = $(USER_OPTIONS) -nostdinc -I- $(INCLUDES)
-CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES) -DUSERSPACE_PHYS_ADDRESS=$(USERSPACE_PHYS_ADDRESS) -DUSERSPACE_VIRT_ADDRESS=$(USERSPACE_VIRT_ADDRESS)
+CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES) -DFILESYSTEM_PHYS_ADDRESS=$(FILESYSTEM_PHYS_ADDRESS) -DFILESYSTEM_VIRT_ADDRESS=$(FILESYSTEM_VIRT_ADDRESS)
 
 CC = gcc
 CFLAGS = -std=c99 -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
@@ -122,8 +122,8 @@ SOURCES = $(BOOT_SRC) $(U_S_SRC) $(U_C_SRC) $(K_C_SRC) $(K_S_SRC)
 # Default target:  usb.image
 #
 
-usb.image: bootstrap.b kern.b userspace.b kern.nl BuildImage #kern.dis 
-	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b $(KERNEL_ADDRESS) userspace.b $(USERSPACE_PHYS_ADDRESS)
+usb.image: bootstrap.b kern.b kern.nl BuildImage #kern.dis 
+	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b $(KERNEL_ADDRESS) filesystem.img $(FILESYSTEM_PHYS_ADDRESS)
 
 floppy.image: bootstrap.b kern.b kern.nl BuildImage #kern.dis 
 	./BuildImage -d floppy -o floppy.image -b bootstrap.b kern.b $(KERNEL_ADDRESS)
@@ -137,12 +137,6 @@ hd.img: usb.image
 
 kern.b:	kern.o
 	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext $(KERNEL_ADDRESS) kern.o
-
-userspace.o: $(U_OBJECTS)
-	$(LD) $(LDFLAGS_KERN) -o userspace.o -Ttext $(USERSPACE_VIRT_ADDRESS) $(U_OBJECTS) $(U_LIBS)
-
-userspace.b:	userspace.o
-	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext $(USERSPACE_VIRT_ADDRESS) userspace.o
 
 #
 # Targets for copying bootable image onto boot devices
@@ -223,6 +217,7 @@ stack.o: bootstrap.h common.h stack.h queue.h memory.h klib.h
 syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
 syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
-system.o: sio.h queue.h scheduler.h memory.h user.h ulib.h
+system.o: sio.h queue.h scheduler.h filesys.h types.h memory.h user.h ulib.h
+filesys.o: common.h filesys.h types.h
 startup.o: bootstrap.h
 isr_stubs.o: bootstrap.h

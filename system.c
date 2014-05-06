@@ -84,7 +84,7 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 		physaddr_t pf = _mem_page_frame_alloc();
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 		void *mapped = _mem_map_page(pf);
-		_kmemcpy(mapped, (void *)(USERSPACE_PHYS_ADDRESS + (count << 12)), PAGE_SIZE);
+		// _kmemcpy(mapped, (void *)(USERSPACE_PHYS_ADDRESS + (count << 12)), PAGE_SIZE); TODO pass this in!
 		_mem_unmap_page(mapped);
 	}
 
@@ -224,7 +224,13 @@ void _init( void ) {
 
 	// allocate a PCB and stack
 
-	pcb = _create_process( 0, (uint64_t) USERSPACE_VIRT_ADDRESS );
+	c_printf( "HERE!\n" );
+	char *silly = 0x40000;
+	silly[20] = '\0';
+	c_printf( "%s\n", silly );
+	_kpanic( "_init", "Screw you", FAILURE );
+
+	//pcb = _create_process( 0, (uint64_t) USERSPACE_VIRT_ADDRESS );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}
