@@ -12,10 +12,14 @@
 
 #define	__SP_KERNEL__
 
+#include "bootstrap.h"
 #include "common.h"
 
 #include "stack.h"
 #include "queue.h"
+#include "memory.h"
+
+#include "klib.h"
 
 /*
 ** PRIVATE DEFINITIONS
@@ -28,9 +32,6 @@
 /*
 ** PRIVATE GLOBAL VARIABLES
 */
-
-static stack_t _stacks[ N_STACKS ];	// user process stacks
-static queue_t _free_stacks;		// list of available stacks
 
 /*
 ** PUBLIC GLOBAL VARIABLES
@@ -54,21 +55,20 @@ uint32_t *_system_esp;			// OS stack pointer
 */
 
 void _stack_init( void ) {
-	int i;
-	
-	// clear the free stack queue
+	// No-op!
+}
 
-	_que_reset( &_free_stacks, NULL );
-	
-	// "free" all the stacks
-
-	for( i = 0; i < N_STACKS; ++i ) {
-		_stack_free( &_stacks[i] );
-	}
-	
-	// report that we have finished
-
-	c_puts( " stacks" );
+/*
+** Name:	_stack_mktss
+**
+** Description: Initialize the Task-Segment Selector (TSS) so that
+** 		we'll be able to jump from ring 3 back to ring 0.
+*/
+void _stack_mktss( void ){
+	uint32_t *tss = (uint32_t *)TSS_ADDRESS;
+	_kmemclr((byte_t *)TSS_ADDRESS, TSS_SIZE);
+	tss[TSS_ESP0] = (uint32_t)_system_esp;
+	__inst_tss();
 }
 
 /*
@@ -79,9 +79,12 @@ void _stack_init( void ) {
 ** returns a pointer to the stack, or NULL on failure
 */
 
-stack_t *_stack_alloc( void ) {
-	// pull the first available stack off the free queue
-	return( (stack_t *) _que_remove( &_free_stacks ) );
+physaddr_t _stack_alloc( void ) {
+	physaddr_t physical = _mem_page_frame_alloc();
+	void *mapped = _mem_map_page( physical );
+	_kmemclr( mapped, PAGE_SIZE );
+	_mem_unmap_page( mapped );
+	return physical;
 }
 
 /*
@@ -90,15 +93,6 @@ stack_t *_stack_alloc( void ) {
 ** deallocate a stack, putting it into the list of available stacks
 */
 
-void _stack_free( stack_t *stack ) {
-	
-	// sanity check:  avoid deallocating a NULL pointer
-	if( stack == NULL ) {
-		// this should probably be an error
-		return;
-	}
-
-	// return the stack to the free list
-
-	_que_insert( &_free_stacks, (void *) stack );
+void _stack_free( physaddr_t stack ) {
+	_mem_page_frame_free( stack );
 }

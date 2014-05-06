@@ -8,14 +8,22 @@
 #
 # User supplied files
 #
-U_C_SRC = clock.c klibc.c process.c queue.c scheduler.c sio.c \
-	stack.c syscall.c system.c ulibc.c user.c filesys.c
-U_C_OBJ = clock.o klibc.o process.o queue.o scheduler.o sio.o \
-	stack.o syscall.o system.o ulibc.o user.o filesys.o
-U_S_SRC = klibs.S ulibs.S
-U_S_OBJ = klibs.o ulibs.o
-U_H_SRC = clock.h common.h defs.h klib.h process.h queue.h \
-	scheduler.h sio.h stack.h syscall.h system.h types.h ulib.h user.h filesys.h
+U_C_SRC = c_io_user.c c_io_shared.c \
+	ulibc.c user.c
+U_C_OBJ = c_io_user.o c_io_shared.o \
+	ulibc.o user.o
+U_S_SRC = user_start.S ulibs.S
+U_S_OBJ = user_start.o ulibs.o
+U_H_SRC = clock.h common.h defs.h process.h queue.h \
+	scheduler.h sio.h stack.h syscall.h system.h types.h ulib.h user.h
+K_C_SRC = c_io_shared.c c_io_kern.c support.c clock.c klibc.c process.c memory.c queue.c scheduler.c sio.c \
+	stack.c syscall.c system.c filesys.c
+K_C_OBJ = c_io_shared.o c_io_kern.o support.o clock.o klibc.o process.o memory.o queue.o scheduler.o sio.o \
+	stack.o syscall.o system.o filesys.o
+K_S_SRC = startup.S isr_stubs.S klibs.S
+K_S_OBJ = startup.o isr_stubs.o klibs.o
+K_H_SRC = clock.h common.h defs.h klib.h process.h queue.h \
+	scheduler.h sio.h stack.h syscall.h system.h types.h
 
 U_LIBS	=
 
@@ -27,7 +35,14 @@ U_LIBS	=
 #	SP2_CONFIG		enable SP2-specific startup variations
 #	REPORT_MYSTERY_INTS	print a message on interrupt 0x27
 #
-USER_OPTIONS = -DDUMP_QUEUES -DCLEAR_BSS_SEGMENT -DISR_DEBUGGING_CODE -DSP2_CONFIG
+USER_OPTIONS = -DCLEAR_BSS_SEGMENT -DISR_DEBUGGING_CODE -DSP2_CONFIG
+
+#
+# Program load points
+#
+KERNEL_ADDRESS = 0x20000
+USERSPACE_PHYS_ADDRESS = 0x60000
+USERSPACE_VIRT_ADDRESS = 0x200000
 
 #
 # YOU SHOULD NOT NEED TO CHANGE ANYTHING BELOW THIS POINT!!!
@@ -45,15 +60,16 @@ INCLUDES = -I. -I/home/fac/wrc/include
 #
 CPP = cpp
 # CPPFLAGS = $(USER_OPTIONS) -nostdinc -I- $(INCLUDES)
-CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES)
+CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES) -DUSERSPACE_PHYS_ADDRESS=$(USERSPACE_PHYS_ADDRESS) -DUSERSPACE_VIRT_ADDRESS=$(USERSPACE_VIRT_ADDRESS)
 
 CC = gcc
-CFLAGS = -m32 -std=c99 -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
+CFLAGS = -std=c99 -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
 
 AS = as
-ASFLAGS = --32
+ASFLAGS = --64
 
-LD = ld -melf_i386
+LD = ld
+LDFLAGS_KERN = -z max-page-size=0x1000
 
 #		
 # Transformation rules - these ensure that all compilation
@@ -93,21 +109,12 @@ LD = ld -melf_i386
 BOOT_OBJ = bootstrap.b
 BOOT_SRC = bootstrap.S
 
-# Assembly language object/source files
-
-S_OBJ = startup.o isr_stubs.o $(U_S_OBJ)
-S_SRC =	startup.S isr_stubs.S $(U_S_SRC)
-
-# C object/source files
-
-C_OBJ =	c_io.o support.o $(U_C_OBJ)
-C_SRC =	c_io.c support.c $(U_C_SRC)
-
 # Collections of files
 
-OBJECTS = $(S_OBJ) $(C_OBJ)
+U_OBJECTS = $(U_S_OBJ) $(U_C_OBJ)
+K_OBJECTS = $(K_S_OBJ) $(K_C_OBJ)
 
-SOURCES = $(BOOT_SRC) $(S_SRC) $(C_SRC)
+SOURCES = $(BOOT_SRC) $(U_S_SRC) $(U_C_SRC) $(K_C_SRC) $(K_S_SRC)
 
 #
 # Targets for remaking bootable image of the program
@@ -115,20 +122,27 @@ SOURCES = $(BOOT_SRC) $(S_SRC) $(C_SRC)
 # Default target:  usb.image
 #
 
-usb.image: bootstrap.b prog.b prog.nl BuildImage #prog.dis 
-	./BuildImage -d usb -o usb.image -b bootstrap.b prog.b 0x10000
+usb.image: bootstrap.b kern.b userspace.b kern.nl BuildImage #kern.dis 
+	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b $(KERNEL_ADDRESS) userspace.b $(USERSPACE_PHYS_ADDRESS)
 
-floppy.image: bootstrap.b prog.b prog.nl BuildImage #prog.dis 
-	./BuildImage -d floppy -o floppy.image -b bootstrap.b prog.b 0x10000
+floppy.image: bootstrap.b kern.b kern.nl BuildImage #kern.dis 
+	./BuildImage -d floppy -o floppy.image -b bootstrap.b kern.b $(KERNEL_ADDRESS)
 
-prog.out: $(OBJECTS)
-	$(LD) -o prog.out $(OBJECTS)
+kern.o: $(K_OBJECTS)
+	$(LD) $(LDFLAGS_KERN) -o kern.o -Ttext $(KERNEL_ADDRESS) $(K_OBJECTS) $(U_LIBS)
 
-prog.o:	$(OBJECTS)
-	$(LD) -o prog.o -Ttext 0x10000 $(OBJECTS) $(U_LIBS)
+hd.img: usb.image
+	- [ ! -e hd.img ] && bximage -q -hd -mode=flat -size=10 hd.img
+	dd if=usb.image of=hd.img conv=notrunc
 
-prog.b:	prog.o
-	$(LD) -o prog.b -s --oformat binary -Ttext 0x10000 prog.o
+kern.b:	kern.o
+	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext $(KERNEL_ADDRESS) kern.o
+
+userspace.o: $(U_OBJECTS)
+	$(LD) $(LDFLAGS_KERN) -o userspace.o -Ttext $(USERSPACE_VIRT_ADDRESS) $(U_OBJECTS) $(U_LIBS)
+
+userspace.b:	userspace.o
+	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext $(USERSPACE_VIRT_ADDRESS) userspace.o
 
 #
 # Targets for copying bootable image onto boot devices
@@ -161,19 +175,19 @@ clean:
 	rm -f *.nl *.lst *.b *.o *.image *.dis BuildImage Offsets
 
 #
-# Create a printable namelist from the prog.o file
+# Create a printable namelist from the kern.o file
 #
 
-prog.nl: prog.o
-	# nm -Bng prog.o | pr -w80 -3 > prog.nl
-	nm -Bn prog.o | pr -w80 -3 > prog.nl
+kern.nl: kern.o
+	# nm -Bng kern.o | pr -w80 -3 > kern.nl
+	nm -Bn kern.o | pr -w80 -3 > kern.nl
 
 #
 # Generate a disassembly
 #
 
-prog.dis: prog.o
-	dis prog.o > prog.dis
+kern.dis: kern.o
+	dis kern.o > kern.dis
 
 #
 #       makedepend is a program which creates dependency lists by
@@ -185,25 +199,30 @@ depend:
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-bootstrap.o: bootstrap.h
-startup.o: bootstrap.h
-isr_stubs.o: bootstrap.h
+bootstrap.o: bootstrap.h x86arch.h
 ulibs.o: syscall.h common.h
-c_io.o: c_io.h startup.h support.h x86arch.h
-support.o: startup.h support.h c_io.h x86arch.h
-support.o: bootstrap.h
-clock.o: common.h x86arch.h startup.h clock.h process.h
-clock.o: stack.h queue.h scheduler.h sio.h syscall.h
+c_io_user.o: c_io.h
+c_io_shared.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+ulibc.o: common.h
+user.o: common.h user.h c_io.h clock.h
+c_io_shared.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+c_io_kern.o: c_io.h startup.h support.h x86arch.h ./stdarg.h
+support.o: startup.h support.h c_io.h x86arch.h bootstrap.h syscall.h
+support.o: common.h scheduler.h process.h clock.h stack.h queue.h
+clock.o: common.h x86arch.h startup.h clock.h process.h stack.h queue.h
+clock.o: scheduler.h sio.h syscall.h
 klibc.o: common.h
 process.o: common.h process.h clock.h stack.h queue.h
+memory.o: common.h memory.h bootstrap.h stack.h startup.h x86arch.h
+memory.o: scheduler.h process.h clock.h queue.h
 queue.o: common.h queue.h process.h clock.h stack.h
-scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h
+scheduler.o: common.h scheduler.h process.h clock.h stack.h queue.h memory.h
 sio.o: common.h sio.h queue.h process.h clock.h stack.h scheduler.h system.h
-sio.o: startup.h uart.h x86arch.h
-stack.o: common.h stack.h queue.h
+sio.o: startup.h ./uart.h x86arch.h
+stack.o: bootstrap.h common.h stack.h queue.h memory.h klib.h
 syscall.o: common.h syscall.h process.h clock.h stack.h queue.h scheduler.h
 syscall.o: sio.h support.h startup.h x86arch.h
 system.o: common.h system.h process.h clock.h stack.h bootstrap.h syscall.h
-system.o: sio.h queue.h scheduler.h user.h ulib.h
-ulibc.o: common.h
-user.o: common.h user.h c_io.h
+system.o: sio.h queue.h scheduler.h memory.h user.h ulib.h
+startup.o: bootstrap.h
+isr_stubs.o: bootstrap.h

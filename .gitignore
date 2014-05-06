@@ -1,4 +1,7 @@
 /BuildImage
+/bootstrap.s
+/hd.img
+/isr_stubs.s
 /startup.s
 *.b
 *.image

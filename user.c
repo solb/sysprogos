@@ -15,6 +15,7 @@
 #include "user.h"
 
 #include "c_io.h"
+#include "clock.h"
 
 /*
 ** USER PROCESSES
@@ -625,6 +626,45 @@ void user_z( void ) {
 
 }
 
+/*
+ * User NULLPTR attempts to dereference a null pointer.
+ */
+void user_nullptr( void ) {
+	c_printf( "About to dereference a NULL pointer...\n" );
+	uint64_t *addr = NULL;
+	uint64_t value = *addr;
+	c_printf( "ERROR: Successfully dereferenced NULL and found %d!\n", value );
+	exit();
+}
+
+/*
+** User BELOWSTACK attempts to dereference the memory just below the userspace stacks.
+*/
+void user_belowstack( void ) {
+	uint64_t *addr = (uint64_t *)(0x400000 - 0x1000);
+	uint64_t value = *addr;
+	c_printf( "Value at beginning of user stack space: %d\n", value );
+	c_printf( "About to dereference below user stack...\n" );
+	--addr;
+	value = *addr;
+	c_printf( "ERROR: Allowed to steal this value from below the user stack: %d\n", value );
+	exit();
+}
+
+/*
+** User ABOVESTACK attempts to dereference the memory just above the userspace bss.
+*/
+void user_abovestack( void ) {
+	uint64_t *addr = (uint64_t *)0x400000;
+	--addr;
+	uint64_t value = *addr;
+	c_printf( "Value at end of userland-accessible region: %d\n", value );
+	c_printf( "About to dereference past the end of userland...\n" );
+	++addr;
+	value = *addr;
+	c_printf( "ERROR: Allowed to steal this value from at world's end: %d\n", value );
+	exit();
+}
 
 /*
 ** SYSTEM PROCESSES
@@ -647,6 +687,7 @@ void init( void ) {
 	prio = setprio( PRIO_HIGH );
 	prio = getprio();
 	c_printf( "Init started, now at priority %d\n", prio );
+	for(unsigned waste = 0; waste < 1000000000; ++waste);
 
 	writech( '$' );
 
@@ -810,6 +851,30 @@ void init( void ) {
 	}
 #endif
 
+#ifdef SPAWN_NULLPTR
+	pid = spawn( user_nullptr );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user NULLPTR failed\n" );
+		exit();
+	}
+#endif
+
+#ifdef SPAWN_BELOWSTACK
+	pid = spawn( user_belowstack );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user BELOWSTACK failed\n" );
+		exit();
+	}
+#endif
+
+#ifdef SPAWN_ABOVESTACK
+	pid = spawn( user_abovestack );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user ABOVESTACK failed\n" );
+		exit();
+	}
+#endif
+
 	writech( '!' );
 
 	/*
@@ -820,8 +885,8 @@ void init( void ) {
 	time = gettime();
 	prio = setprio( PRIO_LOW );
 	prio2 = getprio();
-	c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
-		time, prio, prio2 );
+	//c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
+		//time, prio, prio2 );
 
 	writech( '.' );
 

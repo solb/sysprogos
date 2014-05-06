@@ -19,6 +19,7 @@
 #include "startup.h"
 #include "support.h"
 #include "x86arch.h"
+#include <stdarg.h>
 
 /*
 ** Video parameters, and state variables
@@ -30,20 +31,14 @@
 #define	SCREEN_MAX_X	( SCREEN_X_SIZE - 1 )
 #define	SCREEN_MAX_Y	( SCREEN_Y_SIZE - 1 )
 
-unsigned int	scroll_min_x, scroll_min_y;
-unsigned int	scroll_max_x, scroll_max_y;
+extern unsigned int	scroll_min_x, scroll_min_y;
+extern unsigned int	scroll_max_x, scroll_max_y;
 unsigned int	curr_x, curr_y;
-unsigned int	min_x, min_y;
-unsigned int	max_x, max_y;
-
-#ifdef	SA_DEBUG
-#include <stdio.h>
-#define	c_putchar	putchar
-#define	c_puts(x)	fputs( x, stdout )
-#endif
+extern unsigned int	min_x, min_y;
+extern unsigned int	max_x, max_y;
 
 #define	VIDEO_ADDR(x,y)	( unsigned short * ) \
-		( VIDEO_BASE_ADDR + 2 * ( (y) * SCREEN_X_SIZE + (x) ) )
+		( VIDEO_BASE_ADDR + 2 * ( (unsigned long long)(y) * SCREEN_X_SIZE + (unsigned long long)(x) ) )
 
 /*
 ** Support routines.
@@ -51,7 +46,6 @@ unsigned int	max_x, max_y;
 ** bound: confine an argument within given bounds
 ** __c_putchar_at: physical output to the video memory
 ** __c_setcursor: set the cursor location (screen coordinates)
-** __c_strlen: compute the length of a string
 */
 static unsigned int bound( unsigned int min, unsigned int value, unsigned int max ){
 	if( value < min ){
@@ -77,15 +71,6 @@ static void __c_setcursor( void ){
 	__outb( 0x3d5, ( addr >> 8 ) & 0xff );
 	__outb( 0x3d4, 0xf );
 	__outb( 0x3d5, addr & 0xff );
-}
-
-static unsigned int __c_strlen( char const *str ){
-	unsigned int	len = 0;
-
-	while( *str++ != '\0' ){
-		len += 1;
-	}
-	return len;
 }
 
 static void __c_putchar_at( unsigned int x, unsigned int y, unsigned int c ){
@@ -200,28 +185,6 @@ void c_putchar( unsigned int c ){
 }
 #endif
 
-/*
-** The puts family
-*/
-void c_puts_at( unsigned int x, unsigned int y, char *str ){
-	unsigned int	ch;
-
-	while( (ch = *str++) != '\0' && x <= max_x ){
-		c_putchar_at( x, y, ch );
-		x += 1;
-	}
-}
-
-#ifndef SA_DEBUG
-void c_puts( char *str ){
-	unsigned int	ch;
-
-	while( (ch = *str++) != '\0' ){
-		c_putchar( ch );
-	}
-}
-#endif
-
 void c_clearscroll( void ){
 	unsigned int	nchars = scroll_max_x - scroll_min_x + 1;
 	unsigned int	l;
@@ -281,231 +244,6 @@ void c_scroll( unsigned int lines ){
 			*to++ = ' ' | 0x0700;
 		}
 	}
-}
-
-char * cvtdec0( char *buf, int value ){
-	int	quotient;
-
-	quotient = value / 10;
-	if( quotient < 0 ){
-		quotient = 214748364;
-		value = 8;
-	}
-	if( quotient != 0 ){
-		buf = cvtdec0( buf, quotient );
-	}
-	*buf++ = value % 10 + '0';
-	return buf;
-}
-
-int cvtdec( char *buf, int value ){
-	char	*bp = buf;
-
-	if( value < 0 ){
-		*bp++ = '-';
-		value = -value;
-	}
-	bp = cvtdec0( bp, value );
-	*bp = '\0';
-
-	return bp - buf;
-}
-
-char hexdigits[] = "0123456789ABCDEF";
-
-int cvthex( char *buf, int value ){
-	int	i;
-	int	chars_stored = 0;
-	char	*bp = buf;
-
-	for( i = 0; i < 8; i += 1 ){
-		int	val;
-
-		val = ( value & 0xf0000000 );
-		if( i == 7 || val != 0 || chars_stored ){
-			chars_stored = 1;
-			val >>= 28;
-			val &= 0xf;
-			*bp++ = hexdigits[ val ];
-		}
-		value <<= 4;
-	}
-	*bp = '\0';
-
-	return bp - buf;
-}
-
-int cvtoct( char *buf, int value ){
-	int	i;
-	int	chars_stored = 0;
-	char	*bp = buf;
-	int	val;
-
-	val = ( value & 0xc0000000 );
-	val >>= 30;
-	for( i = 0; i < 11; i += 1 ){
-
-		if( i == 10 || val != 0 || chars_stored ){
-			chars_stored = 1;
-			val &= 0x7;
-			*bp++ = hexdigits[ val ];
-		}
-		value <<= 3;
-		val = ( value & 0xe0000000 );
-		val >>= 29;
-	}
-	*bp = '\0';
-
-	return bp - buf;
-}
-
-static int pad( int x, int y, int extra, int padchar ){
-	while( extra > 0 ){
-		if( x != -1 || y != -1 ){
-			c_putchar_at( x, y, padchar );
-			x += 1;
-		}
-		else {
-			c_putchar( padchar );
-		}
-		extra -= 1;
-	}
-	return x;
-}
-
-static int padstr( int x, int y, char *str, int len, int width, int leftadjust, int padchar ){
-	int	extra;
-
-	if( len < 0 ){
-		len = __c_strlen( str );
-	}
-	extra = width - len;
-	if( extra > 0 && !leftadjust ){
-		x = pad( x, y, extra, padchar );
-	}
-	if( x != -1 || y != -1 ){
-		c_puts_at( x, y, str );
-		x += len;
-	}
-	else {
-		c_puts( str );
-	}
-	if( extra > 0 && leftadjust ){
-		x = pad( x, y, extra, padchar );
-	}
-	return x;
-}
-
-static void __c_do_printf( int x, int y, char **f ){
-	char	*fmt = *f;
-	int	*ap;
-	char	buf[ 12 ];
-	char	ch;
-	char	*str;
-	int	leftadjust;
-	int	width;
-	int	len;
-	int	padchar;
-
-	/*
-	** Get characters from the format string and process them
-	*/
-	ap = (int *)( f + 1 );
-	while( (ch = *fmt++) != '\0' ){
-		/*
-		** Is it the start of a format code?
-		*/
-		if( ch == '%' ){
-			/*
-			** Yes, get the padding and width options (if there).
-			** Alignment must come at the beginning, then fill,
-			** then width.
-			*/
-			leftadjust = 0;
-			padchar = ' ';
-			width = 0;
-			ch = *fmt++;
-			if( ch == '-' ){
-				leftadjust = 1;
-				ch = *fmt++;
-			}
-			if( ch == '0' ){
-				padchar = '0';
-				ch = *fmt++;
-			}
-			while( ch >= '0' && ch <= '9' ){
-				width *= 10;
-				width += ch - '0';
-				ch = *fmt++;
-			}
-
-			/*
-			** What data type do we have?
-			*/
-			switch( ch ){
-			case 'c':
-				// ch = *( (int *)ap )++;
-				ch = *ap++;
-				buf[ 0 ] = ch;
-				buf[ 1 ] = '\0';
-				x = padstr( x, y, buf, 1, width, leftadjust, padchar );
-				break;
-
-			case 'd':
-				// len = cvtdec( buf, *( (int *)ap )++ );
-				len = cvtdec( buf, *ap++ );
-				x = padstr( x, y, buf, len, width, leftadjust, padchar );
-				break;
-
-			case 's':
-				// str = *( (char **)ap )++;
-				str = (char *) (*ap++);
-				x = padstr( x, y, str, -1, width, leftadjust, padchar );
-				break;
-
-			case 'x':
-				// len = cvthex( buf, *( (int *)ap )++ );
-				len = cvthex( buf, *ap++ );
-				x = padstr( x, y, buf, len, width, leftadjust, padchar );
-				break;
-
-			case 'o':
-				// len = cvtoct( buf, *( (int *)ap )++ );
-				len = cvtoct( buf, *ap++ );
-				x = padstr( x, y, buf, len, width, leftadjust, padchar );
-				break;
-
-			}
-		}
-		else {
-			if( x != -1 || y != -1 ){
-				c_putchar_at( x, y, ch );
-				switch( ch ){
-				case '\n':
-					y += 1;
-					/* FALL THRU */
-
-				case '\r':
-					x = scroll_min_x;
-					break;
-
-				default:
-					x += 1;
-				}
-			}
-			else {
-				c_putchar( ch );
-			}
-		}
-	}
-}
-
-void c_printf_at( unsigned int x, unsigned int y, char *fmt, ... ){
-	__c_do_printf( x, y, &fmt );
-}
-
-void c_printf( char *fmt, ... ){
-	__c_do_printf( -1, -1, &fmt );
 }
 
 unsigned char scan_code[ 2 ][ 128 ] = {
@@ -649,26 +387,6 @@ int c_getchar( void ){
 	return c;
 }
 
-int c_gets( char *buffer, unsigned int size ){
-	char	ch;
-	int	count = 0;
-
-	while( size > 1 ){
-		ch = c_getchar();
-		if( ch == EOT ){
-			break;
-		}
-		*buffer++ = ch;
-		count += 1;
-		size -= 1;
-		if( ch == '\n' ){
-			break;
-		}
-	}
-	*buffer = '\0';
-	return count;
-}
-
 int c_input_queue( void ){
 	int	n_chars = __c_next_space - __c_next_char;
 
@@ -685,7 +403,7 @@ void c_io_init( void ){
 	/*
 	** Screen dimensions
 	*/
-	min_x  = SCREEN_MIN_X;	
+	min_x  = SCREEN_MIN_X;
 	min_y  = SCREEN_MIN_Y;
 	max_x  = SCREEN_MAX_X;
 	max_y  = SCREEN_MAX_Y;
@@ -711,33 +429,3 @@ void c_io_init( void ){
 	__install_isr( INT_VEC_KEYBOARD, __c_keyboard_isr );
 
 }
-
-#ifdef SA_DEBUG
-int main(){
-	c_printf( "%d\n", 123 );
-	c_printf( "%d\n", -123 );
-	c_printf( "%d\n", 0x7fffffff );
-	c_printf( "%d\n", 0x80000001 );
-	c_printf( "%d\n", 0x80000000 );
-	c_printf( "x%14dy\n", 0x80000000 );
-	c_printf( "x%-14dy\n", 0x80000000 );
-	c_printf( "x%014dy\n", 0x80000000 );
-	c_printf( "x%-014dy\n", 0x80000000 );
-	c_printf( "%s\n", "xyz" );
-	c_printf( "|%10s|\n", "xyz" );
-	c_printf( "|%-10s|\n", "xyz" );
-	c_printf( "%c\n", 'x' );
-	c_printf( "|%4c|\n", 'y' );
-	c_printf( "|%-4c|\n", 'y' );
-	c_printf( "|%04c|\n", 'y' );
-	c_printf( "|%-04c|\n", 'y' );
-	c_printf( "|%3d|\n", 5 );
-	c_printf( "|%3d|\n", 54321 );
-	c_printf( "%x\n", 0x123abc );
-	c_printf( "|%04x|\n", 20 );
-	c_printf( "|%012x|\n", 0xfedcba98 );
-	c_printf( "|%-012x|\n", 0x76543210 );
-}
-
-int curr_x, curr_y, max_x, max_y;
-#endif

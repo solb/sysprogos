@@ -71,6 +71,14 @@ void _schedule( pcb_t *pcb );
 
 void _dispatch( void );
 
+/*
+** _terminate()
+**
+** go all Arnold on the current process
+*/
+
+void _terminate( void );
+
 #endif
 
 #endif

@@ -143,8 +143,7 @@ void _pcb_dump( const char *which, pcb_t *pcb ) {
 
 	c_printf( "\n q %d wake %08x", pcb->quantum, pcb->wakeup );
 
-	c_printf( " context %08x stack %08x\n",
-		  (uint32_t) pcb->context, (uint32_t) pcb->stack );
+	c_printf( " context %08x\n", (uint32_t) pcb->context );
 }
 
 /*
@@ -161,13 +160,13 @@ void _context_dump( const char *which, context_t *context ) {
 
 	c_printf( "\n\t ss %08x  gs %08x  fs %08x  es %08x\n",
 		context->ss, context->gs, context->fs, context->es );
-	c_printf( "\t ds %08x edi %08x esi %08x ebp %08x\n",
-		context->ds, context->edi, context->esi, context->ebp );
-	c_printf( "\tesp %08x ebx %08x edx %08x ecx %08x\n",
-		context->esp, context->ebx, context->edx, context->ecx );
-	c_printf( "\teax %08x vec %08x cod %08x eip %08x\n",
-		context->eax, context->vector, context->code, context->eip );
-	c_printf( "\t cs %08x efl %08x\n",
-		context->cs, context->eflags );
+	c_printf( "\t ds %08x rdi %08x rsi %08x rbp %08x\n",
+		context->ds, context->rdi, context->rsi, context->rbp );
+	c_printf( "\trsp %08x rbx %08x rdx %08x rcx %08x\n",
+		context->rsp, context->rbx, context->rdx, context->rcx );
+	c_printf( "\trax %08x vec %08x cod %08x rip %08x\n",
+		context->rax, context->vector, context->code, context->rip );
+	c_printf( "\t cs %08x rfl %08x\n",
+		context->cs, context->rflags );
 
 }

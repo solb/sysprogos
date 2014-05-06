@@ -108,6 +108,12 @@
 #define CR4_VME		0x00000001
 
 /*
+** MSRs
+*/
+#define MSR_EFER	0xc0000080
+#define MSR_EFER_LM	0x00000100
+
+/*
 ** PMode segment selectors
 **
 ** IA-32 V3, page 3-8.

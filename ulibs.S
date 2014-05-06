@@ -39,7 +39,7 @@ name:                             ; \
 #define SYSCALL1(name) \
 	.globl	name              ; \
 name:                             ; \
-	movl	4(%esp), %ecx     ; \
+	movq	%rdi, %rcx     ; \
 	movl	$SYS_##name, %eax ; \
 	int	$INT_VEC_SYSCALL  ; \
 	ret
@@ -47,8 +47,18 @@ name:                             ; \
 #define SYSCALL2(name) \
 	.globl	name              ; \
 name:                             ; \
-	movl	4(%esp), %ecx     ; \
-	movl	8(%esp), %edx     ; \
+	movq	%rdi, %rcx     ; \
+	movq	%rsi, %rdx     ; \
+	movl	$SYS_##name, %eax ; \
+	int	$INT_VEC_SYSCALL  ; \
+	ret
+
+#define SYSCALL3(name) \
+	.globl	name              ; \
+name:                             ; \
+	movq	%rdx, %r8      ; \
+	movq	%rdi, %rcx     ; \
+	movq	%rsi, %rdx     ; \
 	movl	$SYS_##name, %eax ; \
 	int	$INT_VEC_SYSCALL  ; \
 	ret
@@ -79,6 +89,7 @@ SYSCALL1(setprio)
 SYSCALL0(getpid)
 SYSCALL0(getppid)
 SYSCALL0(gettime)
+SYSCALL3(c_putchar_at)
 
 // This is a bogus system call; it's here so that we can test
 // our handling of out-of-range syscall codes in the syscall ISR.

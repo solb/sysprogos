@@ -51,4 +51,25 @@ int __get_flags( void );
 */
 void __pause( void );
 
+/*
+** Name:	__inst_tss
+**
+** Description: Install the TSS
+*/
+void __inst_tss( void );
+
+/*
+** Name:	__inv_tlb
+**
+** Description: Invalidate the translation lookaside buffer
+*/
+void __inv_tlb( void );
+
+/*
+** Name:	__get_cr2
+**
+** Description: Get a copy of CR2
+*/
+void* __get_cr2( void );
+
 #endif

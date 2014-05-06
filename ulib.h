@@ -23,9 +23,13 @@
 ** General (C and/or assembly) definitions
 */
 
-#ifndef __SP_ASM__
+// process priorities
 
-#include "process.h"
+#define	PRIO_HIGH	0
+#define	PRIO_STD	1
+#define	PRIO_LOW	2
+
+#ifndef __SP_ASM__
 
 /*
 ** Start of C-only definitions
@@ -169,6 +173,11 @@ pid_t getppid( void );
 */
 
 time_t gettime( void );
+
+/*
+** c_putchar_at - syscall for debug printing
+*/
+void c_putchar_at( unsigned int x, unsigned int y, unsigned int c );
 
 /*
 ** bogus - a bogus system call, for testing our syscall ISR
