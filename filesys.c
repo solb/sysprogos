@@ -83,7 +83,7 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 **						the data that was read.
 **
 */
-void _filesys_readfile(ubyte_t *buffer, uint_t file_address, uint_t offset, uint_t count)
+void _filesys_readfile(byte_t *buffer, uint_t file_address, uint_t offset, uint_t count)
 {
 	uint_t relative_cluster = _filesys_calc_relative_cluster(file_address);
 	uint_t next_cluster = _filesys_find_next_cluster(relative_cluster);

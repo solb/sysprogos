@@ -75,13 +75,13 @@ typedef struct fat32_bs {
 	uint_t		root_cluster;
 	ushort_t	fat_info;
 	ushort_t	backup_boot_sector;
-	ubyte_t		reserved[12];
+	byte_t		reserved[12];
 	ubyte_t		drive_number;
 	ubyte_t		reserved_1;
 	ubyte_t		boot_signature;
 	uint_t		volume_id;
-	ubyte_t		volume_label[11];
-	ubyte_t		fat_type[8]; // For FAT32, "FAT32   "
+	byte_t		volume_label[11];
+	byte_t		fat_type[8]; // For FAT32, "FAT32   "
 	
 } fat32_bs_t;		//sizeof = 96 bytes
 
@@ -112,7 +112,7 @@ typedef struct file_entry {
 /*
 ** Pointer to the starting memory address of the filesystem
 */
-ubyte_t *filesystem;
+byte_t *filesystem;
 
 /*
 ** Structure containing the boot_sector information read from the filesystem
@@ -166,7 +166,7 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
 **		The data gets read into the given buffer
 **
 */
-void _filesys_readfile(ubyte_t *buffer, uint_t file_address, uint_t offset, uint_t amount);
+void _filesys_readfile(byte_t *buffer, uint_t file_address, uint_t offset, uint_t amount);
 
 
 /*
