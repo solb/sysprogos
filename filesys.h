@@ -89,7 +89,7 @@ typedef struct file_entry {
 	ubyte_t		create_time_milli;
 	ushort_t	create_time;
 	ushort_t	create_date;
-	ushort_t	last_acces_date;
+	ushort_t	last_access_date;
 	ushort_t	first_cluster_hi;	//Relateive cluster number hi
 	ushort_t	write_time;
 	ushort_t	write_date;
