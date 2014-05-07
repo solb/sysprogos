@@ -77,6 +77,60 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 */
 
 /*
+** _filesys_readdir -  finds a directory at the given address and reads all the file
+**						entries within the directory and stores each entry in the given
+**						file entry array.
+**						
+**						Returns the number of entries
+*/
+uint_t _filesys_readdir(file_entry_t *entries, uint_t dir_address)
+{
+	//Currently assuming entries is large enough to hold all entries.
+	//This needs to be fixed since the number of entries in a directory is an unknown
+	
+	//Cheats by using _filesys_readfile to read the byte data of the directory entries
+	//which can then be parsed without dealing with cluster chains. Again, currently
+	//will be assuming a directory is no longer than 1 cluster in size.
+	byte_t directory_data[cluster_size];
+	_filesys_readfile(directory_data, dir_address, 0, cluster_size);
+	
+	uint_t entry_count = 0;
+	uint_t data_offset = 0;
+	while(directory_data[data_offset] != ENTRIES_FREE || data_offset == cluster_size)
+	{
+		//Parses a file entry
+		file_entry_t file = 
+		{
+			.name = {0},
+			.attributes = directory_data[data_offset+11],
+			.reserved_NT = directory_data[data_offset+12],
+			.create_time_milli = directory_data[data_offset+13],
+			.create_time = *(ushort_t*)&directory_data[data_offset+14],
+			.create_date = *(ushort_t*)&directory_data[data_offset+16],
+			.last_access_date = *(ushort_t*)&directory_data[data_offset+18],
+			.first_cluster_hi = *(ushort_t*)&directory_data[data_offset+20],
+			.write_time = *(ushort_t*)&directory_data[data_offset+22],
+			.write_date = *(ushort_t*)&directory_data[data_offset+24],
+			.first_cluster_low = *(ushort_t*)&directory_data[data_offset+26],
+			.file_size = *(uint_t*)&directory_data[data_offset+28]
+		};
+		
+		_kmemcpy(file.name, directory_data+data_offset, 11);
+		
+		//File entry valid, add to entries array
+		if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE)
+		{
+			entries[entry_count] = file;
+			entry_count++;
+		}
+		
+		data_offset += 32; //Increments offset to next entries
+	}
+	
+	return entry_count;
+}
+
+/*
 ** _filesys_readfile - finds a file at the given file address and starts reading the
 ** 						file from the offset (file_address + offset) and it reads for
 **						the given number of bytes (count) and returns a byte array of 
