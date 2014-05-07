@@ -123,8 +123,8 @@ SOURCES = $(BOOT_SRC) $(U_S_SRC) $(U_C_SRC) $(K_C_SRC) $(K_S_SRC)
 # Default target:  usb.image
 #
 
-usb.image: bootstrap.b kern.b kern.nl BuildImage #kern.dis 
-	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b $(KERNEL_ADDRESS) filesystem.img $(FILESYSTEM_PHYS_ADDRESS)
+usb.image: bootstrap.b kern.b userspace.img kern.nl BuildImage
+	./BuildImage -d usb -o usb.image -b bootstrap.b kern.b $(KERNEL_ADDRESS) userspace.img $(FILESYSTEM_PHYS_ADDRESS)
 
 floppy.image: bootstrap.b kern.b kern.nl BuildImage #kern.dis 
 	./BuildImage -d floppy -o floppy.image -b bootstrap.b kern.b $(KERNEL_ADDRESS)
@@ -144,6 +144,15 @@ userspace.o: $(U_OBJECTS)
 
 userspace.b:	userspace.o
 	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext $(USERSPACE_VIRT_ADDRESS) userspace.o
+
+userspace.img:	userspace.b
+	$(RM) $@
+	fallocate -l 300K $@
+	mkdosfs -F 32 $@
+	mkdir -p mnt
+	fusefat -o rw+ $@ mnt
+	cp $^ mnt/
+	fusermount -u mnt
 
 #
 # Targets for copying bootable image onto boot devices
