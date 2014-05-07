@@ -145,7 +145,7 @@ userspace.o: $(U_OBJECTS)
 userspace.b:	userspace.o
 	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext $(USERSPACE_VIRT_ADDRESS) userspace.o
 
-userspace.img:	userspace.b
+%.img:
 	$(RM) $@
 	fallocate -l 300K $@
 	mkdosfs -F 32 $@
@@ -153,6 +153,8 @@ userspace.img:	userspace.b
 	fusefat -o rw+ $@ mnt
 	cp $^ mnt/
 	fusermount -u mnt
+
+userspace.img: userspace.b
 
 #
 # Targets for copying bootable image onto boot devices
