@@ -96,12 +96,21 @@ void _filesys_readfile(byte_t *buffer, uint_t file_address, uint_t offset, uint_
 	{
 		uint_t buffer_position = count - remaining_bytes;
 	
-		if(remaining_bytes <= remaining_bytes_current_cluster || next_cluster >= LAST_CLUSTER )
-		{ //Last cluster
+		if(remaining_bytes <= remaining_bytes_current_cluster)
+		{ //Last set of bytes to read
 			_kmemcpy(buffer+buffer_position, filesystem+filesys_offset, remaining_bytes);
 			remaining_bytes = 0;
 			
 			continue;
+		}
+		else if(next_cluster >= LAST_CLUSTER )
+		{ //Last cluster in file cluster chain
+			/*This prevents the issue if the count is > file size. If this occurs
+			*then it will reach the last cluster in the chain and just copy the 
+			*entire cluster size
+			*/
+			_kmemcpy(buffer+buffer_position, filesystem+filesys_offset, cluster_size);
+			break;
 		}
 		
 		//Spans at least another cluster
