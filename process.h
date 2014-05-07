@@ -52,6 +52,9 @@
 
 #define	PID_INIT	1
 
+// Location of userspace binaries once loaded into memory
+#define USERSPACE_VIRT_ADDRESS 0x200000
+
 #ifndef __SP_ASM__
 
 /*

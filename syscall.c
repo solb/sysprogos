@@ -298,7 +298,7 @@ static void _sys_spawn( pcb_t *pcb ) {
 
 	// farm out all the work to this supporting routine
 
-	new = _create_process( pcb->pid, ARG1(pcb) );
+	new = _create_process( pcb->pid, 0x5600, ARG1(pcb) ); // TODO Change this, obviously
 
 	if( new != NULL ) {
 

@@ -64,7 +64,7 @@
 **      pointer to the new PCB
 */
 
-pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
+pcb_t *_create_process( pid_t ppid, uint64_t entry, uint64_t runaddr ) {
 	pcb_t *new;
 	physaddr_t stack;
 	
@@ -80,11 +80,12 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 	_kmemclr( (void *) new, sizeof(pcb_t) );
 
 	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
-	for(uint64_t count = 0; count < PAGES_PER_USERSPACE_PROCESS; ++count) {
+	for(uint64_t count = 0; count < 16404 / PAGE_SIZE; ++count) { // TODO actually query the size
 		physaddr_t pf = _mem_page_frame_alloc();
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 		void *mapped = _mem_map_page(pf);
 		// _kmemcpy(mapped, (void *)(USERSPACE_PHYS_ADDRESS + (count << 12)), PAGE_SIZE); TODO pass this in!
+		_filesys_readfile(mapped, entry + (count << 12), 0, PAGE_SIZE);
 		_mem_unmap_page(mapped);
 	}
 
@@ -130,7 +131,7 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 
 	// fill in the non-zero entries in the context save area
 
-	context->rip    = entry;
+	context->rip    = runaddr; // TODO hardcode userspace virtual address once binaries are separate
 	context->cs     = GDT_USREXEC;
 	context->ss     = GDT_USRNOEX;
 	context->ds     = GDT_USRNOEX;
@@ -228,12 +229,20 @@ void _init( void ) {
 	char *silly = 0x40000;
 	silly[20] = '\0';
 	c_printf( "%s\n", silly );
-	_kpanic( "_init", "Screw you", FAILURE );
 
-	//pcb = _create_process( 0, (uint64_t) USERSPACE_VIRT_ADDRESS );
-	if( pcb == NULL ) {
+	//char data[0x426];
+	//_filesys_readfile(data, 0x5600, 0, 0x425);
+	//data[0x425] = '\0';
+	//c_puts( data );
+
+
+	//_kpanic( "_init", "Screw you", FAILURE );
+
+	pcb = _create_process( 0, 0x5600, USERSPACE_VIRT_ADDRESS );
+
+	/*if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
-	}
+	}*/
 
 	_pcb_dump( "initial", pcb );
 
@@ -241,6 +250,8 @@ void _init( void ) {
 
 	_schedule( pcb );
 	_dispatch();
+
+	c_puts( (char *)(USERSPACE_VIRT_ADDRESS + 0x1970) );
 
 	/*
 	** Turn on the SIO receiver (the transmitter will be turned
@@ -256,5 +267,4 @@ void _init( void ) {
 	*/
 
 	c_puts( "System initialization complete.\n" );
-
 }
