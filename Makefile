@@ -138,6 +138,12 @@ hd.img: usb.image
 kern.b:	kern.o
 	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext $(KERNEL_ADDRESS) kern.o
 
+userspace.o: $(U_OBJECTS)
+	$(LD) $(LDFLAGS_KERN) -o userspace.o -Ttext $(USERSPACE_VIRT_ADDRESS) $(U_OBJECTS) $(U_LIBS)
+
+userspace.b:	userspace.o
+	$(LD) $(LDFLAGS_KERN) -o userspace.b -s --oformat binary -Ttext $(USERSPACE_VIRT_ADDRESS) userspace.o
+
 #
 # Targets for copying bootable image onto boot devices
 #
