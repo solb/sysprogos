@@ -24,9 +24,6 @@
 #include "filesys.h"
 #include "memory.h"
 
-// need init() address
-#include "user.h"
-
 // need the exit() prototype
 #include "ulib.h"
 

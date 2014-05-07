@@ -1,6 +1,5 @@
-.globl init
+.globl main
 
 .globl _start
 _start:
-	call init
-	call exit
+	call main

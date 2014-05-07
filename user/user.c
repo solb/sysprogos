@@ -676,7 +676,7 @@ void user_abovestack( void ) {
 ** Initial process; it starts the other top-level user processes.
 */
 
-void init( void ) {
+void main( void ) {
 	int i;
 	pid_t pid;
 	prio_t prio, prio2;

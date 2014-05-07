@@ -91,7 +91,7 @@
 ** after spawning the other user processes, becomes the idle process
 */
 
-void init( void );
+void main( void );
 
 #endif
 

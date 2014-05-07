@@ -3,8 +3,11 @@
 /hd.img
 /isr_stubs.s
 /startup.s
+*.a
 *.b
 *.image
+*.img
+*.lo
 *.lst
 *.nl
 *.o
