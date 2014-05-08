@@ -77,6 +77,35 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 */
 
 /*
+** _filesys_find_file - Given a file path, find the file in the filesystem and sets the
+**						passed in file_entry with the file_entry information.
+**
+**						Returns 1 if SUCCESS, -1 if FAILURE
+*/
+uint_t _filesys_find_file(char* path, file_entry_t* file)
+{
+	//Currently assumes that it can only search the root directory
+	//ie. path will be just \<filename> instead of \folder1\folder2\<filename>
+	char* filename = path+1;
+	
+	uint_t root_dir_loc = data_start_sector * boot_sector.bytes_per_sector;
+	file_entry_t entries[cluster_size / sizeof(file_entry_t)];
+	
+	uint_t num_entries = _filesys_readdir(entries, root_dir_loc);
+	
+	for(int i = 0; i < num_entries; i++)
+	{
+		if(_kstrcmp(entries[i].name, filename) == 0)
+		{
+			_kmemcpy((byte_t*)file, (byte_t*)(entries+i), sizeof(file_entry_t));
+			return SUCCESS;
+		}
+	}
+	
+	return FAILURE;
+}
+
+/*
 ** _filesys_readdir -  finds a directory at the given address and reads all the file
 **						entries within the directory and stores each entry in the given
 **						file entry array.
@@ -116,6 +145,7 @@ uint_t _filesys_readdir(file_entry_t *entries, uint_t dir_address)
 		};
 		
 		_kmemcpy(file.name, directory_data+data_offset, 11);
+		file.name[11] = '\0'; //NULL terminates the name string
 		
 		//File entry valid, add to entries array
 		if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE)

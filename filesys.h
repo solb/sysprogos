@@ -160,6 +160,13 @@ uint_t _filesys_find_next_cluster(uint_t current_cluster);
 uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
 
 /*
+** _filesys_find_file - Given a file path, find the file in the filesystem and returns the
+**						the file's file_entry
+**
+*/
+uint_t _filesys_find_file(char* path, file_entry_t* file);
+
+/*
 ** _filesys_readdir -  finds a directory at the given address and reads all the file
 **						entries within the directory and stores each entry in the given
 **						file entry array.
