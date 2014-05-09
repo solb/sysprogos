@@ -20,14 +20,6 @@
 #ifndef __SP_ASM__
 
 /*
-** Defines Filesystem constants
-*/
-#define FS_SIZE_MB			2		//Size of the File system (in MB)
-#define CLUSTER_SIZE		4096 	//Size of a cluster (in bytes)
-#define SECTORS_PER_CLUSTER	8		//Number of sectors in a cluster
-
-
-/*
 ** Defines the location at which the filesystem memory begins
 */
 #define FS_MEM_LOC	 FILESYSTEM_VIRT_ADDRESS;
@@ -37,6 +29,15 @@
 ** Defines the value that represents the last cluster in a chain
 */
 #define LAST_CLUSTER	0x0FFFFFF8
+
+/*
+** Defines the 2 "free" values for if a entry in a directory is freed
+**
+** 1. 0xE5 = Entry is free
+** 2. 0x00 = Entry is free (same as 0xE5) and no allocated dir entries after this one
+*/
+#define ENTRY_FREE 		0xE5
+#define ENTRIES_FREE	0x00
 
 /*
 ** Start of C-only definitions
@@ -91,13 +92,13 @@ typedef struct fat32_bs {
 //						 set file size to 0)
 //
 typedef struct file_entry {
-	ubyte_t		name[11];
+	char		name[11];
 	ubyte_t		attributes;
 	ubyte_t		reserved_NT; // Reserved for Windows NT. Set to 0
 	ubyte_t		create_time_milli;
 	ushort_t	create_time;
 	ushort_t	create_date;
-	ushort_t	last_acces_date;
+	ushort_t	last_access_date;
 	ushort_t	first_cluster_hi;	//Relateive cluster number hi
 	ushort_t	write_time;
 	ushort_t	write_date;
@@ -157,6 +158,30 @@ uint_t _filesys_find_next_cluster(uint_t current_cluster);
 **									using the exact memory address
 */
 uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
+
+/*
+** _filesys_find_file - Given a file path and a folder address, it will find the file in 
+**						the filesystem and copy the file_entry into the given file entry's
+**						memory.
+**
+**						PATH Format: \folder1\folder2\<filename>
+**
+**						IF the folder_address is set to 0, it will default to using the
+**						Root Directory
+**
+**  					 Return SUCCESS or FAILURE
+**
+*/
+uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address);
+
+/*
+** _filesys_readdir -  finds a directory at the given address and reads all the file
+**						entries within the directory and stores each entry in the given
+**						file entry array.
+**
+**						Returns the number of entries
+*/
+uint_t _filesys_readdir(file_entry_t *entries, uint_t dir_address);
 
 /*
 ** _filesys_readfile - finds a file at the given file address and starts reading the
