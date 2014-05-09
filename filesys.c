@@ -92,16 +92,16 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 {	
 	//Splits path into head (first folder name) and Tail (rest of path)
-	//Split is performed by finding first 2nd "\" and converts it to \0 
-	//				(because path should start with "\")
-	//	unless it reaches \0 before finding a "\". 
+	//Split is performed by finding first 2nd "/" and converts it to \0 
+	//				(because path should start with "/")
+	//	unless it reaches \0 before finding a "/". 
 	char* path_tail = path + 1;
 	
-	//Finds the 2nd "\" in the path
+	//Finds the 2nd "/" in the path
 	while(*path_tail != '\0')
 	{ //While it has not reached end of path
-		if(*path_tail == '\\')
-		{//It has found a "\"
+		if(*path_tail == '/')
+		{//It has found a "/"
 			break;
 		}
 		 path_tail++;
