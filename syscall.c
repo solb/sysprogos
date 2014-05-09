@@ -289,6 +289,9 @@ static void _sys_writes( pcb_t *pcb ) {
 **
 ** implements:  int spawn(void (*entry)(void));
 **
+** takes:
+** 	string containing path to binary
+**
 ** returns:
 **	pid of new process in original process, or -1 on error
 */
@@ -298,7 +301,7 @@ static void _sys_spawn( pcb_t *pcb ) {
 
 	// farm out all the work to this supporting routine
 
-	new = _create_process( pcb->pid, 0x5600, ARG1(pcb) ); // TODO Change this, obviously
+	new = _create_process( pcb->pid, ARG1(pcb) );
 
 	if( new != NULL ) {
 

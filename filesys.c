@@ -89,13 +89,13 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 **  					 Return SUCCESS or FAILURE
 **
 */
-uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
+uint_t _filesys_find_file(const char* path, file_entry_t* file, uint_t dir_address)
 {	
 	//Splits path into head (first folder name) and Tail (rest of path)
 	//Split is performed by finding first 2nd "\" and converts it to \0 
 	//				(because path should start with "\")
 	//	unless it reaches \0 before finding a "\". 
-	char* path_tail = path + 1;
+	const char* path_tail = path + 1;
 	
 	//Finds the 2nd "\" in the path
 	while(*path_tail != '\0')
@@ -112,7 +112,7 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 	
 	//Takes HEAD of path and stores it in filename
 	char filename[head_len]; //HEAD
-	_kmemcpy(filename, path+1, head_len);
+	_kmemcpy(filename, (char *)(path+1), head_len); // TODO Fix _kmemcpy to take a const src
 	filename[head_len-1] = '\0';
 	
 	if(dir_address == 0)
@@ -131,7 +131,7 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 			//Copy that file entry into the file memory
 			_kmemcpy((byte_t*)file, (byte_t*)(entries+i), sizeof(file_entry_t));
 			
-			if(_kstrcmp(path_tail, "") == 0)
+			if(_kstrcmp((char *)path_tail, (char *)"") == 0) // TODO Fix _kstrcmp to take a const src
 			{ // AT the final folder in path, return back succes
 				return SUCCESS;
 			}

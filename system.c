@@ -55,13 +55,13 @@
 /*
 ** _create_process(ppid,entry)
 **
-** allocate and initialize a new process' data structures (PCB, stack)
+** allocate and initialize a new process' data structures (PCB, filename)
 **
 ** returns:
 **      pointer to the new PCB
 */
 
-pcb_t *_create_process( pid_t ppid, uint64_t entry, uint64_t runaddr ) {
+pcb_t *_create_process( pid_t ppid, const char *path ) {
 	pcb_t *new;
 	physaddr_t stack;
 	
@@ -76,14 +76,25 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry, uint64_t runaddr ) {
 
 	_kmemclr( (void *) new, sizeof(pcb_t) );
 
+	file_entry_t info;
+	if(_filesys_find_file(path, &info, 0) == FAILURE) {
+		c_printf("_create_process: Unable to find binary '%s'\n", path);
+		return NULL;
+	}
+
+	uint_t remaining_size = info.file_size;
+	uint_t start_address =
+			_filesys_calc_absolute_cluster_loc((info.first_cluster_hi << 16) | info.first_cluster_low);
+	c_printf("found init: addr 0x%lx size 0x%lx\n", start_address, remaining_size);
 	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
-	for(uint64_t count = 0; count < 16404 / PAGE_SIZE; ++count) { // TODO actually query the size
+	for(uint64_t count = 0; count < info.file_size / PAGE_SIZE; ++count) {
 		physaddr_t pf = _mem_page_frame_alloc();
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 		void *mapped = _mem_map_page(pf);
-		// _kmemcpy(mapped, (void *)(USERSPACE_PHYS_ADDRESS + (count << 12)), PAGE_SIZE); TODO pass this in!
-		_filesys_readfile(mapped, entry + (count << 12), 0, PAGE_SIZE);
+		_filesys_readfile(mapped, start_address, count << 12,
+				remaining_size >= PAGE_SIZE ? PAGE_SIZE : remaining_size);
 		_mem_unmap_page(mapped);
+		remaining_size -= PAGE_SIZE;
 	}
 
 	new->pagetab = _mem_page_frame_alloc();
@@ -128,7 +139,7 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry, uint64_t runaddr ) {
 
 	// fill in the non-zero entries in the context save area
 
-	context->rip    = runaddr; // TODO hardcode userspace virtual address once binaries are separate
+	context->rip    = USERSPACE_VIRT_ADDRESS;
 	context->cs     = GDT_USREXEC;
 	context->ss     = GDT_USRNOEX;
 	context->ds     = GDT_USRNOEX;
@@ -215,31 +226,17 @@ void _init( void ) {
 
 	/*
 	** Create the initial process
+	'
 	**
 	** Code mostly stolen from _sys_fork(); if that routine
 	** changes, SO MUST THIS!!!
 	*/
 
-	// allocate a PCB and stack
 
-	c_printf( "HERE!\n" );
-	char *silly = 0x40000;
-	silly[20] = '\0';
-	c_printf( "%s\n", silly );
-
-	//char data[0x426];
-	//_filesys_readfile(data, 0x5600, 0, 0x425);
-	//data[0x425] = '\0';
-	//c_puts( data );
-
-
-	//_kpanic( "_init", "Screw you", FAILURE );
-
-	pcb = _create_process( 0, 0x5600, USERSPACE_VIRT_ADDRESS );
-
-	/*if( pcb == NULL ) {
+	pcb = _create_process( 0, "\\~1         " );
+	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
-	}*/
+	}
 
 	_pcb_dump( "initial", pcb );
 

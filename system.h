@@ -45,7 +45,7 @@
 */
 
 /*
-** _create_process(ppid,entry)
+** _create_process(ppid,filename)
 **
 ** allocate and initialize a new process' data structures (PCB, stack)
 **
@@ -53,7 +53,7 @@
 **      pointer to the new PCB
 */
 
-pcb_t *_create_process( pid_t ppid, uint64_t entry, uint64_t runaddr );
+pcb_t *_create_process( pid_t ppid, const char *path );
 
 /*
 ** _init - system initialization routine

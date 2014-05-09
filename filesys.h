@@ -172,7 +172,7 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
 **  					 Return SUCCESS or FAILURE
 **
 */
-uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address);
+uint_t _filesys_find_file(const char* path, file_entry_t* file, uint_t dir_address);
 
 /*
 ** _filesys_readdir -  finds a directory at the given address and reads all the file
