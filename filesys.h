@@ -160,11 +160,19 @@ uint_t _filesys_find_next_cluster(uint_t current_cluster);
 uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
 
 /*
-** _filesys_find_file - Given a file path, find the file in the filesystem and returns the
-**						the file's file_entry
+** _filesys_find_file - Given a file path and a folder address, it will find the file in 
+**						the filesystem and copy the file_entry into the given file entry's
+**						memory.
+**
+**						PATH Format: \folder1\folder2\<filename>
+**
+**						IF the folder_address is set to 0, it will default to using the
+**						Root Directory
+**
+**  					 Return SUCCESS or FAILURE
 **
 */
-uint_t _filesys_find_file(char* path, file_entry_t* file);
+uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address);
 
 /*
 ** _filesys_readdir -  finds a directory at the given address and reads all the file

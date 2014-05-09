@@ -77,28 +77,70 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 */
 
 /*
-** _filesys_find_file - Given a file path, find the file in the filesystem and sets the
-**						passed in file_entry with the file_entry information.
+** _filesys_find_file - Given a file path and a folder address, it will find the file in 
+**						the filesystem and copy the file_entry into the given file entry's
+**						memory.
 **
-**						Returns 1 if SUCCESS, -1 if FAILURE
+**						PATH Format: \folder1\folder2\<filename>
+**
+**						IF the folder_address is set to 0, it will default to using the
+**						Root Directory
+**
+**  					 Return SUCCESS or FAILURE
+**
 */
-uint_t _filesys_find_file(char* path, file_entry_t* file)
-{
-	//Currently assumes that it can only search the root directory
-	//ie. path will be just \<filename> instead of \folder1\folder2\<filename>
-	char* filename = path+1;
+uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
+{	
+	//Splits path into head (first folder name) and Tail (rest of path)
+	//Split is performed by finding first 2nd "\" and converts it to \0 
+	//				(because path should start with "\")
+	//	unless it reaches \0 before finding a "\". 
+	char* path_tail = path + 1;
 	
-	uint_t root_dir_loc = data_start_sector * boot_sector.bytes_per_sector;
+	//Finds the 2nd "\" in the path
+	while(*path_tail != '\0')
+	{ //While it has not reached end of path
+		if(*path_tail == '\\')
+		{//It has found a "\"
+			break;
+		}
+		 path_tail++;
+	}
+	
+	//Calculates HEAD and TAIL lengths
+	uint_t head_len = path_tail - path;
+	
+	//Takes HEAD of path and stores it in filename
+	char filename[head_len]; //HEAD
+	_kmemcpy(filename, path+1, head_len);
+	filename[head_len-1] = '\0';
+	
+	if(dir_address == 0)
+	{ //USE Root Directory
+		dir_address = data_start_sector * boot_sector.bytes_per_sector;
+	}
+	
+	
 	file_entry_t entries[cluster_size / sizeof(file_entry_t)];
-	
-	uint_t num_entries = _filesys_readdir(entries, root_dir_loc);
+	uint_t num_entries = _filesys_readdir(entries, dir_address);
 	
 	for(int i = 0; i < num_entries; i++)
 	{
 		if(_kstrcmp(entries[i].name, filename) == 0)
-		{
+		{ // FOUND the entry we were looking for!
+			//Copy that file entry into the file memory
 			_kmemcpy((byte_t*)file, (byte_t*)(entries+i), sizeof(file_entry_t));
-			return SUCCESS;
+			
+			if(_kstrcmp(path_tail, "") == 0)
+			{ // AT the final folder in path, return back succes
+				return SUCCESS;
+			}
+			
+			//Found folder, move to next part of path!
+			uint_t entry_cluster = entries[i].first_cluster_hi << 8 |
+														entries[i].first_cluster_low;
+			uint_t next_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
+			return _filesys_find_file(path_tail, file, next_address); //SUCCESS 
 		}
 	}
 	
