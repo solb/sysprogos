@@ -115,6 +115,21 @@ uint32_t _kstrlen( register char *str ) {
 	return( len );
 }
 
+/*
+** _kstrcmp - Compares two strings. Returns 0 if equal, 1 if str1 is > str2, -1 otherwise
+**
+** usage:  n = _kstrcmp( str1, str2 );
+*/
+
+uint32_t _kstrcmp( register char *str1, register char *str2) {
+	//Implementation taken from clc-wiki.net
+	 while(*str1 && (*str1==*str2)) {
+	 	str1++;
+	 	str2++;
+	 }
+    return *str1-*str2;
+}
+
 
 /*
 ** _kpanic - kernel-level panic routine

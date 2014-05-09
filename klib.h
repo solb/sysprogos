@@ -90,6 +90,14 @@ void _kmemcpy( register byte_t *dst, register byte_t *src, register uint32_t len
 uint32_t _kstrlen( register char *str );
 
 /*
+** _kstrcmp - Compares two strings. Returns 0 if equal, 1 if str1 is > str2, -1 otherwise
+**
+** usage:  n = _kstrcmp( str1, str2 );
+*/
+
+uint32_t _kstrcmp( register char *str1, register char *str2);
+
+/*
 ** _kpanic - kernel-level panic routine
 **
 ** usage:  _kpanic( module, msg, code )
