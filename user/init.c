@@ -15,7 +15,7 @@ int main( void ) {
 	prio_t prio, prio2;
 	time_t time;
 
-	c_puts( "Starting init()\n" );
+	c_puts( "Starting init program\n" );
 
 	prio = setprio( PRIO_HIGH );
 	prio = getprio();
@@ -25,8 +25,7 @@ int main( void ) {
 	writech( '$' );
 
 #ifdef SPAWN_A
-	//pid = spawn( "\\USER_A  B  " );
-	pid = spawn( "\\~2         " );
+	pid = spawn( "\\USER_A  B  " );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user A failed\n" );
 		exit();

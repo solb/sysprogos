@@ -8,8 +8,8 @@
 #
 # User supplied files
 #
-U_C_BIN = user/init.b user/user_a.b
-U_C_OBJ = user/init.o user/user_a.o
+U_C_BIN = user/init.b user/user_a.b user/user_b.b user/user_c.b user/user_d.b user/user_e.b user/user_f.b user/user_g.b user/user_h.b user/user_j.b user/user_k.b user/user_l.b user/user_m.b user/user_n.b user/user_p.b user/user_q.b user/user_r.b user/user_s.b user/user_t.b user/user_u.b user/user_w.b user/user_x.b user/user_y.b user/user_z.b
+U_C_OBJ = user/init.o user/user_a.o user/user_b.o user/user_c.o user/user_d.o user/user_e.o user/user_f.o user/user_a.o user/user_b.o user/user_c.o user/user_d.o user/user_e.o user/user_f.o user/user_g.o user/user_h.o user/user_j.o user/user_k.o user/user_l.o user/user_m.o user/user_n.o user/user_p.o user/user_q.o user/user_r.o user/user_s.o user/user_t.o user/user_u.o user/user_w.o user/user_x.o user/user_y.o user/user_z.o
 A_C_SRC = ulibc.c c_io_user.c c_io_shared.c
 A_C_OBJ = ulibc.o c_io_user.o c_io_shared.o
 A_H_SRC = clock.h common.h defs.h process.h queue.h \

@@ -22,7 +22,6 @@
 //	user	          baseline system calls in use
 		// xit rch wch ws  spn slp gpr spr gp  gpp gt bog
 #define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .  .
-#if 0
 #define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .  .
 // #define	SPAWN_D	//  X   .   X   .   X   .   .   .   .   .   .  .
@@ -45,6 +44,7 @@
 #define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
 // no user V
 
+#if 0
 #define SPAWN_NULLPTR
 #define SPAWN_BELOWSTACK
 #define SPAWN_ABOVESTACK

@@ -85,7 +85,6 @@ pcb_t *_create_process( pid_t ppid, const char *path ) {
 	uint_t remaining_size = info.file_size;
 	uint_t start_address =
 			_filesys_calc_absolute_cluster_loc((info.first_cluster_hi << 16) | info.first_cluster_low);
-	c_printf("found init: addr 0x%lx size 0x%lx\n", start_address, remaining_size);
 	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
 	for(uint64_t count = 0; count < info.file_size / PAGE_SIZE; ++count) {
 		physaddr_t pf = _mem_page_frame_alloc();
@@ -232,8 +231,7 @@ void _init( void ) {
 	** changes, SO MUST THIS!!!
 	*/
 
-
-	pcb = _create_process( 0, "\\~1         " );
+	pcb = _create_process( 0, "\\INIT    B  " );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}

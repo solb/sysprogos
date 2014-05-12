@@ -36,6 +36,14 @@
 */
 
 /*
+** Macros
+*/
+
+// pseudo function to convert seconds to milliseconds
+
+#define	seconds_to_ms(n)	((n) * 1000)
+
+/*
 ** Types
 */
 
