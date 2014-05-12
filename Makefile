@@ -8,8 +8,8 @@
 #
 # User supplied files
 #
-U_C_BIN = user/user.b
-U_C_OBJ = user/user.o
+U_C_BIN = user/init.b user/user_a.b
+U_C_OBJ = user/init.o user/user_a.o
 A_C_SRC = ulibc.c c_io_user.c c_io_shared.c
 A_C_OBJ = ulibc.o c_io_user.o c_io_shared.o
 A_H_SRC = clock.h common.h defs.h process.h queue.h \
