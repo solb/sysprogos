@@ -81,12 +81,12 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 **						the filesystem and copy the file_entry into the given file entry's
 **						memory.
 **
-**						PATH Format: \folder1\folder2\<filename>
+**						PATH Format: /folder1/folder2/<filename>
 **
 **						IF the folder_address is set to 0, it will default to using the
 **						Root Directory
 **
-**  					 Return SUCCESS or FAILURE
+**  					 Return SUCCESS and FAILURE
 **
 */
 uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
@@ -120,9 +120,9 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 		dir_address = data_start_sector * boot_sector.bytes_per_sector;
 	}
 	
-	
-	file_entry_t entries[cluster_size / sizeof(file_entry_t)];
-	uint_t num_entries = _filesys_readdir(entries, dir_address);
+	uint_t entries_size = MAX_DIRECTORY_SIZE;
+	file_entry_t entries[entries_size];
+	uint_t num_entries = _filesys_readdir(entries, entries_size, dir_address);
 	
 	for(int i = 0; i < num_entries; i++)
 	{
@@ -148,27 +148,26 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 }
 
 /*
-** _filesys_readdir -  finds a directory at the given address and reads all the file
-**						entries within the directory and stores each entry in the given
-**						file entry array.
-**						
-**						Returns the number of entries
+** _filesys_readdir -  finds a directory at the given address and reads the given number
+**						 of entries entries passed into the function, within the directory
+**						 and stores each entry in the given file entry array.
+**
+**						Returns the number of entries that were added to the array
 */
-uint_t _filesys_readdir(file_entry_t *entries, uint_t dir_address)
+uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, uint_t dir_address)
 {
-	//Currently assuming entries is large enough to hold all entries.
-	//This needs to be fixed since the number of entries in a directory is an unknown
-	
 	//Cheats by using _filesys_readfile to read the byte data of the directory entries
-	//which can then be parsed without dealing with cluster chains. Again, currently
-	//will be assuming a directory is no longer than 1 cluster in size.
-	byte_t directory_data[cluster_size];
-	_filesys_readfile(directory_data, dir_address, 0, cluster_size);
+	//which can then be parsed without dealing with cluster chains.
+	uint_t data_size  = entries_size * sizeof(file_entry_t);
+	byte_t directory_data[data_size];
+	_kmemclr(directory_data, data_size); //Clears the memory so no extra entries get "read"
+	_filesys_readfile(directory_data, dir_address, 0, data_size);
 	
 	uint_t entry_count = 0;
 	uint_t data_offset = 0;
-	while(directory_data[data_offset] != ENTRIES_FREE || data_offset == cluster_size)
-	{
+	while(directory_data[data_offset] != ENTRIES_FREE && entry_count <= entries_size)
+	{ // While there are valid entries and it has gotten less than entries_size
+	
 		//Parses a file entry
 		file_entry_t file = 
 		{
@@ -187,7 +186,8 @@ uint_t _filesys_readdir(file_entry_t *entries, uint_t dir_address)
 		};
 		
 		_kmemcpy(file.name, directory_data+data_offset, 11);
-		file.name[11] = '\0'; //NULL terminates the name string
+		file.name[11] = '\0';
+		
 		
 		//File entry valid, add to entries array
 		if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE)

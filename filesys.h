@@ -40,6 +40,11 @@
 #define ENTRIES_FREE	0x00
 
 /*
+** Defines the maximum number of files to be stored in a directory
+*/
+#define	MAX_DIRECTORY_SIZE	200;
+
+/*
 ** Start of C-only definitions
 */
 
@@ -175,13 +180,13 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
 uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address);
 
 /*
-** _filesys_readdir -  finds a directory at the given address and reads all the file
-**						entries within the directory and stores each entry in the given
-**						file entry array.
+** _filesys_readdir -  finds a directory at the given address and reads the given number
+**						 of entries entries passed into the function, within the directory
+**						 and stores each entry in the given file entry array.
 **
-**						Returns the number of entries
+**						Returns the number of entries that were added to the array
 */
-uint_t _filesys_readdir(file_entry_t *entries, uint_t dir_address);
+uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, uint_t dir_address);
 
 /*
 ** _filesys_readfile - finds a file at the given file address and starts reading the
