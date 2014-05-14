@@ -42,7 +42,7 @@
 /*
 ** Defines the maximum number of files to be stored in a directory
 */
-#define	MAX_DIRECTORY_SIZE	200;
+#define	MAX_DIRECTORY_SIZE	50;
 
 /*
 ** Start of C-only definitions
