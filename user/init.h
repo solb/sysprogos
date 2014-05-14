@@ -44,11 +44,7 @@
 #define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
 // no user V
 
-#if 0
 #define SPAWN_NULLPTR
-#define SPAWN_BELOWSTACK
-#define SPAWN_ABOVESTACK
-#endif
 
 /*
 ** Users W-Z are spawned from other processes; they
