@@ -57,7 +57,7 @@ uint_t _filesys_calc_absolute_cluster_loc(uint_t relative_cluster)
 */
 uint_t _filesys_find_next_cluster(uint_t current_cluster)
 {
-	return  *(uint_t *)&filesystem[fat_start_loc + current_cluster * 4];
+	return  *(uint_t *)&filesystem[fat_start_loc + current_cluster * 4] & 0x0FFFFFFF;
 }
 
 /*
