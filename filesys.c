@@ -190,7 +190,8 @@ uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, uint_t dir_a
 		
 		
 		//File entry valid, add to entries array
-		if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE)
+		if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE && 
+			(file.attributes & ATTR_LONG_NAME) != ATTR_LONG_NAME)
 		{
 			entries[entry_count] = file;
 			entry_count++;

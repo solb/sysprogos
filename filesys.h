@@ -42,7 +42,18 @@
 /*
 ** Defines the maximum number of files to be stored in a directory
 */
-#define	MAX_DIRECTORY_SIZE	200;
+#define	MAX_DIRECTORY_SIZE	50;
+
+/*
+** Defines the file_entry ATTRIBUTES
+*/
+#define ATTR_READ_ONLY	0x01
+#define ATTR_HIDDEN		0x02
+#define ATTR_SYSTEM		0x04
+#define ATTR_VOLUME_ID	0x08
+#define ATTR_DIRECTORY	0x10
+#define ATTR_ARCHIVE	0x20
+#define ATTR_LONG_NAME	(ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID)
 
 /*
 ** Start of C-only definitions
@@ -109,7 +120,7 @@ typedef struct file_entry {
 	ushort_t	write_date;
 	ushort_t	first_cluster_low;	//Relative cluster number lo
 	uint_t		file_size;
-} file_entry_t;		//sizeof = 32 bytes
+} file_entry_t;		//sizeof = 36 bytes
 
 /*
 ** Globals
