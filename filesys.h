@@ -97,7 +97,7 @@ typedef struct fat32_bs {
 //						 set file size to 0)
 //
 typedef struct file_entry {
-	char		name[11];
+	char		name[12];
 	ubyte_t		attributes;
 	ubyte_t		reserved_NT; // Reserved for Windows NT. Set to 0
 	ubyte_t		create_time_milli;
