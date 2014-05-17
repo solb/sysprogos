@@ -377,9 +377,13 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 	uint_t head_len = path_tail - path;
 	
 	//Takes HEAD of path and stores it in filename
-	char filename[head_len]; //HEAD
-	_kmemcpy(filename, path+1, head_len);
-	filename[head_len-1] = '\0';
+	char full_filename[head_len]; //HEAD
+	_kmemcpy(full_filename, path+1, head_len);
+	full_filename[head_len-1] = '\0';
+	
+	//Converts the filename to shortname equivalent 
+	char filename[12];
+	_filesys_convert_to_shortname(full_filename, filename);
 	
 	if(dir_address == 0)
 	{ //USE Root Directory
