@@ -3,6 +3,7 @@
 /hd.img
 /isr_stubs.s
 /startup.s
+/user/oflo_sta.s
 *.a
 *.b
 *.image

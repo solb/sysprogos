@@ -192,6 +192,14 @@ int main( void ) {
 	}
 #endif
 
+#ifdef SPAWN_OVERFLOWSTACK
+	pid = spawn( "/OFLO_STAB  " );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user OVERFLOWSTACK failed\n" );
+		exit();
+	}
+#endif
+
 	writech( '!' );
 
 	/*
