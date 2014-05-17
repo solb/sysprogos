@@ -70,6 +70,27 @@ void _mem_page_table_free(physaddr_t pt) {
 	_mem_page_frame_free(pt);
 }
 
+/*
+** _mem_map_page_onto: map the given page frame onto the given page-ligned memory address
+**
+** page: the page-aligned memory address onto which this frame should be mapped
+** frame: the physical address of memory the page should be mapped to.
+*/
+
+void _mem_map_page_onto(void *page, physaddr_t frame) {
+	uint64_t test = (uint64_t)page & ((1<<12)-1);
+	if (test) {
+		_kpanic("mem", "cannot map page onto not page-aligned address", FAILURE);
+	}
+	uint64_t *kernel_page_table = (uint64_t *)PT_ADDRESS;
+	uint64_t table_index = ((uint64_t)page)>>12;
+	if (table_index >= 512) {
+		_kpanic("mem", "cannot map page onto address outside kernel page table.", FAILURE);
+	}
+	kernel_page_table[table_index] = (uint64_t)(frame.addr) | PAGE_PRESENT;
+	__inv_tlb();
+}
+
 #define SCRATCH_PAGE ((void*)0x1ff000)
 static int scratch_page_mapped = 0;
 
@@ -81,14 +102,13 @@ static int scratch_page_mapped = 0;
 ** mapped in the scratch area. mapped memory must be unmapped with _mem_unmap_page when done
 ** being used.
 */
+
 void *_mem_map_page(physaddr_t page) {
 	if (scratch_page_mapped) {
 		_kpanic("mem", "tried to map scratch page while already mapped", FAILURE);
 	}
 	scratch_page_mapped = 1;
-	uint64_t *kernel_page_table = (uint64_t *)PT_ADDRESS;
-	kernel_page_table[(uint64_t)SCRATCH_PAGE>>12] = (uint64_t)(page.addr) | PAGE_PRESENT;
-	__inv_tlb();
+	_mem_map_page_onto(SCRATCH_PAGE, page);
 	return SCRATCH_PAGE;
 }
 

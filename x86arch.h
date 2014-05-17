@@ -221,6 +221,8 @@
 #	define		IDT_INT32_GATE	0x0e00
 #	define		IDT_TRAP16_GATE	0x0700
 #	define		IDT_TRAP32_GATE	0x0f00
+#define IDT_IST_MASK		0x0007
+#	define		IDT_IST_1	0x0001
 
 /*
 ** Interrupt vectors

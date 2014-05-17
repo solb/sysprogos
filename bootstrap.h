@@ -48,7 +48,8 @@
 #define TSS_SEGMENT 0x00000350
 #define TSS_ADDRESS	0x00003500
 #define TSS_SIZE	104
-#define TSS_ESP0	1
+#define TSS_RSP0	1
+#define TSS_IST1	9
 
 /*
 ** The Page Tables
