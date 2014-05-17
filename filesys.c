@@ -73,8 +73,274 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 }
 
 /*
+** void _filesys_convert_to_shortname - Converts a given string to a valid Shortname
+**										version to be used with the filesystem
+*/
+void _filesys_convert_to_shortname(char* filename, char* shortname)
+{	
+	uint_t index = 0;
+	while(index < 8)
+	{//Filename portion of the shortname
+		if(*filename == '/' || *filename == '.' || *filename == '\0')
+		{//Reached end of filename or found a '.' before getting 8 characters 
+			shortname[index] = ' ';
+		}
+		else
+		{
+			shortname[index] = char_toupper(*filename);
+			filename++;
+		}
+		index++;
+	}
+	
+	while(*filename != '.' && *filename != '\0')
+	{//Increments the filename until it either finds a '.' or reaches the end
+		filename++;
+	}
+	
+	if(*filename == '.') filename++; //Moves to next char after the '.'
+	
+	while(index < 11)
+	{//Extension portion of shortname
+		if(*filename == '\0')
+		{
+			shortname[index] = ' ';
+		}
+		else
+		{
+			shortname[index] = char_toupper(*filename);
+			filename++;
+		}
+		index++;
+	}
+	
+	shortname[11] = '\0';	
+}
+
+/*
+** char_toupper - Converts the passed in char to uppercase if it is an ascii character
+*/
+char char_toupper(char c)
+{
+	if(c >= 'a' && c <= 'z')
+	{
+		int upper_dist = 'A' - 'a';
+		return c + upper_dist;
+	}
+	else
+	{//Not in range of lowercase characters
+		return c;
+	}
+}
+
+/*
+** find_first_free_entry - Finds the first free entry in the directory at the given
+**							address and returns the memory location of it
+**
+**							Returns 0 if there were no free entries (needs to expand to
+**								a new cluster)
+*/
+uint_t _filesys_find_first_free_entry(uint_t dir_address)
+{
+	uint_t entry_address = dir_address;
+	uint_t end_of_cluster = dir_address + cluster_size;
+	while(entry_address != end_of_cluster)
+	{//loops until it reaches the end of the current cluster
+		ubyte_t val = filesystem[entry_address];
+		if(val == ENTRY_FREE || val == ENTRIES_FREE)
+		{//Found a free entry
+			return entry_address;
+		}
+		
+		entry_address += 32; //Increments 32 bytes to next file entry
+	}
+	
+	//If it reaches this far, it means that it has reached the end of the cluster and
+	//it should check the next cluster in the chain, or if it is the last, return 0
+	uint_t relative_cluster = _filesys_calc_relative_cluster(dir_address);
+	uint_t next_cluster = _filesys_find_next_cluster(relative_cluster);
+	
+	if(next_cluster >= LAST_CLUSTER)
+	{//Reached the end of the cluster chain and didn't find any free entries
+		return 0;
+	}
+	
+	uint_t next_cluster_loc = _filesys_calc_absolute_cluster_loc(next_cluster);
+	
+	//Recursively checks the next cluster in the chain.
+	return _filesys_find_first_free_entry(next_cluster_loc);
+	
+}
+
+/*
+** _filesys_expand_cluster_chain - Expands the cluster chain starting at the given start
+**									relative cluster number and expands it to one more
+**									cluster and returns the address to the newly added
+**									cluster.
+*/
+uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
+{
+	uint_t prev_cluster = start_cluster;
+	uint_t next_cluster = _filesys_find_next_cluster(prev_cluster);
+	
+	while(next_cluster != LAST_CLUSTER)
+	{//Continue searching through the chain for the last cluster
+		prev_cluster = next_cluster;
+	}
+
+	//Gets a free cluster to expand the chain into
+	next_cluster = _filesys_find_next_free_cluster();
+	
+	//Updates the FATs changing the old last cluster to point to the new next_cluser
+	_filesys_update_fats(prev_cluster, next_cluster);
+	
+	//Updates the FATs, setting the next_cluster as the end
+	_filesys_update_fats(next_cluster, LAST_CLUSTER);
+	
+	return next_cluster;
+}
+
+/*
+** _filesys_find_next_free_cluster - Goes through the FAT and locates the first available
+**										cluster that is free and returns the relative
+**										cluster number. Returns 0 if no free cluster found
+*/
+uint_t _filesys_find_next_free_cluster(void)
+ {
+ 	uint_t fat_size = boot_sector.table_size_32 * boot_sector.bytes_per_sector / 4;
+ 	uint_t *fat = (uint_t*)filesystem+fat_start_loc;
+ 	
+ 	
+ 	for(uint_t i = 2; i < fat_size; i++)
+ 	{
+ 		if(*(fat+i) == 0x0000)
+ 		{//Found a free cluster
+ 			return i;
+ 		}
+ 	}
+ 	
+ 	//Reached end of FAT without finding a free cluster, return 0
+ 	return 0;
+ 
+}
+
+/*
+** _filesys_write_file_entry - Writes a file entry at the given entry location using
+**								the provided filename, attributes, and cluster number
+*/
+void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t attributes, 
+ 								uint_t new_file_cluster)
+{
+ 	byte_t *entry = filesystem+new_entry_loc;
+ 	
+ 	ushort_t cluster_low = new_file_cluster & 0x00FF;
+ 	ushort_t cluster_hi = new_file_cluster >> 0x8 & 0x00FF;
+ 	
+ 	_kmemcpy(entry, (byte_t*)filename, 11);	//filename
+ 	*(entry+11) = attributes;				//attributes
+ 	*(entry+12) = 0x0;						//reserved_NT
+ 	*(entry+13) = 0x0;						//create_time_milli
+ 	*(entry+14) = 0x00;						//create_time
+ 	*(entry+16) = 0x00;						//create_date
+ 	*(entry+18) = 0x00;						//last_access_date
+ 	*(entry+20) = cluster_hi;				//first_cluster_hi
+ 	*(entry+22) = 0x00;						//write_time
+ 	*(entry+24) = 0x00;						//write_date
+ 	*(entry+26) = cluster_low;				//first_cluster_low
+ 	*(entry+28) = 0x0000;					//file_size
+}
+ 
+/*
+** _filesys_update_fats - Updates the relative cluster entry in all of the FATS in the FS
+**
+*/
+void _filesys_update_fats(uint_t relative_cluster, uint_t value)
+{
+	uint_t num_fats = boot_sector.num_fats;
+	uint_t fat_size = boot_sector.table_size_32 * boot_sector.bytes_per_sector / 4;
+
+	//Finds the first entry in the first FAT
+	uint_t *update_fat_entry = (uint_t*)filesystem+(fat_start_loc +(relative_cluster * 4));
+
+	for(uint_t i = 0; i < num_fats; i++)
+	{
+		update_fat_entry = update_fat_entry+(i * fat_size); //Moves to next FAT
+
+		*update_fat_entry = *update_fat_entry | value;
+	}
+}
+
+/*
 ** PUBLIC FUNCTIONS
 */
+
+/*
+** _filesys_make_file - Creates a file at the given path location within
+**						the filesystem using the given attributes and returns the file 
+**						entry for the newly created file
+**
+*/
+uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file)
+{
+	//Splits the path into the path-to-parent directory and the new file name
+	uint_t path_len = _kstrlen(path);
+	char* filename_start = path+path_len - 1;
+	
+	while(*filename_start != '/')
+	{//while it has not found the last '/' in the path
+		if(filename_start == path)
+		{//It reached the beginning of the path
+			break;
+		}
+		filename_start--;
+	}
+	
+	uint_t parent_path_len = filename_start - path + 1;
+	char parent_path[parent_path_len];
+	
+	//Copies the parent_path from path into parent_path
+	_kmemcpy((byte_t*)parent_path, (byte_t*)path, parent_path_len);
+	parent_path[parent_path_len-1] = '\0'; //Null terminates the parent_path
+	
+	filename_start++; //Moves the filename start loc forward 1 so it doesn't include the '/'
+	char filename[12];
+	_filesys_convert_to_shortname(filename_start, filename);
+	
+	//Checks to see if the new_file already exists, and if so, it will return FAILURE
+	if(_filesys_find_file(path, new_file, 0) == 0)
+		return FAILURE;
+	
+	//Locates the parent directory file entry
+	file_entry_t parent_dir[1];
+	_filesys_find_file(parent_path, parent_dir, 0);
+	
+	//Finds the first empty file entry slot in the parent directory
+	uint_t entry_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	uint_t dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
+	uint_t new_entry_loc = _filesys_find_first_free_entry(dir_address);
+	
+	if(new_entry_loc == 0)
+	{//No new entry location was able to be found, needs to expand the cluster chain
+		new_entry_loc = _filesys_expand_cluster_chain(entry_cluster);
+	}
+	
+	//Finds the next free cluster for the new file contents to be stored
+	uint_t new_file_cluster = _filesys_find_next_free_cluster();
+	
+	if(new_file_cluster == 0) return FAILURE; //Failed to create new file
+	
+	//Writes the new entry
+	_filesys_write_file_entry(new_entry_loc, filename, attributes, new_file_cluster);
+	
+	//Looks for the newly created entry and returns FAILURE if it isn't found
+	if(_filesys_find_file(path, new_file, 0) == 1)
+		return FAILURE;
+	
+	//Updates the FAT to say the file's cluster is not free
+	_filesys_update_fats(new_file_cluster, LAST_CLUSTER);
+	
+	return SUCCESS;
+}
 
 /*
 ** _filesys_find_file - Given a file path and a folder address, it will find the file in 

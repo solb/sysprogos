@@ -176,6 +176,62 @@ uint_t _filesys_find_next_cluster(uint_t current_cluster);
 uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
 
 /*
+** void _filesys_convert_to_shortname - Converts a given string to a valid Shortname
+**										version to be used with the filesystem
+*/
+void _filesys_convert_to_shortname(char* filename, char* shortname);
+
+/*
+** char_toupper - Converts the passed in char to uppercase if it is an ascii character
+*/
+char char_toupper(char c);
+
+/*
+** find_first_free_entry - Finds the first free entry in the directory at the given
+**							address and returns the memory location of it
+**
+**							Returns 0 if there were no free entries (needs to expand to
+**								a new cluster)
+*/
+uint_t _filesys_find_first_free_entry(uint_t dir_address);
+
+/*
+** _filesys_expand_cluster_chain - Expands the cluster chain starting at the given start
+**									relative cluster number and expands it to one more
+**									cluster and returns the address to the newly added
+**									cluster.
+*/
+uint_t _filesys_expand_cluster_chain(uint_t start_cluster);
+
+/*
+** _filesys_find_next_free_cluster - Goes through the FAT and locates the first available
+**										cluster that is free and returns the relative
+**										cluster number. Returns 0 if no free cluster found
+*/
+uint_t _filesys_find_next_free_cluster(void);
+
+/*
+** _filesys_write_file_entry - Writes a file entry at the given entry location using
+**								the provided filename, attributes, and cluster number
+*/
+void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t attributes, 
+ 								uint_t new_file_cluster);
+ 								
+/*
+** _filesys_update_fats - Updates the relative cluster entry in all of the FATS in the FS
+**
+*/
+void _filesys_update_fats(uint_t relative_cluster, uint_t value);
+
+/*
+** _filesys_make_file - Creates a file at the given path location within
+**						the filesystem using the given attributes and returns the file 
+**						entry for the newly created file
+**
+*/
+uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file);
+
+/*
 ** _filesys_find_file - Given a file path and a folder address, it will find the file in 
 **						the filesystem and copy the file_entry into the given file entry's
 **						memory.
