@@ -5,6 +5,7 @@
 /loopmount_userspace
 /startup.s
 /user/oflo_sta.s
+/user/stp_pic.s
 *.a
 *.b
 *.image

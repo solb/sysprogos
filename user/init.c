@@ -208,6 +208,14 @@ int main( void ) {
 	}
 #endif
 
+#ifdef SPAWN_STOPPIC
+	pid = spawn( "/STP_PIC.B" );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user STOPPIC failed\n" );
+		exit();
+	}
+#endif
+
 	writech( '!' );
 
 	/*
