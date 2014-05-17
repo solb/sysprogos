@@ -104,9 +104,12 @@ switch_stack:
 
 	// ensure we're not going to overrun the user stack
 	movq	%rcx, %rax
+	cmpq	$(VIRTUAL_STACK_PAGE_ADDR+0x1000), %rax
+	jg	not_enough_room
 	subq	$208, %rax // subtract the size of a context
 	cmpq	$VIRTUAL_STACK_PAGE_ADDR, %rax
-	jg		enough_room
+	jg	enough_room
+not_enough_room:
 	call	_mem_kill_overflowing_process
 	movq	16(%rsp), %rax
 	cmpq	$32, %rax
