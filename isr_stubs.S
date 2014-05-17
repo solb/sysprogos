@@ -194,8 +194,13 @@ actually_save:
 	movq	_current, %rdx	// save context pointer for the current proc
 	movq	%rsp, (%rdx)	// (must be the first PCB field)
 
-		// note:  this is inherently non-reeentrant!
+	movq	200(%rsp), %rax
+	andq	$3, %rax
+	cmpq	$3, %rax
+	jne	skip_stack_switch
+	// note:  this is inherently non-reeentrant!
 	movq	_system_esp, %rsp	// switch to OS stack
+skip_stack_switch:
 
 /*
 ** END MOD for 20135 CSCI452
