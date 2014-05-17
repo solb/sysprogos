@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
 	}
 	else if(!strcmp(argv[1], "unmount")) {
 		setuid(geteuid());
-		execl("/bin/umount", "umount", "-l", "/tmp/userspacemnt", NULL);
+		execl("/bin/umount", "umount", "/tmp/userspacemnt", NULL);
 	}
 	else {
 		printf("Unrecognized directive: %s\n", argv[1]);

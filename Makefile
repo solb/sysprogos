@@ -150,7 +150,8 @@ hd.img: usb.image
 kern.b:	kern.o
 	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext $(KERNEL_ADDRESS) kern.o
 
-%.img: loopmount_userspace
+# You need to (manually) build loopmount_userspace in order for this to ever work.
+%.img:
 	$(RM) $@
 	fallocate -l 300K $@
 	mkdosfs -F 32 $@
