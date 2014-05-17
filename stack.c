@@ -70,7 +70,8 @@ void _stack_init( void ) {
 void _stack_mktss( void ){
 	uint32_t *tss = (uint32_t *)TSS_ADDRESS;
 	_kmemclr((byte_t *)TSS_ADDRESS, TSS_SIZE);
-	tss[TSS_ESP0] = (uint32_t)_system_esp;
+	tss[TSS_RSP0] = (uint32_t)_system_esp;
+	tss[TSS_IST1] = (uint32_t)_system_esp;
 	__inst_tss();
 }
 
