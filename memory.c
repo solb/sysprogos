@@ -28,7 +28,7 @@
 */
 #include "scheduler.h"
 static void __page_fault_handler(int vector, int code) {
-	c_printf("Page fault: code %d addr 0x%x\n", code, __get_cr2());
+	c_printf("Page fault: code %d addr 0x%x rip 0x%x\n", code, __get_cr2(), _current->context->rip);
 	__blame_and_punish();
 }
 
