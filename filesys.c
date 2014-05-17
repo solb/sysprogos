@@ -468,48 +468,54 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 */
 uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, uint_t dir_address)
 {
-	//Cheats by using _filesys_readfile to read the byte data of the directory entries
-	//which can then be parsed without dealing with cluster chains.
-	uint_t data_size  = entries_size * sizeof(file_entry_t);
-	byte_t directory_data[data_size];
-	_kmemclr(directory_data, data_size); //Clears the memory so no extra entries get "read"
-	_filesys_readfile(directory_data, dir_address, 0, data_size);
-	
+	uint_t current_cluster = _filesys_calc_relative_cluster(dir_address);
 	uint_t entry_count = 0;
-	uint_t data_offset = 0;
-	while(directory_data[data_offset] != ENTRIES_FREE && entry_count <= entries_size)
-	{ // While there are valid entries and it has gotten less than entries_size
 	
-		//Parses a file entry
-		file_entry_t file = 
+	while(current_cluster < LAST_CLUSTER)
+	{//Continues through directory reading entries until it reaches end of cluster chain
+		byte_t *entry = filesystem+dir_address;
+		byte_t *end_of_cluster = entry + cluster_size;
+		
+		while(entry < end_of_cluster)
 		{
-			.name = {0},
-			.attributes = directory_data[data_offset+11],
-			.reserved_NT = directory_data[data_offset+12],
-			.create_time_milli = directory_data[data_offset+13],
-			.create_time = *(ushort_t*)&directory_data[data_offset+14],
-			.create_date = *(ushort_t*)&directory_data[data_offset+16],
-			.last_access_date = *(ushort_t*)&directory_data[data_offset+18],
-			.first_cluster_hi = *(ushort_t*)&directory_data[data_offset+20],
-			.write_time = *(ushort_t*)&directory_data[data_offset+22],
-			.write_date = *(ushort_t*)&directory_data[data_offset+24],
-			.first_cluster_low = *(ushort_t*)&directory_data[data_offset+26],
-			.file_size = *(uint_t*)&directory_data[data_offset+28]
-		};
-		
-		_kmemcpy(file.name, directory_data+data_offset, 11);
-		file.name[11] = '\0';
-		
-		
-		//File entry valid, add to entries array
-		if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE && 
-			(file.attributes & ATTR_LONG_NAME) != ATTR_LONG_NAME)
-		{
-			entries[entry_count] = file;
-			entry_count++;
+			//Parses a file entry
+			file_entry_t file = 
+			{
+				.name = {'\0'},
+				.attributes = *(entry+11),
+				.reserved_NT = *(entry+12),
+				.create_time_milli = *(entry+13),
+				.create_time = *(ushort_t*)(entry+14),
+				.create_date = *(ushort_t*)(entry+16),
+				.last_access_date = *(ushort_t*)(entry+18),
+				.first_cluster_hi = *(ushort_t*)(entry+20),
+				.write_time = *(ushort_t*)(entry+22),
+				.write_date = *(ushort_t*)(entry+24),
+				.first_cluster_low = *(ushort_t*)(entry+26),
+				.file_size = *(uint_t*)(entry+28)
+			};
+			
+			_kmemcpy(file.name, entry, 11);
+			
+			//File entry valid, add to entries array (ignores long name entries)
+			if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE &&
+				(file.attributes & ATTR_LONG_NAME) != ATTR_LONG_NAME)
+			{
+				entries[entry_count] = file;
+				entry_count++;
+			}
+			
+			if(entry_count == entries_size)
+			{
+				return entry_count;
+			}
+			
+			entry += 32;
 		}
 		
-		data_offset += 32; //Increments offset to next entries
+		
+		current_cluster = _filesys_find_next_cluster(current_cluster);
+		dir_address = _filesys_calc_absolute_cluster_loc(current_cluster);
 	}
 	
 	return entry_count;
