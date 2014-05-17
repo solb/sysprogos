@@ -208,7 +208,7 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 uint_t _filesys_find_next_free_cluster(void)
  {
  	uint_t fat_size = boot_sector.table_size_32 * boot_sector.bytes_per_sector / 4;
- 	uint_t *fat = (uint_t*)filesystem+fat_start_loc;
+ 	uint_t *fat = (uint_t*)(filesystem+fat_start_loc);
  	
  	
  	for(uint_t i = 2; i < fat_size; i++)
@@ -260,7 +260,7 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 	uint_t fat_size = boot_sector.table_size_32 * boot_sector.bytes_per_sector / 4;
 
 	//Finds the first entry in the first FAT
-	uint_t *update_fat_entry = (uint_t*)filesystem+(fat_start_loc +(relative_cluster * 4));
+	uint_t *update_fat_entry = (uint_t*)(filesystem+(fat_start_loc +(relative_cluster * 4)));
 
 	for(uint_t i = 0; i < num_fats; i++)
 	{
