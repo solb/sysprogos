@@ -209,7 +209,6 @@ void _init( void ) {
 	** longword in the system stack.
 	*/
 
-	_system_esp = ((uint32_t *) ( (&_system_stack) + 1)) - 2;
 	_stack_mktss();
 
 	/*

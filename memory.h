@@ -27,6 +27,7 @@ void _mem_init(void);
 physaddr_t _mem_page_frame_alloc(void);
 void _mem_page_frame_free(physaddr_t page);
 void _mem_page_table_free(physaddr_t pt);
+void _mem_map_page_onto(void *page, physaddr_t frame);
 void *_mem_map_page(physaddr_t page);
 void _mem_unmap_page(void *addr);
 void _mem_map_user_pagetab(physaddr_t frame);

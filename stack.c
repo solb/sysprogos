@@ -37,7 +37,6 @@
 ** PUBLIC GLOBAL VARIABLES
 */
 
-stack_t _system_stack;			// stack for the OS
 uint32_t *_system_esp;			// OS stack pointer
 
 /*
@@ -55,7 +54,11 @@ uint32_t *_system_esp;			// OS stack pointer
 */
 
 void _stack_init( void ) {
-	// No-op!
+	static const int SYSTEM_STACK_PAGE = 0x10e000;
+	//Init system stack:
+	physaddr_t stack_loc = _mem_page_frame_alloc();
+	_mem_map_page_onto(SYSTEM_STACK_PAGE, stack_loc);
+	_system_esp = SYSTEM_STACK_PAGE + PAGE_SIZE;
 }
 
 /*

@@ -47,7 +47,6 @@ typedef uint32_t	stack_t[ STACK_SIZE ];
 ** Globals
 */
 
-extern stack_t _system_stack;		// stack for the OS
 extern uint32_t *_system_esp;		// OS stack pointer
 
 /*
