@@ -219,17 +219,6 @@ call_isr:
 
 __isr_restore:
 
-/*
-** MOD for 20135 CSCI452
-*/
-
-	movq	_current, %rbx	// return to user stack
-	movq	(%rbx), %rsp	// ESP now points to context save area
-
-/*
-** END MOD for 20135 CSCI452
-*/
-
 #ifdef ISR_DEBUGGING_CODE
 /*
 ** DEBUGGING CODE PART 1
@@ -252,7 +241,8 @@ __isr_restore:
 	movq	$0, %rdi
 	movq	$1, %rsi
 	movq	$fmt, %rdx
-	movq	%rsp, %rcx		// get the context pointer
+	movq	_current, %rbx	// get a handle to the user's pcb
+	movq	(%rbx), %rcx	// grab the context pointer
 	/*
 	** In addition to the basic context information, print
 	** the current system time and the PID and PPID of the
@@ -274,6 +264,9 @@ __isr_restore:
 ** END OF DEBUGGING CODE PART 1
 */
 #endif
+
+	movq	_current, %rbx	// return to user stack
+	movq	(%rbx), %rsp	// ESP now points to context save area
 
 /*
 ** Restore the context.
@@ -312,14 +305,10 @@ __isr_restore:
 /*
 ** MOD for 20135 CSCI452
 */
-fmt:	.ascii	"context %08x time %08x ppid/pid %08x\n"
-	.ascii	" ss=%08x  gs=%08x  fs=%08x  es=%08x  ds=%08x\n"
+fmt:	.asciz	"context %08x time %08x ppid/pid %08x\n"
 /*
 ** END MOD for 20135 CSCI452
 */
-	.ascii	"edi=%08x esi=%08x ebp=%08x esp=%08x ebx=%08x\n"
-	.ascii	"edx=%08x ecx=%08x eax=%08x vec=%08x cod=%08x\n"
-	.string	"eip=%08x  cs=%08x efl=%08x\n"
 
 /*
 ** END OF DEBUGGING CODE PART 2
