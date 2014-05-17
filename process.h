@@ -52,8 +52,8 @@
 
 #define	PID_INIT	1
 
-// Location of userspace binaries once loaded into memory
-#define USERSPACE_VIRT_ADDRESS 0x200000
+// Address of the beginning of the current_ process's stack
+#define VIRTUAL_STACK_PAGE_ADDR 0x3ff000
 
 #ifndef __SP_ASM__
 

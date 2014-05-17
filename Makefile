@@ -62,8 +62,7 @@ INCLUDES = -I. -I/home/fac/wrc/include
 # Compilation/assembly/linking commands and options
 #
 CPP = cpp
-# CPPFLAGS = $(USER_OPTIONS) -nostdinc -I- $(INCLUDES)
-CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES) -DFILESYSTEM_PHYS_ADDRESS=$(FILESYSTEM_PHYS_ADDRESS) -DFILESYSTEM_VIRT_ADDRESS=$(FILESYSTEM_VIRT_ADDRESS)
+CPPFLAGS = $(USER_OPTIONS) -nostdinc $(INCLUDES) -DFILESYSTEM_PHYS_ADDRESS=$(FILESYSTEM_PHYS_ADDRESS) -DFILESYSTEM_VIRT_ADDRESS=$(FILESYSTEM_VIRT_ADDRESS) -DUSERSPACE_VIRT_ADDRESS=$(USERSPACE_VIRT_ADDRESS)
 
 CC = gcc
 CFLAGS = -std=c99 -m64 -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -fno-stack-protector -fno-builtin -Wall -Wstrict-prototypes $(CPPFLAGS)
@@ -250,4 +249,5 @@ system.o: scheduler.h filesys.h memory.h ulib.h
 filesys.o: common.h defs.h types.h c_io.h support.h system.h process.h
 filesys.o: clock.h stack.h klib.h filesys.h
 startup.o: bootstrap.h
-isr_stubs.o: bootstrap.h
+isr_stubs.o: bootstrap.h process.h common.h defs.h types.h c_io.h support.h
+isr_stubs.o: system.h stack.h klib.h clock.h
