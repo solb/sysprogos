@@ -200,6 +200,14 @@ int main( void ) {
 	}
 #endif
 
+#ifdef SPAWN_UNDERFLOWSTACK
+	pid = spawn( "/UFLO_STAB  " );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() user UNDERFLOWSTACK failed\n" );
+		exit();
+	}
+#endif
+
 	writech( '!' );
 
 	/*

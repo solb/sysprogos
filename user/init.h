@@ -46,6 +46,7 @@
 
 #define SPAWN_NULLPTR
 #define SPAWN_OVERFLOWSTACK
+#define SPAWN_UNDERFLOWSTACK
 
 /*
 ** Users W-Z are spawned from other processes; they
