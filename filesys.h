@@ -224,6 +224,14 @@ void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t att
 void _filesys_update_fats(uint_t relative_cluster, uint_t value);
 
 /*
+** _filesys_make_dir - Makes a new directory at the given path and sets the new_dir to 
+**						the newly created file entry for the new directory.
+**
+**						Returns SUCCESS or FAILURE
+*/
+uint_t _filesys_make_dir(char* path, file_entry_t* new_dir);
+
+/*
 ** _filesys_make_file - Creates a file at the given path location within
 **						the filesystem using the given attributes and returns the file 
 **						entry for the newly created file
