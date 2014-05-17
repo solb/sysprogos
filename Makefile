@@ -217,7 +217,7 @@ kern.dis: kern.o
 #
 
 depend:
-	makedepend $(INCLUDES) $(SOURCES)
+	makedepend $(INCLUDES) $(SOURCES) user/*.c
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
@@ -256,3 +256,53 @@ filesys.o: clock.h stack.h klib.h filesys.h
 startup.o: bootstrap.h
 isr_stubs.o: bootstrap.h process.h common.h defs.h types.h c_io.h support.h
 isr_stubs.o: system.h stack.h klib.h clock.h
+user/dref_nul.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/dref_nul.o: system.h process.h clock.h stack.h klib.h
+user/init.o: user/init.h user/userspace.h common.h defs.h types.h c_io.h
+user/init.o: support.h system.h process.h clock.h stack.h klib.h
+user/user_a.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_a.o: system.h process.h clock.h stack.h klib.h
+user/user_b.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_b.o: system.h process.h clock.h stack.h klib.h
+user/user_c.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_c.o: system.h process.h clock.h stack.h klib.h
+user/user_d.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_d.o: system.h process.h clock.h stack.h klib.h
+user/user_e.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_e.o: system.h process.h clock.h stack.h klib.h
+user/user_f.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_f.o: system.h process.h clock.h stack.h klib.h
+user/user_g.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_g.o: system.h process.h clock.h stack.h klib.h
+user/user_h.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_h.o: system.h process.h clock.h stack.h klib.h
+user/user_j.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_j.o: system.h process.h clock.h stack.h klib.h
+user/user_k.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_k.o: system.h process.h clock.h stack.h klib.h
+user/user_l.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_l.o: system.h process.h clock.h stack.h klib.h
+user/user_m.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_m.o: system.h process.h clock.h stack.h klib.h
+user/user_n.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_n.o: system.h process.h clock.h stack.h klib.h
+user/user_p.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_p.o: system.h process.h clock.h stack.h klib.h
+user/user_q.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_q.o: system.h process.h clock.h stack.h klib.h
+user/user_r.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_r.o: system.h process.h clock.h stack.h klib.h
+user/user_s.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_s.o: system.h process.h clock.h stack.h klib.h
+user/user_t.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_t.o: system.h process.h clock.h stack.h klib.h
+user/user_u.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_u.o: system.h process.h clock.h stack.h klib.h
+user/user_w.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_w.o: system.h process.h clock.h stack.h klib.h
+user/user_x.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_x.o: system.h process.h clock.h stack.h klib.h
+user/user_y.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_y.o: system.h process.h clock.h stack.h klib.h
+user/user_z.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/user_z.o: system.h process.h clock.h stack.h klib.h
