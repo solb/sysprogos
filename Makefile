@@ -150,16 +150,21 @@ hd.img: usb.image
 kern.b:	kern.o
 	$(LD) $(LDFLAGS_KERN) -o kern.b -s --oformat binary -Ttext $(KERNEL_ADDRESS) kern.o
 
-%.img:
+%.img: loopmount_userspace
 	$(RM) $@
 	fallocate -l 300K $@
 	mkdosfs -F 32 $@
-	mkdir -p mnt
-	fusefat -o rw+ $@ mnt
-	cp $^ mnt/
-	fusermount -u mnt
+	mkdir -p /tmp/userspacemnt
+	./loopmount_userspace mount $@
+	cp $^ /tmp/userspacemnt/
+	./loopmount_userspace unmount -
 
 userspace.img: $(U_C_BIN)
+
+loopmount_userspace: loopmount_userspace.c
+	gcc -std=c99 -Wall -Wextra -pedantic -o loopmount_userspace loopmount_userspace.c
+	sudo chown root loopmount_userspace
+	sudo chmod u+s loopmount_userspace
 
 #
 # Targets for copying bootable image onto boot devices

@@ -2,6 +2,7 @@
 /bootstrap.s
 /hd.img
 /isr_stubs.s
+/loopmount_userspace
 /startup.s
 /user/oflo_sta.s
 *.a
