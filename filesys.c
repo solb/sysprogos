@@ -339,6 +339,10 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	//Updates the FAT to say the file's cluster is not free
 	_filesys_update_fats(new_file_cluster, LAST_CLUSTER);
 	
+	//Clears the cluster of the new file data to all 0's
+	byte_t *file_data = filesystem+_filesys_calc_absolute_cluster_loc(new_file_cluster);
+	_kmemclr(file_data, cluster_size);
+	
 	return SUCCESS;
 }
 
