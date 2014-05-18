@@ -204,6 +204,13 @@ uint_t _filesys_find_first_free_entry(uint_t dir_address);
 uint_t _filesys_expand_cluster_chain(uint_t start_cluster);
 
 /*
+** _filesys_shrink_cluster_chain - Shrinks the cluster chain down to a single cluster
+**									freeing up all the other clusters in the chain
+** 
+*/
+void _filesys_shrink_cluster_chain(uint_t start_cluster);
+
+/*
 ** _filesys_find_next_free_cluster - Goes through the FAT and locates the first available
 **										cluster that is free and returns the relative
 **										cluster number. Returns 0 if no free cluster found

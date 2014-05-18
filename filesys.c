@@ -205,6 +205,29 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 }
 
 /*
+** _filesys_shrink_cluster_chain - Shrinks the cluster chain down to a single cluster
+**									freeing up all the other clusters in the chain
+** 
+*/
+void _filesys_shrink_cluster_chain(uint_t start_cluster)
+{
+	uint_t current_cluster = start_cluster;
+	
+	while(current_cluster != LAST_CLUSTER)
+	{
+		uint_t next_cluster = _filesys_find_next_cluster(current_cluster);
+		
+		//Frees the current_cluster, if it isn't the start_cluster
+		if(current_cluster != start_cluster)
+			_filesys_update_fats(current_cluster, 0x0000);
+		else
+			_filesys_update_fats(current_cluster, LAST_CLUSTER);
+			
+		current_cluster = next_cluster;
+	}
+}
+
+/*
 ** _filesys_find_next_free_cluster - Goes through the FAT and locates the first available
 **										cluster that is free and returns the relative
 **										cluster number. Returns 0 if no free cluster found
