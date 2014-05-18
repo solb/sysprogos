@@ -18,7 +18,7 @@ int main( void ) {
 	writech( 'J' );
 
 	for( i = 0; i < N_PROCESSES * 2 ; ++i ) {
-		pid = spawn( "\\USER_Y  B  " );
+		pid = spawn( "/USER_Y.B" );
 		if( pid < 0 ) {
 			writech( 'j' );
 			c_printf( "User J spawn() #%d failed\n", i );

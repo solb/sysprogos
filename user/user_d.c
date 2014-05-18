@@ -16,7 +16,7 @@ int main( void ) {
 	c_puts( "User D running\n" );
 	writech( 'D' );
 
-	pid = spawn( "\\USER_Z  B  " );
+	pid = spawn( "/USER_Z.B" );
 	if( pid < 0 ) {
 		c_printf( "User D spawn() failed\n" );
 	}

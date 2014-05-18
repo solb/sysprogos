@@ -22,7 +22,7 @@ int main( void ) {
 
 	for( i = 0; i < 3 ; ++i ) {
 		time = gettime();
-		pid = spawn( "\\USER_X  B  " );
+		pid = spawn( "/USER_X.B" );
 		if( pid < 0 ) {
 			c_printf( "User L spawn() #%d failed @%08u\n", i, time );
 		} else {

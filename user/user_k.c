@@ -19,7 +19,7 @@ int main( void ) {
 	writech( 'K' );
 
 	for( i = 0; i < 3 ; ++i ) {
-		pid = spawn( "\\USER_X  B  " );
+		pid = spawn( "/USER_X.B" );
 		if( pid < 0 ) {
 			c_printf( "User K spawn() #%d failed\n", i );
 		} else {

@@ -229,7 +229,7 @@ void _init( void ) {
 	** changes, SO MUST THIS!!!
 	*/
 
-	pcb = _create_process( 0, "/INIT    B  " );
+	pcb = _create_process( 0, "/INIT.B" );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}

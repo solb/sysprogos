@@ -25,7 +25,7 @@ int main( void ) {
 	writech( '$' );
 
 #ifdef SPAWN_A
-	pid = spawn( "/USER_A  B  " );
+	pid = spawn( "/USER_A.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user A failed\n" );
 		exit();
@@ -33,7 +33,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_B
-	pid = spawn( "/USER_B  B  " );
+	pid = spawn( "/USER_B.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user B failed\n" );
 		exit();
@@ -41,7 +41,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_C
-	pid = spawn( "/USER_C  B  " );
+	pid = spawn( "/USER_C.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user C failed\n" );
 		exit();
@@ -49,7 +49,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_D
-	pid = spawn( "/USER_D  B  " );
+	pid = spawn( "/USER_D.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user D failed\n" );
 		exit();
@@ -57,7 +57,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_E
-	pid = spawn( "/USER_E  B  " );
+	pid = spawn( "/USER_E.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user E failed\n" );
 		exit();
@@ -65,7 +65,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_F
-	pid = spawn( "/USER_F  B  " );
+	pid = spawn( "/USER_F.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user F failed\n" );
 		exit();
@@ -73,7 +73,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_G
-	pid = spawn( "/USER_G  B  " );
+	pid = spawn( "/USER_G.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user G failed\n" );
 		exit();
@@ -81,7 +81,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_H
-	pid = spawn( "/USER_H  B  " );
+	pid = spawn( "/USER_H.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user H failed\n" );
 		exit();
@@ -89,7 +89,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_J
-	pid = spawn( "/USER_J  B  " );
+	pid = spawn( "/USER_J.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user J failed\n" );
 		exit();
@@ -97,7 +97,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_K
-	pid = spawn( "/USER_K  B  " );
+	pid = spawn( "/USER_K.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user K failed\n" );
 		exit();
@@ -105,7 +105,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_L
-	pid = spawn( "/USER_L  B  " );
+	pid = spawn( "/USER_L.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user L failed\n" );
 		exit();
@@ -113,7 +113,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_M
-	pid = spawn( "/USER_M  B  " );
+	pid = spawn( "/USER_M.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user M failed\n" );
 		exit();
@@ -121,7 +121,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_N
-	pid = spawn( "/USER_N  B  " );
+	pid = spawn( "/USER_N.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user N failed\n" );
 		exit();
@@ -129,7 +129,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_P
-	pid = spawn( "/USER_P  B  " );
+	pid = spawn( "/USER_P.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user P failed\n" );
 		exit();
@@ -137,7 +137,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_Q
-	pid = spawn( "/USER_Q  B  " );
+	pid = spawn( "/USER_Q.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user Q failed\n" );
 		exit();
@@ -145,7 +145,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_R
-	pid = spawn( "/USER_R  B  " );
+	pid = spawn( "/USER_R.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user R failed\n" );
 		exit();
@@ -153,7 +153,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_S
-	pid = spawn( "/USER_S  B  " );
+	pid = spawn( "/USER_S.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user S failed\n" );
 		exit();
@@ -161,7 +161,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_T
-	pid = spawn( "/USER_T  B  " );
+	pid = spawn( "/USER_T.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user T failed\n" );
 		exit();
@@ -169,7 +169,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_U
-	pid = spawn( "/USER_U  B  " );
+	pid = spawn( "/USER_U.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user U failed\n" );
 		exit();
@@ -177,7 +177,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_V
-	pid = spawn( "/USER_V  B  " );
+	pid = spawn( "/USER_V.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user V failed\n" );
 		exit();
@@ -185,7 +185,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_NULLPTR
-	pid = spawn( "/DREF_NULB  " );
+	pid = spawn( "/DREF_NUL.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user NULLPTR failed\n" );
 		exit();
@@ -193,7 +193,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_OVERFLOWSTACK
-	pid = spawn( "/OFLO_STAB  " );
+	pid = spawn( "/OFLO_STA.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user OVERFLOWSTACK failed\n" );
 		exit();
@@ -201,7 +201,7 @@ int main( void ) {
 #endif
 
 #ifdef SPAWN_UNDERFLOWSTACK
-	pid = spawn( "/UFLO_STAB  " );
+	pid = spawn( "/UFLO_STA.B" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() user UNDERFLOWSTACK failed\n" );
 		exit();

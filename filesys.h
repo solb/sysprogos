@@ -45,6 +45,17 @@
 #define	MAX_DIRECTORY_SIZE	50;
 
 /*
+** Defines the file_entry ATTRIBUTES
+*/
+#define ATTR_READ_ONLY	0x01
+#define ATTR_HIDDEN		0x02
+#define ATTR_SYSTEM		0x04
+#define ATTR_VOLUME_ID	0x08
+#define ATTR_DIRECTORY	0x10
+#define ATTR_ARCHIVE	0x20
+#define ATTR_LONG_NAME	(ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID)
+
+/*
 ** Start of C-only definitions
 */
 
@@ -97,7 +108,7 @@ typedef struct fat32_bs {
 //						 set file size to 0)
 //
 typedef struct file_entry {
-	char		name[11];
+	char		name[12];
 	ubyte_t		attributes;
 	ubyte_t		reserved_NT; // Reserved for Windows NT. Set to 0
 	ubyte_t		create_time_milli;
@@ -109,7 +120,7 @@ typedef struct file_entry {
 	ushort_t	write_date;
 	ushort_t	first_cluster_low;	//Relative cluster number lo
 	uint_t		file_size;
-} file_entry_t;		//sizeof = 32 bytes
+} file_entry_t;		//sizeof = 36 bytes
 
 /*
 ** Globals
@@ -163,6 +174,70 @@ uint_t _filesys_find_next_cluster(uint_t current_cluster);
 **									using the exact memory address
 */
 uint_t _filesys_calc_relative_cluster(uint_t cluster_address);
+
+/*
+** void _filesys_convert_to_shortname - Converts a given string to a valid Shortname
+**										version to be used with the filesystem
+*/
+void _filesys_convert_to_shortname(char* filename, char* shortname);
+
+/*
+** char_toupper - Converts the passed in char to uppercase if it is an ascii character
+*/
+char char_toupper(char c);
+
+/*
+** find_first_free_entry - Finds the first free entry in the directory at the given
+**							address and returns the memory location of it
+**
+**							Returns 0 if there were no free entries (needs to expand to
+**								a new cluster)
+*/
+uint_t _filesys_find_first_free_entry(uint_t dir_address);
+
+/*
+** _filesys_expand_cluster_chain - Expands the cluster chain starting at the given start
+**									relative cluster number and expands it to one more
+**									cluster and returns the address to the newly added
+**									cluster.
+*/
+uint_t _filesys_expand_cluster_chain(uint_t start_cluster);
+
+/*
+** _filesys_find_next_free_cluster - Goes through the FAT and locates the first available
+**										cluster that is free and returns the relative
+**										cluster number. Returns 0 if no free cluster found
+*/
+uint_t _filesys_find_next_free_cluster(void);
+
+/*
+** _filesys_write_file_entry - Writes a file entry at the given entry location using
+**								the provided filename, attributes, and cluster number
+*/
+void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t attributes, 
+ 								uint_t new_file_cluster);
+ 								
+/*
+** _filesys_update_fats - Updates the relative cluster entry in all of the FATS in the FS
+**
+*/
+void _filesys_update_fats(uint_t relative_cluster, uint_t value);
+
+/*
+** _filesys_make_dir - Makes a new directory at the given path and sets the new_dir to 
+**						the newly created file entry for the new directory.
+**
+**						Returns SUCCESS or FAILURE
+*/
+uint_t _filesys_make_dir(char* path, file_entry_t* new_dir);
+
+/*
+** _filesys_make_file - Creates a file at the given path location within
+**						the filesystem using the given attributes and returns the file 
+**						entry for the newly created file
+**
+*/
+uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file);
 
 /*
 ** _filesys_find_file - Given a file path and a folder address, it will find the file in 
