@@ -44,9 +44,11 @@
 #define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
 // no user V
 
+// Protection checks
 #define SPAWN_NULLPTR
 #define SPAWN_OVERFLOWSTACK
 #define SPAWN_UNDERFLOWSTACK
+#define SPAWN_STOPPIC
 
 /*
 ** Users W-Z are spawned from other processes; they

@@ -70,8 +70,16 @@ void _stack_init( void ) {
 void _stack_mktss( void ){
 	uint32_t *tss = (uint32_t *)TSS_ADDRESS;
 	_kmemclr((byte_t *)TSS_ADDRESS, TSS_SIZE);
+
+	// Selects the stack to switch to when receiving interrupts from userland
 	tss[TSS_RSP0] = (uint32_t)_system_esp;
+
+	// Selects the stack to switch to when receiving supervisory interrupts
 	tss[TSS_IST1] = (uint32_t)_system_esp;
+
+	// We need to disable the I/O permissions bit vector to ban ins and outs
+	tss[TSS_IOBM] = 0xffff << 16;
+
 	__inst_tss();
 }
 
