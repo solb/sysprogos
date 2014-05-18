@@ -197,6 +197,10 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 	//Updates the FATs, setting the next_cluster as the end
 	_filesys_update_fats(next_cluster, LAST_CLUSTER);
 	
+	//Clear memory of the next cluster
+	byte_t *file_data = filesystem+_filesys_calc_absolute_cluster_loc(next_cluster);
+	_kmemclr(file_data, cluster_size);
+	
 	return next_cluster;
 }
 
@@ -346,15 +350,26 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	
 	//Checks to see if the new_file already exists, and if so, it will return FAILURE
 	if(_filesys_find_file(path, new_file, 0) == 0)
-		return FAILURE;
+		return 1; //FAILURE;
 	
 	//Locates the parent directory file entry
 	file_entry_t parent_dir[1];
 	_filesys_find_file(parent_path, parent_dir, 0);
 	
 	//Finds the first empty file entry slot in the parent directory
-	uint_t entry_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
-	uint_t dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
+	uint_t entry_cluster, dir_address;
+	
+	if(_kstrcmp(parent_path, "") == 0)
+	{//The parent is "/" (Root)
+		entry_cluster = 2;
+		dir_address = data_start_sector * boot_sector.bytes_per_sector;
+	}
+	else
+	{
+		entry_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+		dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
+	}
+	
 	uint_t new_entry_loc = _filesys_find_first_free_entry(dir_address);
 	
 	if(new_entry_loc == 0)
@@ -365,14 +380,14 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	//Finds the next free cluster for the new file contents to be stored
 	uint_t new_file_cluster = _filesys_find_next_free_cluster();
 	
-	if(new_file_cluster == 0) return FAILURE; //Failed to create new file
+	if(new_file_cluster == 0) return 1; //FAILURE; //Failed to create new file
 	
 	//Writes the new entry
 	_filesys_write_file_entry(new_entry_loc, filename, attributes, new_file_cluster);
 	
 	//Looks for the newly created entry and returns FAILURE if it isn't found
 	if(_filesys_find_file(path, new_file, 0) == 1)
-		return FAILURE;
+		return 1; //FAILURE;
 	
 	//Updates the FAT to say the file's cluster is not free
 	_filesys_update_fats(new_file_cluster, LAST_CLUSTER);
@@ -381,7 +396,7 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	byte_t *file_data = filesystem+_filesys_calc_absolute_cluster_loc(new_file_cluster);
 	_kmemclr(file_data, cluster_size);
 	
-	return SUCCESS;
+	return 0; // SUCCESS;
 }
 
 /*
