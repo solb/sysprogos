@@ -287,7 +287,7 @@ static void _sys_writes( pcb_t *pcb ) {
 /*
 ** _sys_spawn - create a new process running the specified program
 **
-** implements:  int spawn(void (*entry)(void));
+** implements:  int spawn(char *)
 **
 ** takes:
 ** 	string containing path to binary
@@ -370,6 +370,46 @@ static void _sys_c_putchar_at( pcb_t *pcb ) {
 }
 
 /*
+** _sys_syncspawn - defer flow of control to a new process
+**
+** implements:  int spawn(char *);
+**
+** takes:
+** 	string containing path to binary
+**
+** returns:
+**	pid of finished process in original process, or -1 on error
+*/
+
+static void _sys_syncspawn( pcb_t *pcb ) {
+	pcb_t *new;
+
+	// farm out all the work to this supporting routine
+
+	new = _create_process( pcb->pid, ARG1(pcb) );
+
+	if( new != NULL ) {
+
+		// it succeeded - tell the child to schedule the parent on completion
+		new->ppcb = pcb;
+
+		// mark it as blocked
+		pcb->state = BLOCKED;
+		RET(pcb) = new->pid;
+		_schedule( new );
+
+		// no current process - pick another one
+		_dispatch();
+
+	} else {
+
+		// it failed - tell the parent
+		RET(pcb) = -1;
+
+	}
+}
+
+/*
 ** PUBLIC FUNCTIONS
 */
 
@@ -404,6 +444,7 @@ void _sys_init( void ) {
 	_syscalls[ SYS_getppid ]   = _sys_getppid;
 	_syscalls[ SYS_gettime ]   = _sys_gettime;
 	_syscalls[ SYS_c_putchar_at ]   = _sys_c_putchar_at;
+	_syscalls[ SYS_syncspawn ] = _sys_syncspawn;
 
 	// install our ISR
 

@@ -104,6 +104,7 @@ void _pcb_free( pcb_t *pcb ) {
 
 	// return the PCB to the free list
 
+	pcb->ppcb = (pcb_t *)NULL;
 	pcb->state = FREE;
 	_que_insert( &_free_pcbs, (void *) pcb );
 }

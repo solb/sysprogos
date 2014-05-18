@@ -137,6 +137,12 @@ void _terminate( void ) {
 	if( _current->pid == 1 )
 		_kpanic( "_terminate", "attempted to kill init", FAILURE );
 
+	// schedule the parent process if it was waiting for us to close
+
+	if( _current->ppcb && _current->ppcb->state == BLOCKED ) {
+		_schedule( _current->ppcb );
+	}
+
 	// tear down the PCB structure
 
 	_mem_unmap_user_pagetab();
