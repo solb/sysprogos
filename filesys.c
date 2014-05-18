@@ -309,7 +309,7 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 */
 uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 {
-	if(_filesys_make_file(path, ATTR_DIRECTORY, new_dir) == 1) return 1; //FAILURE;
+	if(_filesys_make_file(path, ATTR_DIRECTORY, new_dir) == FAILURE) return FAILURE;
 	
 	//Gets the cluster number for the new directory
 	uint_t new_dir_cluster = new_dir->first_cluster_hi << 8 | new_dir->first_cluster_low;
@@ -336,7 +336,7 @@ uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 	_filesys_write_file_entry(new_dir_cluster_loc+32, "..         ", 
 								ATTR_DIRECTORY, parent_cluster);
 	
-	return 0; //SUCCESS;
+	return SUCCESS;
 }
 
 /*
@@ -372,8 +372,8 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	_filesys_convert_to_shortname(filename_start, filename);
 	
 	//Checks to see if the new_file already exists, and if so, it will return FAILURE
-	if(_filesys_find_file(path, new_file, 0) == 0)
-		return 1; //FAILURE;
+	if(_filesys_find_file(path, new_file, 0) == SUCCESS)
+		return FAILURE;
 	
 	//Locates the parent directory file entry
 	file_entry_t parent_dir[1];
@@ -403,14 +403,14 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	//Finds the next free cluster for the new file contents to be stored
 	uint_t new_file_cluster = _filesys_find_next_free_cluster();
 	
-	if(new_file_cluster == 0) return 1; //FAILURE; //Failed to create new file
+	if(new_file_cluster == 0) return FAILURE; //Failed to create new file
 	
 	//Writes the new entry
 	_filesys_write_file_entry(new_entry_loc, filename, attributes, new_file_cluster);
 	
 	//Looks for the newly created entry and returns FAILURE if it isn't found
-	if(_filesys_find_file(path, new_file, 0) == 1)
-		return 1; //FAILURE;
+	if(_filesys_find_file(path, new_file, 0) == FAILURE)
+		return FAILURE;
 	
 	//Updates the FAT to say the file's cluster is not free
 	_filesys_update_fats(new_file_cluster, LAST_CLUSTER);
@@ -419,7 +419,7 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	byte_t *file_data = filesystem+_filesys_calc_absolute_cluster_loc(new_file_cluster);
 	_kmemclr(file_data, cluster_size);
 	
-	return 0; // SUCCESS;
+	return SUCCESS;
 }
 
 /*
