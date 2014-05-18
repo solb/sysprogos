@@ -216,6 +216,14 @@ int main( void ) {
 	}
 #endif
 
+#ifdef SPAWN_SHELL
+	pid = spawn( "/shell.b" );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() shell failed\n" );
+		exit();
+	}
+#endif
+
 	writech( '!' );
 
 	/*
@@ -234,7 +242,7 @@ int main( void ) {
 	for(;;) {
 		for( i = 0; i < DELAY_LONG; ++i )
 			continue;
-		writech( '.' );
+		//writech( '.' );
 	}
 
 	/*

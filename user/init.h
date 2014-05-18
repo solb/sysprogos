@@ -21,6 +21,7 @@
 
 //	user	          baseline system calls in use
 		// xit rch wch ws  spn slp gpr spr gp  gpp gt bog
+#if 0
 #define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .  .
@@ -49,6 +50,8 @@
 #define SPAWN_OVERFLOWSTACK
 #define SPAWN_UNDERFLOWSTACK
 #define SPAWN_STOPPIC
+#endif
+#define SPAWN_SHELL
 
 /*
 ** Users W-Z are spawned from other processes; they
