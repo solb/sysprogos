@@ -28,7 +28,7 @@
 */
 #include "scheduler.h"
 static void __page_fault_handler(int vector, int code) {
-	c_printf("Page fault: code %d addr 0x%x\n", code, __get_cr2());
+	c_printf("Page fault: code %d addr 0x%x rip 0x%x\n", code, __get_cr2(), _current->context->rip);
 	__blame_and_punish();
 }
 
@@ -70,6 +70,27 @@ void _mem_page_table_free(physaddr_t pt) {
 	_mem_page_frame_free(pt);
 }
 
+/*
+** _mem_map_page_onto: map the given page frame onto the given page-ligned memory address
+**
+** page: the page-aligned memory address onto which this frame should be mapped
+** frame: the physical address of memory the page should be mapped to.
+*/
+
+void _mem_map_page_onto(void *page, physaddr_t frame) {
+	uint64_t test = (uint64_t)page & ((1<<12)-1);
+	if (test) {
+		_kpanic("mem", "cannot map page onto not page-aligned address", FAILURE);
+	}
+	uint64_t *kernel_page_table = (uint64_t *)PT_ADDRESS;
+	uint64_t table_index = ((uint64_t)page)>>12;
+	if (table_index >= 512) {
+		_kpanic("mem", "cannot map page onto address outside kernel page table.", FAILURE);
+	}
+	kernel_page_table[table_index] = (uint64_t)(frame.addr) | PAGE_PRESENT;
+	__inv_tlb();
+}
+
 #define SCRATCH_PAGE ((void*)0x1ff000)
 static int scratch_page_mapped = 0;
 
@@ -81,14 +102,13 @@ static int scratch_page_mapped = 0;
 ** mapped in the scratch area. mapped memory must be unmapped with _mem_unmap_page when done
 ** being used.
 */
+
 void *_mem_map_page(physaddr_t page) {
 	if (scratch_page_mapped) {
 		_kpanic("mem", "tried to map scratch page while already mapped", FAILURE);
 	}
 	scratch_page_mapped = 1;
-	uint64_t *kernel_page_table = (uint64_t *)PT_ADDRESS;
-	kernel_page_table[(uint64_t)SCRATCH_PAGE>>12] = (uint64_t)(page.addr) | PAGE_PRESENT;
-	__inv_tlb();
+	_mem_map_page_onto(SCRATCH_PAGE, page);
 	return SCRATCH_PAGE;
 }
 
@@ -108,16 +128,32 @@ void _mem_unmap_page(void *addr) {
 	scratch_page_mapped = 0;
 }
 
+/*
+** _mem_map_user_pagetab: map the page table of the current process at index 1
+*/
 void _mem_map_user_pagetab(physaddr_t frame) {
 	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS});
 	pdt_entry[1] = (uint64_t)frame.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 	_mem_unmap_page(pdt_entry);
 }
 
-void _mem_unmap_user_pagetab() {
+/*
+** _mem_unmap_user_pagetab: unmap the first (the userspace) page table
+*/
+void _mem_unmap_user_pagetab(void) {
 	uint64_t *pdt_entry = _mem_map_page((physaddr_t){(uint64_t *)PDT_ADDRESS});
 	pdt_entry[1] = 0LL;
 	_mem_unmap_page(pdt_entry);
+}
+
+/*
+** _mem_kill_overflowing_process: terminate a process that didn't leave us
+** 			 enough room on its stack to store a context_t
+*/
+void _mem_kill_overflowing_process(void) {
+	c_printf( "Killing misbehaving process...\n\n" );
+	c_printf( "You've got to reel in your stack space requirements, man!\n" );
+	_terminate();
 }
 
 /*

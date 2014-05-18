@@ -21,10 +21,8 @@
 #include "syscall.h"
 #include "sio.h"
 #include "scheduler.h"
+#include "filesys.h"
 #include "memory.h"
-
-// need init() address
-#include "user.h"
 
 // need the exit() prototype
 #include "ulib.h"
@@ -32,7 +30,6 @@
 /*
 ** PRIVATE DEFINITIONS
 */
-#define VIRTUAL_STACK_PAGE_ADDR ((void *)0x3ff000)
 
 /*
 ** PRIVATE DATA TYPES
@@ -57,13 +54,13 @@
 /*
 ** _create_process(ppid,entry)
 **
-** allocate and initialize a new process' data structures (PCB, stack)
+** allocate and initialize a new process' data structures (PCB, filename)
 **
 ** returns:
 **      pointer to the new PCB
 */
 
-pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
+pcb_t *_create_process( pid_t ppid, const char *path ) {
 	pcb_t *new;
 	physaddr_t stack;
 	
@@ -78,13 +75,23 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 
 	_kmemclr( (void *) new, sizeof(pcb_t) );
 
+	file_entry_t info;
+	if(_filesys_find_file(path, &info, 0) == FAILURE) {
+		c_printf("_create_process: Unable to find binary '%s'\n", path);
+		return NULL;
+	}
+
+	int64_t remaining_size = info.file_size;
+	uint_t start_address =
+			_filesys_calc_absolute_cluster_loc((info.first_cluster_hi << 16) | info.first_cluster_low);
 	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
-	for(uint64_t count = 0; count < PAGES_PER_USERSPACE_PROCESS; ++count) {
+	for(uint64_t count = 0; remaining_size > 0; ++count) {
 		physaddr_t pf = _mem_page_frame_alloc();
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 		void *mapped = _mem_map_page(pf);
-		_kmemcpy(mapped, (void *)(USERSPACE_PHYS_ADDRESS + (count << 12)), PAGE_SIZE);
+		_filesys_readfile(mapped, start_address, count << 12, PAGE_SIZE);
 		_mem_unmap_page(mapped);
+		remaining_size -= PAGE_SIZE;
 	}
 
 	new->pagetab = _mem_page_frame_alloc();
@@ -129,7 +136,7 @@ pcb_t *_create_process( pid_t ppid, uint64_t entry ) {
 
 	// fill in the non-zero entries in the context save area
 
-	context->rip    = entry;
+	context->rip    = USERSPACE_VIRT_ADDRESS;
 	context->cs     = GDT_USREXEC;
 	context->ss     = GDT_USRNOEX;
 	context->ds     = GDT_USRNOEX;
@@ -200,6 +207,7 @@ void _init( void ) {
 	_sio_init();
 	_sys_init();
 	_clock_init();
+	_filesys_init();
 
 	c_puts( "\n" );
 
@@ -210,19 +218,17 @@ void _init( void ) {
 	** longword in the system stack.
 	*/
 
-	_system_esp = ((uint32_t *) ( (&_system_stack) + 1)) - 2;
 	_stack_mktss();
 
 	/*
 	** Create the initial process
+	'
 	**
 	** Code mostly stolen from _sys_fork(); if that routine
 	** changes, SO MUST THIS!!!
 	*/
 
-	// allocate a PCB and stack
-
-	pcb = _create_process( 0, (uint64_t) USERSPACE_VIRT_ADDRESS );
+	pcb = _create_process( 0, "/INIT.B" );
 	if( pcb == NULL ) {
 		_kpanic( "_init", "init() creation failed", FAILURE );
 	}
@@ -233,6 +239,8 @@ void _init( void ) {
 
 	_schedule( pcb );
 	_dispatch();
+
+	c_puts( (char *)(USERSPACE_VIRT_ADDRESS + 0x1970) );
 
 	/*
 	** Turn on the SIO receiver (the transmitter will be turned
@@ -248,5 +256,4 @@ void _init( void ) {
 	*/
 
 	c_puts( "System initialization complete.\n" );
-
 }

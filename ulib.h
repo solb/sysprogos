@@ -36,6 +36,14 @@
 */
 
 /*
+** Macros
+*/
+
+// pseudo function to convert seconds to milliseconds
+
+#define	seconds_to_ms(n)	((n) * 1000)
+
+/*
 ** Types
 */
 
@@ -101,7 +109,7 @@ int writes( char *str );
 **	pid of the spawned process, or -1 on failure
 */
 
-pid_t spawn( void (*entry)(void) );
+pid_t spawn( char *path );
 
 /*
 ** sleep - put the current process to sleep for some length of time

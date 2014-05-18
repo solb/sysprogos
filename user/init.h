@@ -1,35 +1,13 @@
 /*
-** SCCS ID:	@(#)user.h	1.1	4/9/14
+** Author:	Sol Boucher
 **
-** File:	user.h
-**
-** Author:	CSCI-452 class of 20135
-**
-** Contributor:
-**
-** Description:	User routines
+** Description: Userspace init header
 */
 
-#ifndef _USER_H_
-#define _USER_H_
+#ifndef INIT_H_
+#define INIT_H_
 
-#include "common.h"
-
-/*
-** General (C and/or assembly) definitions
-*/
-
-// delay loop counts
-
-#define	DELAY_LONG	100000000
-#define	DELAY_STD	  2500000
-#define	DELAY_ALT	  4500000
-
-#ifndef __SP_ASM__
-
-/*
-** Start of C-only definitions
-*/
+#include "userspace.h"
 
 /*
 ** User process controls.
@@ -67,8 +45,8 @@
 // no user V
 
 #define SPAWN_NULLPTR
-#define SPAWN_BELOWSTACK
-#define SPAWN_ABOVESTACK
+#define SPAWN_OVERFLOWSTACK
+#define SPAWN_UNDERFLOWSTACK
 
 /*
 ** Users W-Z are spawned from other processes; they
@@ -79,20 +57,5 @@
 // user X:	    X   .   X   .   .   X   .   .   X   X   .  .
 // user Y:	    X   .   X   .   .   X   .   .   .   .   .  .
 // user Z:	    X   .   X   .   .   .   .   .   X   X   .  .
-
-
-/*
-** Prototypes for externally-visible routines
-*/
-
-/*
-** init - initial user process
-**
-** after spawning the other user processes, becomes the idle process
-*/
-
-void init( void );
-
-#endif
 
 #endif

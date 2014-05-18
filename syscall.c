@@ -289,6 +289,9 @@ static void _sys_writes( pcb_t *pcb ) {
 **
 ** implements:  int spawn(void (*entry)(void));
 **
+** takes:
+** 	string containing path to binary
+**
 ** returns:
 **	pid of new process in original process, or -1 on error
 */
