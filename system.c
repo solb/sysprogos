@@ -81,16 +81,15 @@ pcb_t *_create_process( pid_t ppid, const char *path ) {
 		return NULL;
 	}
 
-	uint_t remaining_size = info.file_size;
+	int64_t remaining_size = info.file_size;
 	uint_t start_address =
 			_filesys_calc_absolute_cluster_loc((info.first_cluster_hi << 16) | info.first_cluster_low);
 	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
-	for(uint64_t count = 0; count < info.file_size / PAGE_SIZE; ++count) {
+	for(uint64_t count = 0; remaining_size > 0; ++count) {
 		physaddr_t pf = _mem_page_frame_alloc();
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 		void *mapped = _mem_map_page(pf);
-		_filesys_readfile(mapped, start_address, count << 12,
-				remaining_size >= PAGE_SIZE ? PAGE_SIZE : remaining_size);
+		_filesys_readfile(mapped, start_address, count << 12, PAGE_SIZE);
 		_mem_unmap_page(mapped);
 		remaining_size -= PAGE_SIZE;
 	}
