@@ -231,6 +231,22 @@ void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t att
 void _filesys_update_fats(uint_t relative_cluster, uint_t value);
 
 /*
+** _filesys_update_file_size - Updates the file's file size in it's entry by locating the 
+**								entry in the filesystem using the given filename at the
+**								parent directory location and updates it to the given
+**								data length
+*/
+void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t data_len);
+
+/*
+** _filesys_write_file - Writes the given data of the given length to the given file
+**							If there is data in the file already, clears it
+**
+**							Returns SUCCESS if write is successful, FAILURE otherwise
+*/
+uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len);
+
+/*
 ** _filesys_make_dir - Makes a new directory at the given path and sets the new_dir to 
 **						the newly created file entry for the new directory.
 **

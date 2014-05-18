@@ -298,8 +298,107 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 }
 
 /*
+** _filesys_update_file_size - Updates the file's file size in it's entry by locating the 
+**								entry in the filesystem using the given filename at the
+**								parent directory location and updates it to the given
+**								data length
+*/
+void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t data_len)
+{
+	uint_t current_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	
+	while(current_cluster < LAST_CLUSTER)
+	{
+		uint_t current_cluster_loc = _filesys_calc_absolute_cluster_loc(current_cluster);
+		byte_t *entry = filesystem + current_cluster_loc;
+		
+		byte_t *end_of_cluster = entry + cluster_size;
+		while(entry < end_of_cluster)
+		{//Searches for entry matching filename
+			char name[12] = {'\0'};
+			_kmemcpy((byte_t*)name, (byte_t*)entry, 11);
+			
+			if(_kstrcmp(name, filename) == 0)
+			{//Update filesize in the last 4 bytes of the 32 byte entry
+				*(entry+28) = data_len;
+				
+				return;
+			}
+			
+			entry += 32;
+		}
+		current_cluster = _filesys_find_next_cluster(current_cluster);
+	}
+}
+
+/*
 ** PUBLIC FUNCTIONS
 */
+
+/*
+** _filesys_write_file - Writes the given data of the given length to the given file
+**							If there is data in the file already, clears it
+**
+**							Returns SUCCESS if write is successful, FAILURE otherwise
+*/
+uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len)
+{
+	file_entry_t file[1];
+	
+	if(_filesys_find_file(path, file, 0) == 1)
+	{//Failed to find the file to be written to
+		return FAILURE;
+	}
+	
+	//Shrinks the file down to 1 cluster and clears the memory before writing
+	uint_t start_cluster = file->first_cluster_hi << 8 | file->first_cluster_low;
+	uint_t start_cluster_loc = _filesys_calc_absolute_cluster_loc(start_cluster);
+	_filesys_shrink_cluster_chain(start_cluster);
+	_kmemclr(filesystem+start_cluster_loc, cluster_size);
+	
+	//Writes the data
+	uint_t data_index = 0;
+	uint_t remaining_data = data_len;
+	uint_t current_cluster_loc = start_cluster_loc;
+	
+	while(remaining_data > 0)
+	{//While there is still data
+		if(remaining_data < cluster_size)
+		{//The remaining data fits in the current cluster
+			_kmemcpy(filesystem+current_cluster_loc, data+data_index, remaining_data);
+						
+			data_index += remaining_data;
+			remaining_data = 0;
+			continue;
+		}
+		
+		//Requires more than 1 cluster to write data
+		_kmemcpy(filesystem+current_cluster_loc, data+data_index, cluster_size);
+		
+		data_index += cluster_size;
+		remaining_data -= cluster_size;
+		
+		//Gets next cluster to write to (expands cluster chain by 1)
+		uint_t current_cluster = _filesys_expand_cluster_chain(start_cluster);
+		current_cluster_loc = _filesys_calc_absolute_cluster_loc(current_cluster);
+	}
+	
+	//Gets the parent_directory
+	char *parent_path_end = path+_kstrlen(path) - 1;
+	while(*(--parent_path_end) != '/') {}
+	
+	uint_t parent_path_len = parent_path_end - path + 1;
+	char parent_path[parent_path_len];
+	_kmemcpy((byte_t*)parent_path,(byte_t*)path, parent_path_len);
+	parent_path[parent_path_len - 1] = '\0';
+	file_entry_t parent_dir[1];
+	_filesys_find_file(parent_path, parent_dir, 0);
+	
+	//Updates the file entry's file size
+	_filesys_update_file_size(file->name, parent_dir, data_len);
+	
+	return SUCCESS;
+}
 
 /*
 ** _filesys_make_dir - Makes a new directory at the given path and sets the new_dir to 
