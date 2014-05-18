@@ -162,7 +162,10 @@ static void _sio_isr( int vector, int code ) {
 						 "serial wakeup remove failed",
 						 NOT_EMPTY_QUEUE );
 				}
+				//damnit.
+				_mem_map_user_pagetab(pcb->pagetab);
 				RET(pcb) = ch & 0xff;
+				_mem_map_user_pagetab(_current->pagetab);
 				_schedule( pcb );
 
 			} else {
