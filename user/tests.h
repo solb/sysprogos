@@ -1,16 +1,16 @@
 /*
 ** Author:	Sol Boucher
 **
-** Description: Userspace init header
+** Description: Userspace test suite header
 */
 
-#ifndef INIT_H_
-#define INIT_H_
+#ifndef TESTS_H_
+#define TESTS_H_
 
 #include "userspace.h"
 
 /*
-** User process controls.
+** Test process controls.
 **
 ** The comment field of these definitions contains a list of the
 ** system calls this user process uses.
@@ -21,7 +21,6 @@
 
 //	user	          baseline system calls in use
 		// xit rch wch ws  spn slp gpr spr gp  gpp gt bog
-#if 0
 #define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .  .
@@ -39,8 +38,10 @@
 // no user O
 #define	SPAWN_P	//  X   .   X   .   .   X   .   .   .   .   X  .
 #define	SPAWN_Q	//  X   .   X   .   .   .   .   .   .   .   .  X
+#if 0
 #define	SPAWN_R	//  X   X   X   .   .   X   .   .   .   .   .  .
 #define	SPAWN_S	//  X   .   X   .   .   X   .   .   .   .   .  .
+#endif
 #define	SPAWN_T	//  X   .   X   .   .   .   X   X   X   .   .  .
 #define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
 // no user V
@@ -50,8 +51,6 @@
 #define SPAWN_OVERFLOWSTACK
 #define SPAWN_UNDERFLOWSTACK
 #define SPAWN_STOPPIC
-#endif
-#define SPAWN_SHELL
 
 /*
 ** Users W-Z are spawned from other processes; they
