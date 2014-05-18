@@ -21,7 +21,6 @@
 
 //	user	          baseline system calls in use
 		// xit rch wch ws  spn slp gpr spr gp  gpp gt bog
-#if 0
 #define	SPAWN_A	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_B	//  X   .   X   .   .   .   .   .   .   .   .  .
 #define	SPAWN_C	//  X   .   X   .   .   .   .   .   .   .   .  .
@@ -43,7 +42,6 @@
 #define	SPAWN_S	//  X   .   X   .   .   X   .   .   .   .   .  .
 #define	SPAWN_T	//  X   .   X   .   .   .   X   X   X   .   .  .
 #define	SPAWN_U	//  X   .   .   X   .   .   .   .   .   .   .  .
-#endif
 // no user V
 
 // Protection checks

@@ -50,6 +50,7 @@
 #define TSS_SIZE	104
 #define TSS_RSP0	1
 #define TSS_IST1	9
+#define TSS_IOBM	25 // only the higher-order half
 
 /*
 ** The Page Tables
