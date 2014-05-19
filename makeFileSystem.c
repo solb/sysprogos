@@ -80,7 +80,13 @@ int main(int argc, char **argv)
 			data[index++] = b;
 		}
 			
-		_filesys_write_file(file_path, data, data_len);
+		if(_filesys_write_file(file_path, data, data_len) == 1)
+		{//checks if write fails
+			fprintf(stderr, "\tERROR writing file contents!\n");
+			fprintf(stderr, "\t\tWARNING! Filesystem may have unexpected data associated with this file\n");
+			continue;
+		}
+		
 		fprintf(stdout, "\tFinished writing contents of file.\n");
 		
 		fprintf(stdout, "\tSuccessfully wrote file to filesystem\n\n");
