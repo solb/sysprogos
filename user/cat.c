@@ -30,6 +30,7 @@ int main( void ) {
 		if(num_bytes_read < 0)
 		{//An error occurred
 			c_puts( "Failed to finish reading file for cat\n" );
+			return -1;
 		}
 		
 		//Writes the data that has been read to SIO
