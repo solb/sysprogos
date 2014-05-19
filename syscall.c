@@ -275,6 +275,8 @@ static void _sys_writech( pcb_t *pcb ) {
 */
 
 static void _sys_writes( pcb_t *pcb ) {
+	// TODO: Ensure this isn't a bogus string!
+
 	char *str = (char *) ARG1(pcb);
 
 	// this is almost insanely simple, but it does separate
@@ -381,10 +383,18 @@ static void _sys_c_putchar_at( pcb_t *pcb ) {
 */
 static void _sys_readfile( pcb_t *pcb )
 {
+	// TODO: Ensure this isn't a bogus string!
+
 	char *path = (char*)ARG1(pcb);
 	int offset = ARG2(pcb);
 	void *buff = (void*)ARG3(pcb);
 	int count  = ARG4(pcb);
+
+	if(!_mem_range_is_mapped(buff, count)) {
+		c_puts( "Killing process that attempted to read into a bad destination...\n" );
+		_terminate();
+		return;
+	}
 
 	file_entry_t file;
 	if(_filesys_find_file(path, &file, 0) == FAILURE) {
@@ -411,10 +421,18 @@ static void _sys_readfile( pcb_t *pcb )
 */
 static void _sys_readdir( pcb_t *pcb )
 {
+	// TODO: Ensure this isn't a bogus string!
+
 	char *path = (char*)ARG1(pcb);
 	file_entry_t *buff = (file_entry_t*) ARG2(pcb);
 	int  count = ARG3(pcb);
 	
+	if(!_mem_range_is_mapped(buff, count)) {
+		c_puts( "Killing process that attempted to read into a bad destination...\n" );
+		_terminate();
+		return;
+	}
+
 	int num_dir_read = 0;
 	file_entry_t file;
 	
@@ -452,6 +470,8 @@ static void _sys_readdir( pcb_t *pcb )
 */
 static void _sys_mkdir( pcb_t *pcb )
 {
+	// TODO: Ensure this isn't a bogus string!
+
 	char *path = (char*)ARG1(pcb);
 	
 	file_entry_t dir;

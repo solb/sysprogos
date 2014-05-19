@@ -147,6 +147,30 @@ void _mem_unmap_user_pagetab(void) {
 }
 
 /*
+** _mem_range_is_mapped: test whether the range is within the mapped pages belonging to userland
+*/
+_Bool _mem_range_is_mapped(void *start_address, uint_t length) {
+	void *end_address = start_address + length;
+
+	if(start_address < (void *)USERSPACE_VIRT_ADDRESS || start_address >= (void *)USERSPACE_VIRT_ADDRESS + NUM_PTES * PAGE_SIZE)
+		return 0;
+	if(end_address >= (void *)USERSPACE_VIRT_ADDRESS + NUM_PTES * PAGE_SIZE)
+		return 0;
+
+	uint64_t *page_table = _mem_map_page(_current->pagetab);
+	uint64_t first_pte = ((uint64_t)start_address - USERSPACE_VIRT_ADDRESS) >> 12;
+	uint64_t last_pte = ((uint64_t)end_address - USERSPACE_VIRT_ADDRESS) >> 12;
+	for(uint64_t entry = first_pte; entry <= last_pte; ++entry) {
+		if(!(page_table[entry] & PAGE_PRESENT)) {
+			return 0;
+		}
+	}
+	_mem_unmap_page(page_table);
+
+	return 1;
+}
+
+/*
 ** _mem_kill_overflowing_process: terminate a process that didn't leave us
 ** 			 enough room on its stack to store a context_t
 */
