@@ -220,4 +220,12 @@ int main( void ) {
 		exit();
 	}
 #endif
+	
+#ifdef SPAWN_LS
+	pid = spawn( "/ls.b" );
+	if( pid < 0 ) {
+		c_printf( "init, ls() ls failed\n" );
+		exit();
+	}
+#endif
 }
