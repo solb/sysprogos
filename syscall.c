@@ -443,6 +443,29 @@ static void _sys_readdir( pcb_t *pcb )
 
 
 /*
+** _sys_mkdir - Creates a directory of a given path
+**
+** implements:	mkdir(char* path);
+**
+** returns:
+**	 Returns SUCCESS or FAILURE of creation of directory
+*/
+static void _sys_mkdir( pcb_t *pcb )
+{
+	char *path = (char*)ARG1(pcb);
+	
+	file_entry_t dir;
+	
+	if(_filesys_make_dir(path, &dir) == SUCCESS)
+	{//Mkdir was successful
+		RET(pcb) = SUCCESS;
+	}
+	
+	RET(pcb) = FAILURE;
+}
+
+
+/*
 ** PUBLIC FUNCTIONS
 */
 
@@ -479,6 +502,7 @@ void _sys_init( void ) {
 	_syscalls[ SYS_c_putchar_at ]   = _sys_c_putchar_at;
 	_syscalls[ SYS_readfile ]  = _sys_readfile;
 	_syscalls[ SYS_readdir ]   = _sys_readdir;
+	_syscalls[ SYS_mkdir ]     = _sys_mkdir;
 
 	// install our ISR
 

@@ -215,6 +215,16 @@ int readfile(char *path, int offset, void *buff, int count);
 */
 int readdir(char *path, void *buff, int count);
 
+/*
+** _sys_mkdir - Creates a directory of a given path
+**
+** usage:	int success = mkdir(char* path);
+**
+** returns:
+**	 Returns SUCCESS or FAILURE of creation of directory
+*/
+int mkdir(char *path);
+
 #endif
 
 #endif

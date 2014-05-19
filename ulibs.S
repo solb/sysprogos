@@ -103,6 +103,7 @@ SYSCALL0(gettime)
 SYSCALL3(c_putchar_at)
 SYSCALL4(readfile)
 SYSCALL3(readdir)
+SYSCALL1(mkdir)
 
 // This is a bogus system call; it's here so that we can test
 // our handling of out-of-range syscall codes in the syscall ISR.
