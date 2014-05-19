@@ -211,6 +211,12 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster);
 uint_t _filesys_find_next_free_cluster(void);
 
 /*
+** _filesys_is_directory - Determines if the given file is a directory or not.
+**							Returns SUCCESS if it is, FAILURE otherwise
+*/
+uint_t _filesys_is_directory(file_entry_t file);
+
+/*
 ** _filesys_write_file_entry - Writes a file entry at the given entry location using
 **								the provided filename, attributes, and cluster number
 */

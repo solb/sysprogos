@@ -275,6 +275,20 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 */
 
 /*
+** _filesys_is_directory - Determines if the given file is a directory or not.
+**							Returns SUCCESS if it is, FAILURE otherwise
+*/
+uint_t _filesys_is_directory(file_entry_t file)
+{
+	if((file.attributes & ATTR_DIRECTORY) == ATTR_DIRECTORY)
+	{
+		return SUCCESS;
+	}
+	
+	return FAILURE;
+}
+
+/*
 ** _filesys_make_dir - Makes a new directory at the given path and sets the new_dir to 
 **						the newly created file entry for the new directory.
 **
