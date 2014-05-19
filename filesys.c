@@ -394,18 +394,10 @@ uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len)
 	parent_path[parent_path_len - 1] = '\0';
 	file_entry_t parent_dir;
 	
-	if(_kstrcmp(parent_path, "") != 0)
-	{//Parent_path is NOT root
-		if(_filesys_find_file(parent_path, &parent_dir, 0) == 1) //FAILURE)
-		{
-			return 1; //FAILURE;
-		}
-	}
-	else
-	{//Parent_path IS root
-		uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
-		parent_dir.first_cluster_hi = 0x00;
-		parent_dir.first_cluster_low = _filesys_calc_relative_cluster(root_loc);
+
+	if(_filesys_find_file(parent_path, &parent_dir, 0) == FAILURE)
+	{
+		return FAILURE;
 	}
 	
 	//Updates the file entry's file size
@@ -550,6 +542,17 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 */
 uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 {	
+	//First checks to see if root directory, and if soo, it generates a fake file entry
+	// with the root directories start cluster
+	if(_kstrcmp(path, "") == 0)
+	{
+		uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
+		_filesys_convert_to_shortname("/", file->name);
+		file->first_cluster_hi = 0x00;
+		file->first_cluster_low = _filesys_calc_relative_cluster(root_loc);
+		return SUCCESS;
+	}
+
 	//Splits path into head (first folder name) and Tail (rest of path)
 	//Split is performed by finding first 2nd "/" and converts it to \0 
 	//				(because path should start with "/")
