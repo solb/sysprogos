@@ -10,9 +10,6 @@
 // The number of entries per page table structure
 #define NUM_PTES 512
 
-// The size of the userspace memory, in bytes (excluding the stacks)
-#define USERSPACE_SIZE	0x10000
-
 #define DYNAMIC_MEM_LOW ((void*)0x300000)
 #define DYNAMIC_MEM_HIGH ((void*)0xcd33d000)
 
@@ -32,6 +29,7 @@ void *_mem_map_page(physaddr_t page);
 void _mem_unmap_page(void *addr);
 void _mem_map_user_pagetab(physaddr_t frame);
 void _mem_unmap_user_pagetab(void);
+_Bool _mem_range_is_mapped(void *start_address, uint_t length);
 void _mem_kill_overflowing_process(void);
 
 #endif
