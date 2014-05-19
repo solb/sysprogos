@@ -25,6 +25,7 @@ int main( void ) {
 			}
 		} while( ch == -1 );
 		writech( ch );
+		c_printf("%c is %d\n", ch, ch);
 	}
 
 	c_puts( "User R exiting\n" );
