@@ -21,9 +21,18 @@ int main( void ) {
 		int idx = 0;
 		cmd[idx++] = '/';
 		while((ch = readch()) != '\n') {
-			if (idx < 9) {
-				writech(ch);
-				cmd[idx++] = ch;
+			if (ch == 8) {
+				if (idx > 1) {
+					writech(ch);
+					writech(' ');
+					writech(ch);
+					cmd[idx--] = '\0';
+				}
+			} else {
+				if (idx < 9) {
+					writech(ch);
+					cmd[idx++] = ch;
+				}
 			}
 		}
 		writech('\n');
