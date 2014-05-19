@@ -402,6 +402,47 @@ static void _sys_readfile( pcb_t *pcb )
 
 
 /*
+** _sys_readdir - Reads the contents of a directory
+**
+** implements:	int readdir(char* path, void *buff, int count);
+**
+** returns:
+**	the number of files read in the directory. Returns -1 if the read failed
+*/
+static void _sys_readdir( pcb_t *pcb )
+{
+	char *path = (char*)ARG1(pcb);
+	file_entry_t *buff = (file_entry_t*) ARG2(pcb);
+	int  count = ARG3(pcb);
+	
+	int num_dir_read = 0;
+	file_entry_t file;
+	
+	//Tries finding the file
+	if(_filesys_find_file(path, &file, 0) == FAILURE)
+	{//Failed to find the file
+		RET(pcb) = -1;
+	}
+	
+	//Checks if the file is a directory or not
+	if(_filesys_is_directory(file) == SUCCESS)
+	{//Is a directory, READ
+		int dir_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
+		int dir_address = _filesys_calc_absolute_cluster_loc(dir_cluster);
+		
+		num_dir_read = _filesys_readdir(buff, (uint_t)count, (uint_t)dir_address);
+	}
+	else
+	{//Not a directory, return failure
+		RET(pcb) = -1;
+	}
+	
+	RET(pcb) = num_dir_read;
+		
+}
+
+
+/*
 ** PUBLIC FUNCTIONS
 */
 
@@ -437,6 +478,7 @@ void _sys_init( void ) {
 	_syscalls[ SYS_gettime ]   = _sys_gettime;
 	_syscalls[ SYS_c_putchar_at ]   = _sys_c_putchar_at;
 	_syscalls[ SYS_readfile ]  = _sys_readfile;
+	_syscalls[ SYS_readdir ]   = _sys_readdir;
 
 	// install our ISR
 

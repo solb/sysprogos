@@ -34,10 +34,11 @@
 #define	SYS_gettime		10
 #define	SYS_c_putchar_at	11
 #define SYS_readfile	12
+#define SYS_readdir		13
 
 // number of "real" system calls
 
-#define	N_SYSCALLS	13
+#define	N_SYSCALLS	14
 
 // dummy system call code to test the syscall ISR
 

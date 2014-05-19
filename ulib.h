@@ -196,14 +196,24 @@ void c_putchar_at( unsigned int x, unsigned int y, unsigned int c );
 void bogus( void );
 
 /*
-** readfile - reads data from a file in the filesystem
+** readdir - reads data from a file in the filesystem
 **
-** usage:	readfile(char *path, int offset, void *buff, int count)
+** usage:	num_bytes_read = readfile(char *path, int offset, void *buff, int count)
 **
 ** returns:
 **		the number of bytes read
 */
 int readfile(char *path, int offset, void *buff, int count);
+
+/*
+** readdir - Reads the contents of a directory
+**
+** usage:	num_entries_read = readdir(char* path, void *buff, int count);
+**
+** returns:
+**	the number of files read in the directory. Returns -1 if the read failed
+*/
+int readdir(char *path, void *buff, int count);
 
 #endif
 
