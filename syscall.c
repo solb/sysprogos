@@ -397,7 +397,7 @@ static void _sys_readfile( pcb_t *pcb )
 	
 	_filesys_readfile((byte_t*)buff, file_address, offset, count);
 
-	RET(pcb) = count;
+	RET(pcb) = file.file_size - offset < count ? file.file_size - offset : count;
 }
 
 
