@@ -14,14 +14,14 @@
 */
 
 int main( void ) {
-	c_puts( "cat running." );
+	c_puts( "cat running.\n" );
 	
 	int num_bytes_read = 0;
 	int offset = 0;
 	
 	writes( "Path to file? " );
-	char *file_path[14];
-	reads(14, file_path);
+	char *file_path[100];
+	reads(100, file_path);
 	
 	int lines_read = 0;
 
@@ -34,7 +34,7 @@ int main( void ) {
 
 		if(num_bytes_read < 0)
 		{//An error occurred
-			c_puts( "Failed to finish reading file for cat\n" );
+			writes( "Unable to read file!\n" );
 			return -1;
 		}
 		
@@ -65,5 +65,5 @@ int main( void ) {
 
 	} while(num_bytes_read > 0);
 	
-	c_puts( "cat exiting\n" );
+	c_puts( "cat exiting.\n" );
 }
