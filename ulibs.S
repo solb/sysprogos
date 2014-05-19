@@ -62,6 +62,17 @@ name:                             ; \
 	movl	$SYS_##name, %eax ; \
 	int	$INT_VEC_SYSCALL  ; \
 	ret
+	
+#define SYSCALL4(name) \
+	.globl	name              ; \
+name:                             ; \
+	movq	%rcx, %r9      ; \
+	movq	%rdx, %r8      ; \
+	movq	%rdi, %rcx     ; \
+	movq	%rsi, %rdx     ; \
+	movl	$SYS_##name, %eax ; \
+	int	$INT_VEC_SYSCALL  ; \
+	ret
 
 /*
 ** for debugging purposes, these could be changed to expand into
@@ -90,6 +101,7 @@ SYSCALL0(getpid)
 SYSCALL0(getppid)
 SYSCALL0(gettime)
 SYSCALL3(c_putchar_at)
+SYSCALL4(readfile)
 
 // This is a bogus system call; it's here so that we can test
 // our handling of out-of-range syscall codes in the syscall ISR.

@@ -372,7 +372,7 @@ static void _sys_c_putchar_at( pcb_t *pcb ) {
 
 
 /*
-** _sys_readfile - Reads a data from a file in the filesystem
+** _sys_readfile - Reads data from a file in the filesystem
 **
 ** implements:	int readfile(char* path, int offset, void *buff, int count);
 **

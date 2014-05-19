@@ -195,6 +195,16 @@ void c_putchar_at( unsigned int x, unsigned int y, unsigned int c );
 
 void bogus( void );
 
+/*
+** readfile - reads data from a file in the filesystem
+**
+** usage:	readfile(char *path, int offset, void *buff, int count)
+**
+** returns:
+**		the number of bytes read
+*/
+int readfile(char *path, int offset, void *buff, int count);
+
 #endif
 
 #endif
