@@ -1,13 +1,19 @@
 READFILE(1)                      TO-D/OS SYSCALLS Manual                      READFILE(1)
 
 NAME
-     readfile — <brief explanation>
+     readfile — Reads data from a file in the filesystem
 
 SYNOPSIS
-	<usage:>
+	 int readfile(char *path, int offset, void *buff, int count);
 
 DESCRIPTION
-     <detailed explanation>
+     Reads data from a file at the given path. An offset can be specified to read
+     starting at a different point in the file. The data read is stored in buff, which is
+     of size count. It will return the number of bytes read. If reading fails, -1 is
+     returned.
+     
+RETURN VALUE
+	 The number of bytes read or if it fails, -1
 
 
 BSD                                   May 19, 2014                                   BSD

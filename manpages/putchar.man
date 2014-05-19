@@ -1,13 +1,13 @@
 C_PUTCHAR_AT(1)                  TO-D/OS SYSCALLS Manual                  C_PUTCHAR_AT(1)
 
 NAME
-     c_putchar_at — <brief explanation>
+     c_putchar_at — Debug printing
 
 SYNOPSIS
-	<usage:>
+	void c_putchar_at(unsigned int x, unsigned int y, unsigned int c);
 
 DESCRIPTION
-     <detailed explanation>
+     Enables the user level code to perform debug printing
 
 
 BSD                                   May 19, 2014                                   BSD

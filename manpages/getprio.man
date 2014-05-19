@@ -1,13 +1,15 @@
 GETPRIO(1)                       TO-D/OS SYSCALLS Manual                       GETPRIO(1)
 
 NAME
-     getprio — <brief explanation>
+     getprio — Retrieve the priority of this process
 
 SYNOPSIS
-	<usage:>
+	 prio_t getprio(void);
 
 DESCRIPTION
-     <detailed explanation>
+	 
+RETURN VALUE
+	 The process' priority
 
 
 BSD                                   May 19, 2014                                   BSD

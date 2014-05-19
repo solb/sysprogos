@@ -1,13 +1,13 @@
 EXIT(1)                          TO-D/OS SYSCALLS Manual                          EXIT(1)
 
 NAME
-     exit — <brief explanation>
+     exit — Terminate the calling process
 
 SYNOPSIS
-	<usage:>
+	void exit();
 
 DESCRIPTION
-     <detailed explanation>
+    
 
 
 BSD                                   May 19, 2014                                   BSD

@@ -1,13 +1,15 @@
 GETPID(1)                        TO-D/OS SYSCALLS Manual                        GETPID(1)
 
 NAME
-     getpid — <brief explanation>
+     getpid — Retrieve the PID of the current process
 
 SYNOPSIS
-	<usage:>
+	 pid_t getpid(void);
 
 DESCRIPTION
-     <detailed explanation>
+     
+RETURN VALUE
+	 The process' pid
 
 
 BSD                                   May 19, 2014                                   BSD

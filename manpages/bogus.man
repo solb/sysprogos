@@ -1,0 +1,13 @@
+BOGUS(1)                         TO-D/OS SYSCALLS Manual                         BOGUS(1)
+
+NAME
+     bogus — A bogus system call
+
+SYNOPSIS
+	void bogus(void);
+
+DESCRIPTION
+     This system call is a bogus system call. It is used for testing the call to ISR
+
+
+BSD                                   May 19, 2014                                   BSD

@@ -1,13 +1,15 @@
 GETTIME(1)                       TO-D/OS SYSCALLS Manual                       GETTIME(1)
 
 NAME
-     gettime — <brief explanation>
+     gettime — Retrieve the current system time
 
 SYNOPSIS
-	<usage:>
+	 time_t gettime(void);
 
 DESCRIPTION
-     <detailed explanation>
+     
+RETURN VALUE
+	 The current system time
 
 
 BSD                                   May 19, 2014                                   BSD

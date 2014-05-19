@@ -1,13 +1,15 @@
 SETPRIO(1)                       TO-D/OS SYSCALLS Manual                       SETPRIO(1)
 
 NAME
-     setprio — <brief explanation>
+     setprio — Change the priority of this process
 
 SYNOPSIS
-	<usage:>
+	 prio_t setprio(prio_t prio);
 
 DESCRIPTION
-     <detailed explanation>
+     
+RETURN VALUE
+	 The old priority of the process
 
 
 BSD                                   May 19, 2014                                   BSD

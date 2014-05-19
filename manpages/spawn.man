@@ -1,13 +1,15 @@
 SPAWN(1)                         TO-D/OS SYSCALLS Manual                         SPAWN(1)
 
 NAME
-     spawn — <brief explanation>
+     spawn — Create a new process running a different program
 
 SYNOPSIS
-	<usage:>
+	 pid_t spawn(char *path)
 
 DESCRIPTION
-     <detailed explanation>
+     
+RETURN VALUE
+	 PID of the spawned process or -1 on failure
 
 
 BSD                                   May 19, 2014                                   BSD

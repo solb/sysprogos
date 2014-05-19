@@ -1,13 +1,17 @@
 READDIR(1)                       TO-D/OS SYSCALLS Manual                       READDIR(1)
 
 NAME
-     readdir — <brief explanation>
+     readdir — Reads the contents of a directory
 
 SYNOPSIS
-	<usage:>
+	 int readdir(char *path, void *buff, int count);
 
 DESCRIPTION
-     <detailed explanation>
+     Reads the contents of a directory at the path and stores the name, size, and
+     if it is a directory for each file read into buff.
+     
+RETURN VALUE
+	 The number of files read in the directory. Returns -1 if the read failed
 
 
 BSD                                   May 19, 2014                                   BSD
