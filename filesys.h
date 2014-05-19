@@ -42,7 +42,7 @@
 /*
 ** Defines the maximum number of files to be stored in a directory
 */
-#define	MAX_DIRECTORY_SIZE	50;
+#define	MAX_DIRECTORY_SIZE	30;
 
 /*
 ** Defines the file_entry ATTRIBUTES

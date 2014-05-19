@@ -162,10 +162,10 @@ kern.b:	kern.o
 	mkdosfs -F 32 $@
 	mkdir -p /tmp/userspacemnt
 	./loopmount_userspace mount $@
-	cp $^ /tmp/userspacemnt/
+	cp -r $^ /tmp/userspacemnt/
 	./loopmount_userspace unmount -
 
-userspace.img: $(U_C_BIN)
+userspace.img: $(U_C_BIN) manpages/
 
 loopmount_userspace: loopmount_userspace.c
 	gcc -std=c99 -Wall -Wextra -pedantic -o loopmount_userspace loopmount_userspace.c
