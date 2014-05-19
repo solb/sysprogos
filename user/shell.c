@@ -14,7 +14,6 @@ int main( void ) {
 	c_puts( "Shell running.\n" );
 	int running = 1;
 	while(running) {
-		writech('\n');
 		writech('$');
 		char cmd[12];
 		char ch;
