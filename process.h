@@ -129,6 +129,7 @@ typedef struct pcb {
 	// 64-bit fields
 	context_t	*context;	// context save area pointer
 	physaddr_t	pagetab;		// per-process page table
+	struct pcb	*ppcb;		// parent PCB, only if it is waiting for us to exit
 	// 32-bit-fields
 	time_t		wakeup;		// for sleeping process
 	// 16-bit fields

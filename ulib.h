@@ -188,6 +188,20 @@ time_t gettime( void );
 void c_putchar_at( unsigned int x, unsigned int y, unsigned int c );
 
 /*
+** syncspawn - defer flow of control to a new process
+**
+** usage:	pid = spawn(char *);
+**
+** takes:
+**  string containing path to binary
+**
+** returns:
+**	pid of the completed process, or -1 on failure
+*/
+
+pid_t syncspawn( char *path );
+
+/*
 ** bogus - a bogus system call, for testing our syscall ISR
 **
 ** usage:	bogus();

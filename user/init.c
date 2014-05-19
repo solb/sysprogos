@@ -6,6 +6,9 @@
 
 #include "userspace.h"
 
+// Number of lines of the serial console to clear on launch
+#define CLEAR_N_LINES	25
+
 /*
 ** Initial process; it starts the other top-level user processes.
 ** It then becomes the system idle process!
@@ -29,6 +32,9 @@ int main( void ) {
 	c_printf( "Init started, now at priority %d\n", prio );
 	for(unsigned waste = 0; waste < 1000000000; ++waste);
 
+	for( i = 0; i < CLEAR_N_LINES; ++i )
+		writech('\n');
+
 	pid = spawn( "/shell.b" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() shell failed\n" );
@@ -46,7 +52,7 @@ int main( void ) {
 	c_printf( "Init -> Idle @ %08x, old prio %d, now %d\n",
 		time, prio, prio2 );
 
-	writech( '.' );
+	//writech( '.' );
 
 	for(;;) {
 		for( i = 0; i < DELAY_LONG; ++i )

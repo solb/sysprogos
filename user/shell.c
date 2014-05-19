@@ -11,9 +11,10 @@
 */
 
 int main( void ) {
-	c_puts( "Shell running." );
+	c_puts( "Shell running.\n" );
 	int running = 1;
 	while(running) {
+		writech('\n');
 		writech('$');
 		char cmd[12];
 		char ch;
@@ -29,7 +30,7 @@ int main( void ) {
 		cmd[idx++] = '.';
 		cmd[idx++] = 'B';
 		cmd[idx++] = '\0';
-		spawn(cmd);
+		syncspawn(cmd);
 	}
 
 	c_puts( "Shell exiting\n" );

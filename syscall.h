@@ -36,10 +36,11 @@
 #define SYS_readfile	12
 #define SYS_readdir		13
 #define SYS_mkdir		14
+#define SYS_syncspawn	15
 
 // number of "real" system calls
 
-#define	N_SYSCALLS	15
+#define	N_SYSCALLS	16
 
 // dummy system call code to test the syscall ISR
 
