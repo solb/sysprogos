@@ -29,6 +29,9 @@ int main( void ) {
 	c_printf( "Init started, now at priority %d\n", prio );
 	for(unsigned waste = 0; waste < 1000000000; ++waste);
 
+	//clear the serial console
+	writech('');
+
 	pid = spawn( "/shell.b" );
 	if( pid < 0 ) {
 		c_printf( "init, spawn() shell failed\n" );
