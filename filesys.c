@@ -333,8 +333,142 @@ void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t 
 }
 
 /*
+** _filesys_delete_file_entry - Sets the first byte of the file entry in the file system
+**								to ENTRY_FREE
+*/
+void _filesys_delete_file_entry(char *path, file_entry_t *file)
+{
+	//Gets the cluster number for the new directory's parent
+	char *parent_path_end = path+_kstrlen(path) - 1;
+	while(*(--parent_path_end) != '/') {}
+	
+	uint_t parent_path_len = parent_path_end - path + 1;
+	char parent_path[parent_path_len];
+	_kmemcpy((byte_t*)parent_path,(byte_t*)path, parent_path_len);
+	parent_path[parent_path_len - 1] = '\0';
+	file_entry_t parent_dir;
+	_filesys_find_file(parent_path, &parent_dir, 0);
+	
+	uint_t current_cluster = parent_dir.first_cluster_hi << 16 | parent_dir.first_cluster_low;
+	
+	while(current_cluster < LAST_CLUSTER)
+	{
+		uint_t current_cluster_loc = _filesys_calc_absolute_cluster_loc(current_cluster);
+		byte_t *entry = filesystem + current_cluster_loc;
+		
+		byte_t *end_of_cluster = entry + cluster_size;
+		while(entry < end_of_cluster)
+		{//Searches for entry matching filename
+			char name[12] = {'\0'};
+			_kmemcpy((byte_t*)name, (byte_t*)entry, 11);
+			
+			if(_kstrcmp(name, file->name) == 0)
+			{//Update entry's first byte to ENTRY_FREE
+				*(entry) = ENTRY_FREE;
+				
+				return;
+			}
+			
+			entry += 32;
+		}
+		current_cluster = _filesys_find_next_cluster(current_cluster);
+	}
+}
+
+/*
+** _filesys_convert_shortname_to_normal - converts a shortname file name to a normal
+**											filename
+*/
+void _filesys_convert_shortname_to_normal(char *shortname, char *converted)
+{
+	int index = 0;
+	for(int i = 0; i < 8; i++)
+	{
+		if(shortname[i] == ' ')
+			continue;
+			
+		converted[index] = shortname[i];
+		index++;
+	}
+	
+	converted[index] = '.';
+	index++;
+	
+	for(int i = 8; i < 12; i++)
+	{
+		if(shortname[i] == ' ')
+			break;
+			
+		converted[index] = shortname[i];
+		index++;
+	}
+}
+
+/*
 ** PUBLIC FUNCTIONS
 */
+
+/* 
+** _filesys_delete - Deletes a file within the filesystem. If the file is a directory, it
+**						will delete every file within the directory as well
+*/
+void _filesys_delete(char *path)
+{
+	file_entry_t file;
+	if(_filesys_find_file(path, &file, 0) == 1)
+	{//Couldn't find file to delete, return
+		return;
+	}
+	
+	int dir_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
+	
+	if(_filesys_is_directory(file) == 0)
+	{//It is a directory
+		int dir_address = _filesys_calc_absolute_cluster_loc(dir_cluster);
+		file_entry_t entries[MAX_DIRECTORY_SIZE];
+		
+		int num_entries = _filesys_readdir(entries, MAX_DIRECTORY_SIZE, dir_address);
+		int path_len = _kstrlen(path);
+		
+		for(int i = 0; i < num_entries; i++)
+		{//For each entry in the directory, add the file to the path and delete
+			char normal_filename[13] = { '\0' };
+			_filesys_convert_shortname_to_normal(entries[i].name, normal_filename);
+			
+			char extended_path[path_len + 12];
+			_kmemcpy(extended_path, path, path_len);
+			_kmemcpy(extended_path+path_len+1, normal_filename, 13); 
+			extended_path[path_len] = '/';
+			
+			_filesys_delete(extended_path);
+		}
+	}
+	
+	//Deletes a single (non-directory) file
+	//Clears fats for all cluster in file expect first
+	_filesys_shrink_cluster_chain(dir_cluster);
+	
+	//Updates the fats to clear the first cluster of the file	
+	_filesys_update_fats(dir_cluster, 0x0000);
+	
+	//Sets first byte of file entry to ENTRY_FREE
+	_filesys_delete_file_entry(path, &file);
+	
+}
+
+/*
+** _filesys_is_directory - Determines if the given file is a directory or not.
+**                          Returns SUCCESS if it is, FAILURE otherwise
+*/
+uint_t _filesys_is_directory(file_entry_t file)
+{
+	if((file.attributes & ATTR_DIRECTORY) == ATTR_DIRECTORY)
+    {
+        return SUCCESS;
+    }
+        
+    return FAILURE;
+}
 
 /*
 ** _filesys_write_file - Writes the given data of the given length to the given file

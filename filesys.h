@@ -239,6 +239,30 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value);
 void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t data_len);
 
 /*
+** _filesys_convert_shortname_to_normal - converts a shortname file name to a normal
+**											filename
+*/
+void _filesys_convert_shortname_to_normal(char *shortname, char *converted);
+
+/*
+** _filesys_delete_file_entry - Sets the first byte of the file entry in the file system
+**								to ENTRY_FREE
+*/
+void _filesys_delete_file_entry(char *path, file_entry_t *file);
+
+/* 
+** _filesys_delete - Deletes a file within the filesystem. If the file is a directory, it
+**						will delete every file within the directory as well
+*/
+void _filesys_delete(char *path);
+
+/*
+** _filesys_is_directory - Determines if the given file is a directory or not.
+**                          Returns SUCCESS if it is, FAILURE otherwise
+*/
+uint_t _filesys_is_directory(file_entry_t file);
+
+/*
 ** _filesys_write_file - Writes the given data of the given length to the given file
 **							If there is data in the file already, clears it
 **
