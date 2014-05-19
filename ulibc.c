@@ -5,7 +5,8 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor: Dan Johnson
+** Contributor: Sol Boucher
 **
 ** Description:	C implementations of user-level library functions
 */
@@ -35,3 +36,25 @@
 /*
 ** PUBLIC FUNCTIONS
 */
+
+unsigned readstr(unsigned len, char *buf) {
+	char ch;
+	int idx = 0;
+	while((ch = readch()) != '\n') {
+		if (ch == 8) { // backspace
+			if (idx > 0) {
+				writech(ch);
+				writech(' ');
+				writech(ch);
+				buf[--idx] = '\0';
+			}
+		} else {
+			if (idx < len) {
+				writech(ch);
+				buf[idx++] = ch;
+			}
+		}
+	}
+	writech('\n');
+	return idx;
+}

@@ -5,7 +5,8 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor: Dan Johnson
+** Contributor: Sol Boucher
 **
 ** Description:	User-level library declarations
 **
@@ -54,6 +55,16 @@
 /*
 ** Prototypes
 */
+
+/*
+** readstr - read a string from the serial console
+**
+** usage: readstr(unsigned, char *)
+**
+** returns: number of characters/bytes read
+*/
+
+unsigned readstr(unsigned len, char *buf);
 
 /*
 ** exit - terminate the calling process

@@ -1,13 +1,13 @@
 /*
-** Author:	Sol Boucher
+** Author:	Dan Johnson
 **
-** Description: R userspace process
+** Description: Interactive shell!
 */
 
 #include "userspace.h"
 
 /*
-** User R loops 3 times reading/writing, then exits.
+** Dan's wonderful interactive shell
 */
 
 int main( void ) {
@@ -17,27 +17,10 @@ int main( void ) {
 		writech('\n');
 		writech('$');
 		char cmd[12];
-		char ch;
-		int idx = 0;
-		cmd[idx++] = '/';
-		while((ch = readch()) != '\n') {
-			if (ch == 8) {
-				if (idx > 1) {
-					writech(ch);
-					writech(' ');
-					writech(ch);
-					cmd[idx--] = '\0';
-				}
-			} else {
-				if (idx < 9) {
-					writech(ch);
-					cmd[idx++] = ch;
-				}
-			}
-		}
-		writech('\n');
+		cmd[0] = '/';
+		int idx = readstr(8, cmd + 1) + 1;
 		cmd[idx++] = '.';
-		cmd[idx++] = 'B';
+		cmd[idx++] = 'b';
 		cmd[idx++] = '\0';
 		syncspawn(cmd);
 	}
