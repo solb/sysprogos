@@ -424,8 +424,10 @@ static void _sys_readdir( pcb_t *pcb )
 	// TODO: Ensure this isn't a bogus string!
 
 	char *path = (char*)ARG1(pcb);
-	file_entry_t *buff = (file_entry_t*) ARG2(pcb);
+	file_t *buff = (file_t*) ARG2(pcb);
 	int  count = ARG3(pcb);
+	
+	file_entry_t entries[count];
 	
 	if(!_mem_range_is_mapped(buff, count)) {
 		c_puts( "Killing process that attempted to read into a bad destination...\n" );
@@ -448,13 +450,22 @@ static void _sys_readdir( pcb_t *pcb )
 		int dir_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
 		int dir_address = _filesys_calc_absolute_cluster_loc(dir_cluster);
 		
-		num_dir_read = _filesys_readdir(buff, (uint_t)count, (uint_t)dir_address);
+		num_dir_read = _filesys_readdir(entries, (uint_t)count, (uint_t)dir_address);
 	}
 	else
 	{//Not a directory, return failure
 		RET(pcb) = -1;
 	}
 	
+	
+	//Goes through the returned file_entry_t and creates file_t to be sent back to the
+	//user
+	for(int i = 0; i < num_dir_read; i++)
+	{
+		buff[i] = (file_t){ .name = entries[i].name, .file_size = entries[i].file_size, 
+					.is_directory = _filesys_is_directory(entries[i]) };
+	}
+
 	RET(pcb) = num_dir_read;
 		
 }

@@ -223,7 +223,7 @@ pid_t syncspawn( char *path );
 void bogus( void );
 
 /*
-** readdir - reads data from a file in the filesystem
+** readfile - reads data from a file in the filesystem
 **
 ** usage:	num_bytes_read = readfile(char *path, int offset, void *buff, int count)
 **

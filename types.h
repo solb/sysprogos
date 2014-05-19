@@ -29,6 +29,16 @@
 ** Types
 */
 
+/*
+** A user space structure that represents file data important for user space use
+**		name, file_size, and is_directory (0 if not, 1 if it is)
+*/
+typedef struct file_entry_user {
+	char 			name[12];
+	unsigned int	file_size;
+	char			is_directory;
+} file_t;
+
 // generic integer types
 
 typedef unsigned int	uint_t;
