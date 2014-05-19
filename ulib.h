@@ -57,14 +57,16 @@
 */
 
 /*
-** readstr - read a string from the serial console
+** reads - read len-1 characters from the SIO console
 **
 ** usage: readstr(unsigned, char *)
 **
-** returns: number of characters/bytes read
+** takes: buffer length and corresponding buffer
+**
+** returns: number of non-null characters/bytes read
 */
 
-unsigned readstr(unsigned len, char *buf);
+unsigned reads(unsigned len, char *buf);
 
 /*
 ** exit - terminate the calling process

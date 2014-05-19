@@ -18,7 +18,7 @@ int main( void ) {
 		writech('$');
 		char cmd[12];
 		cmd[0] = '/';
-		int idx = readstr(8, cmd + 1) + 1;
+		int idx = reads(9, cmd + 1) + 1;
 		cmd[idx++] = '.';
 		cmd[idx++] = 'b';
 		cmd[idx++] = '\0';

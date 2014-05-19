@@ -37,7 +37,7 @@
 ** PUBLIC FUNCTIONS
 */
 
-unsigned readstr(unsigned len, char *buf) {
+unsigned reads(unsigned len, char *buf) {
 	char ch;
 	int idx = 0;
 	while((ch = readch()) != '\n') {
@@ -49,12 +49,13 @@ unsigned readstr(unsigned len, char *buf) {
 				buf[--idx] = '\0';
 			}
 		} else {
-			if (idx < len) {
+			if (idx < len - 1) {
 				writech(ch);
 				buf[idx++] = ch;
 			}
 		}
 	}
+	buf[idx] = '\0';
 	writech('\n');
 	return idx;
 }
