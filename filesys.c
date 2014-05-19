@@ -678,7 +678,7 @@ uint_t _filesys_find_file(char* path, file_entry_t* file, uint_t dir_address)
 {	
 	//First checks to see if root directory, and if soo, it generates a fake file entry
 	// with the root directories start cluster
-	if(_kstrcmp(path, "") == 0)
+	if(_kstrcmp(path, "") == 0 || _kstrcmp(path, "/") == 0)
 	{
 		uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
 		_filesys_convert_to_shortname("/", file->name);
