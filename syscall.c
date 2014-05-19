@@ -21,6 +21,7 @@
 #include "queue.h"
 #include "scheduler.h"
 #include "sio.h"
+#include "filesys.h"
 
 #include "support.h"
 #include "startup.h"
@@ -369,6 +370,37 @@ static void _sys_c_putchar_at( pcb_t *pcb ) {
 	}
 }
 
+
+/*
+** _sys_readfile - Reads a data from a file in the filesystem
+**
+** implements:	int readfile(char* path, int offset, void *buff, int count);
+**
+** returns:
+**	the number of bytes read. Zero indicates end of file
+*/
+static void _sys_readfile( pcb_t *pcb )
+{
+	char *path = (char*)ARG1(pcb);
+	int offset = ARG2(pcb);
+	void *buff = (void*)ARG3(pcb);
+	int count  = ARG4(pcb);
+
+	file_entry_t file;
+	if(_filesys_find_file(path, &file, 0) == FAILURE) {
+		RET(pcb) = -1;
+		return;
+	} 
+	
+	int file_start_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
+	int file_address = _filesys_calc_absolute_cluster_loc(file_start_cluster);
+	
+	_filesys_readfile((byte_t*)buff, file_address, offset, count);
+
+	RET(pcb) = count;
+}
+
+
 /*
 ** PUBLIC FUNCTIONS
 */
@@ -404,6 +436,7 @@ void _sys_init( void ) {
 	_syscalls[ SYS_getppid ]   = _sys_getppid;
 	_syscalls[ SYS_gettime ]   = _sys_gettime;
 	_syscalls[ SYS_c_putchar_at ]   = _sys_c_putchar_at;
+	_syscalls[ SYS_readfile ]  = _sys_readfile;
 
 	// install our ISR
 

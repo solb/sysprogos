@@ -71,6 +71,7 @@
 #define	ARG1(pcb)	((pcb)->context->rcx)
 #define	ARG2(pcb)	((pcb)->context->rdx)
 #define	ARG3(pcb)	((pcb)->context->r8)
+#define ARG4(pcb)	((pcb)->context->r9)
 
 // RET(p) - access return value register in process context
 
