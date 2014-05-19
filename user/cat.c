@@ -18,7 +18,9 @@ int main( void ) {
 	int num_bytes_read = 0;
 	int offset = 0;
 	
-	char *file_path = "";
+	writes( "Path to file? " );
+	char *file_path[14];
+	reads(14, file_path);
 	
 	//Reads the file in increments of amount SIZE. Continues until it reaches end of file
 	// (which is when readfile returns 0)
