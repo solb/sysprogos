@@ -7,6 +7,7 @@
 #include "userspace.h"
 
 #define SIZE	512
+#define MAX_LINES 24
 
 /*
 ** Prints the contents of a file out to SIO
@@ -22,6 +23,8 @@ int main( void ) {
 	char *file_path[14];
 	reads(14, file_path);
 	
+	int lines_read = 0;
+
 	//Reads the file in increments of amount SIZE. Continues until it reaches end of file
 	// (which is when readfile returns 0)
 	do
@@ -38,6 +41,23 @@ int main( void ) {
 		//Writes the data that has been read to SIO
 		for(int i = 0; i < num_bytes_read; i++)
 		{
+			char ch = buffer[i];
+			if (ch == '\n') {
+				lines_read++;
+				while (lines_read == MAX_LINES) {
+					switch(readch()) {
+					case '\n':
+						lines_read--;
+						break;
+					case ' ':
+						lines_read = 0;
+						break;
+					case 'q':
+						writech('\n');
+						exit();
+					}
+				}
+			}
 			writech(buffer[i]);
 		}
 		
