@@ -1,0 +1,13 @@
+READDIR(1)                       TO-D/OS SYSCALLS Manual                       READDIR(1)
+
+NAME
+     readdir — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

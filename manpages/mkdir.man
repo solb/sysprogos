@@ -1,0 +1,13 @@
+MKDIR(1)                         TO-D/OS SYSCALLS Manual                         MKDIR(1)
+
+NAME
+     mkdir — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

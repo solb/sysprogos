@@ -1,0 +1,13 @@
+WRITECH(1)                       TO-D/OS SYSCALLS Manual                       WRITECH(1)
+
+NAME
+     writech — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

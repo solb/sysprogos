@@ -1,0 +1,13 @@
+GETPID(1)                        TO-D/OS SYSCALLS Manual                        GETPID(1)
+
+NAME
+     getpid — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

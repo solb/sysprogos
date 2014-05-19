@@ -1,0 +1,13 @@
+SLEEP(1)                         TO-D/OS SYSCALLS Manual                         SLEEP(1)
+
+NAME
+     sleep — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

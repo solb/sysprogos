@@ -1,0 +1,13 @@
+READFILE(1)                      TO-D/OS SYSCALLS Manual                      READFILE(1)
+
+NAME
+     readfile — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

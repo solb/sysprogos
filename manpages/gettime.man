@@ -1,0 +1,13 @@
+GETTIME(1)                       TO-D/OS SYSCALLS Manual                       GETTIME(1)
+
+NAME
+     gettime — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

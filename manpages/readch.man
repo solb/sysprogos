@@ -1,0 +1,13 @@
+READCH(1)                        TO-D/OS SYSCALLS Manual                        READCH(1)
+
+NAME
+     readch — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

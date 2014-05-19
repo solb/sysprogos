@@ -1,0 +1,13 @@
+SETPRIO(1)                       TO-D/OS SYSCALLS Manual                       SETPRIO(1)
+
+NAME
+     setprio — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

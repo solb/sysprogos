@@ -1,0 +1,13 @@
+SPAWN(1)                         TO-D/OS SYSCALLS Manual                         SPAWN(1)
+
+NAME
+     spawn — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD

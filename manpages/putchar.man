@@ -1,0 +1,13 @@
+C_PUTCHAR_AT(1)                  TO-D/OS SYSCALLS Manual                  C_PUTCHAR_AT(1)
+
+NAME
+     c_putchar_at — <brief explanation>
+
+SYNOPSIS
+	<usage:>
+
+DESCRIPTION
+     <detailed explanation>
+
+
+BSD                                   May 19, 2014                                   BSD
