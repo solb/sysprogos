@@ -183,9 +183,10 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 	uint_t prev_cluster = start_cluster;
 	uint_t next_cluster = _filesys_find_next_cluster(prev_cluster);
 	
-	while(next_cluster != LAST_CLUSTER)
+	while(next_cluster < LAST_CLUSTER)
 	{//Continue searching through the chain for the last cluster
 		prev_cluster = next_cluster;
+		next_cluster = _filesys_find_next_cluster(prev_cluster);
 	}
 
 	//Gets a free cluster to expand the chain into
@@ -293,7 +294,7 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 	{
 		update_fat_entry = update_fat_entry+(i * fat_size); //Moves to next FAT
 
-		*update_fat_entry = *update_fat_entry | value;
+		*update_fat_entry = value;
 	}
 }
 
@@ -320,7 +321,7 @@ void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t 
 			
 			if(_kstrcmp(name, filename) == 0)
 			{//Update filesize in the last 4 bytes of the 32 byte entry
-				*(entry+28) = data_len;
+				*(uint_t*)(entry+28) = data_len;
 				
 				return;
 			}
@@ -391,11 +392,24 @@ uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len)
 	char parent_path[parent_path_len];
 	_kmemcpy((byte_t*)parent_path,(byte_t*)path, parent_path_len);
 	parent_path[parent_path_len - 1] = '\0';
-	file_entry_t parent_dir[1];
-	_filesys_find_file(parent_path, parent_dir, 0);
+	file_entry_t parent_dir;
+	
+	if(_kstrcmp(parent_path, "") != 0)
+	{//Parent_path is NOT root
+		if(_filesys_find_file(parent_path, &parent_dir, 0) == 1) //FAILURE)
+		{
+			return 1; //FAILURE;
+		}
+	}
+	else
+	{//Parent_path IS root
+		uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
+		parent_dir.first_cluster_hi = 0x00;
+		parent_dir.first_cluster_low = _filesys_calc_relative_cluster(root_loc);
+	}
 	
 	//Updates the file entry's file size
-	_filesys_update_file_size(file->name, parent_dir, data_len);
+	_filesys_update_file_size(file->name, &parent_dir, data_len);
 	
 	return SUCCESS;
 }
