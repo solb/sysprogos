@@ -212,4 +212,12 @@ int main( void ) {
 		exit();
 	}
 #endif
+
+#ifdef SPAWN_CAT
+	pid = spawn( "/cat.b" );
+	if( pid < 0 ) {
+		c_printf( "init, spawn() cat failed\n" );
+		exit();
+	}
+#endif
 }
