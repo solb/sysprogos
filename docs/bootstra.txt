@@ -18,7 +18,7 @@ DESCRIPTION
     64 bit mode (as well as protected mode and a handful of other important
     rituals), so that the OS kernel can be written to always be in 64 bit mode.
     This is helpful because our linker seems to prefer to only link object files
-    of matching architecture, for some reason ;). 
+    of matching architecture, for some reason ;).
 
     The following memory layout is set up by the bootstrap:
 

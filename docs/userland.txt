@@ -1,4 +1,3 @@
-
 USERLAND(D)              TO-D/OS MODULE Documents                    USERLAND(D)
 
 NAME
@@ -35,8 +34,8 @@ EXPOSED FUNCTIONALITY
     Userspace programs have access to the syscalls, each of which is
     documented in a manual page in section 1 of this manual. They may also use
     the user library functions documented in section 2 of the manual. Finally,
-    they have access to the VGA monitor/USB keyboard I/O library calls exposed
-    by and documented with the c_io library.
+    they have access to the VGA monitor output library calls exposed by and
+    documented with the c_io library.
 
 PITFALLS and TO-D/OS
     The syscalls that accept a string (e.g. a filesystem path) do not check to
