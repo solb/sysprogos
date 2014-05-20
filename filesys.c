@@ -306,7 +306,7 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 */
 void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t data_len)
 {
-	uint_t current_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	uint_t current_cluster = parent_dir->first_cluster_hi << 16 | parent_dir->first_cluster_low;
 	
 	while(current_cluster < LAST_CLUSTER)
 	{
@@ -486,7 +486,7 @@ uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len)
 	}
 	
 	//Shrinks the file down to 1 cluster and clears the memory before writing
-	uint_t start_cluster = file->first_cluster_hi << 8 | file->first_cluster_low;
+	uint_t start_cluster = file->first_cluster_hi << 16 | file->first_cluster_low;
 	uint_t start_cluster_loc = _filesys_calc_absolute_cluster_loc(start_cluster);
 	_filesys_shrink_cluster_chain(start_cluster);
 	_kmemclr(filesystem+start_cluster_loc, cluster_size);
@@ -551,7 +551,7 @@ uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 	if(_filesys_make_file(path, ATTR_DIRECTORY, new_dir) == FAILURE) return FAILURE;
 	
 	//Gets the cluster number for the new directory
-	uint_t new_dir_cluster = new_dir->first_cluster_hi << 8 | new_dir->first_cluster_low;
+	uint_t new_dir_cluster = new_dir->first_cluster_hi << 16 | new_dir->first_cluster_low;
 	uint_t new_dir_cluster_loc = _filesys_calc_absolute_cluster_loc(new_dir_cluster);
 	
 	//Gets the cluster number for the new directory's parent
@@ -565,7 +565,7 @@ uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 	file_entry_t parent_dir[1];
 	_filesys_find_file(parent_path, parent_dir, 0);
 	
-	uint_t parent_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	uint_t parent_cluster = parent_dir->first_cluster_hi << 16 | parent_dir->first_cluster_low;
 	
 	//Creates the "." file
 	_filesys_write_file_entry(new_dir_cluster_loc, ".          ", 
@@ -620,7 +620,7 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	
 	//Finds the first empty file entry slot in the parent directory
 	uint_t entry_cluster, dir_address;
-	entry_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	entry_cluster = parent_dir->first_cluster_hi << 16 | parent_dir->first_cluster_low;
 	dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
 	
 	uint_t new_entry_loc = _filesys_find_first_free_entry(dir_address);
@@ -729,7 +729,7 @@ uint_t _filesys_find_file(const char* path, file_entry_t* file, uint_t dir_addre
 			}
 			
 			//Found folder, move to next part of path!
-			uint_t entry_cluster = entries[i].first_cluster_hi << 8 |
+			uint_t entry_cluster = entries[i].first_cluster_hi << 16 |
 														entries[i].first_cluster_low;
 			uint_t next_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
 			return _filesys_find_file(path_tail, file, next_address); //SUCCESS 
