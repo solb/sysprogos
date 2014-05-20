@@ -5,6 +5,7 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
+** Contributor:	Chris Cooper
 ** Contributor: Dan Johnson
 ** Contributor: Sol Boucher
 **

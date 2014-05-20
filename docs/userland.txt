@@ -1,0 +1,61 @@
+
+USERLAND(D)              TO-D/OS MODULE Documents                    USERLAND(D)
+
+NAME
+    userland - High-level binaries and loading
+
+SYNOPSIS
+  - Userspace processes are stored as binaries on the root filesystem ramdisk
+  - Each binary is statically linked with libuser.a, the compiled user library
+  - When building each binary, the assembled version of the loader
+    user_start.S gets linked at the beginning of the binary
+  - During compilation, each binary is relocated so that its addresses start
+    from the beginning of the userspace address range, virtual location 0x200000
+  - Processes run in their own address spaces, and only one is mapped at once
+  - Userland is unable to access address located outside of its address space
+  - Userland isn't allowed to run privileged instructions or perform I/O
+  - The only way to return to the kernel while in userland is an interrupt
+  - Userland is only allowed to generate interrupt 0x80, used for syscalls
+
+DESCRIPTION
+    The user_start.S routine calls a function called main with no arguments,
+    followed by the exit syscall. For this reason, user programs always start
+    executing from void main(void), but may elect to simply return rather than
+    making a call to exit() when they are finished working.
+    User processes run in hardware privilege ring 3 and are severely
+    restricted in the memory they can access and forbidden from running
+    certain instructions or invoking interrupts other than 0x80. An attempt to
+    perform illegal actions will result in a hardware exception, usually #PF
+    for invalid memory accesses or #GP for other privilege problems. However,
+    when the kernel receives unrecoverable exceptions and finds itself
+    switching from user code, it _terminate()s the current process instead of
+    panicking. Thus, misbehaving processes do not take the whole system down.
+
+EXPOSED FUNCTIONALITY
+    Userspace programs have access to the syscalls, each of which is
+    documented in a manual page in section 1 of this manual. They may also use
+    the user library functions documented in section 2 of the manual. Finally,
+    they have access to the VGA monitor/USB keyboard I/O library calls exposed
+    by and documented with the c_io library.
+
+PITFALLS and TO-D/OS
+    The syscalls that accept a string (e.g. a filesystem path) do not check to
+    ensure it starts or finishes within the legitimate userland address space.
+    Thus, it is possible to get the kernel to read short arbitrary sections of
+    memory using these syscalls by passing in manufactured pointers as the
+    corresponding argument. It is even possible to convince the kernel to page
+    fault and panic by choosing an unmapped virtual address as the pointer's
+    address. This is a known issue, and although it could be prevented by
+    use of a safe (tolerant of invalid addresses) strlen()-style function,
+    time constraints prevented addressing it for this submission.
+    Because GCC uses BSS segments to store global data, and because userspace
+    programs need to be shipped as raw binaries, the size information for this
+    segment is lost during the final linking stage. Thus, the operating system
+    is unable to allocate bss space, and any global variables stored there
+    only end up with as much (uninitialized) space as was left over anyway at
+    the end of their last text/data pages, of which they are granted the
+    minimum number necessary to fit the complete size of their binary files on
+    disk. For this reason, it is important to keep global data small and
+    not count on its initialization to zeroes.
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
