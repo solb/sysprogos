@@ -1,0 +1,23 @@
+READS(2)                     TO-D/OS LIBRARY Manual                     READS(2)
+
+NAME
+    reads - Read a fixed number of characters from the SIO console
+
+SYNOPSIS
+    unsigned reads(unsigned len, char *buf)
+
+DESCRIPTION
+    Reads up to a fixed upper bound count of characters from the SIO console,
+    allowing the user to backspace and re-enter if he or she screws up. It is
+    important that len be set to the *smaller* of: one more than the number of
+    characters actually desired, and the buffer size. That is to say, this
+    function always allows the user to input UP TO len - 1 characters.
+
+PARAMETERS
+    len - buffer length, or one greater than the number of characters to read
+    buf - the destination buffer for the read data
+
+RETURN VALUE
+    Returns the number of non-NUL characters read
+
+TO-D/OS                           May 19, 2014                           TO-D/OS

@@ -11,7 +11,7 @@ DESCRIPTION
 
 PARAMETERS
     path - desired path to the new file 
-    buff - source bugffer (must be at least count bytes long)
+    buff - source buffer (must be at least count bytes long)
     count - number of bytes to write
 
 RETURN VALUE
