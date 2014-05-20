@@ -1,0 +1,39 @@
+KLIB(C)                     TO-D/OS MODULE Documents                     KLIB(C)
+
+NAME
+    klib - Kernel support library
+
+SYNOPSIS
+  - Defines status strings
+  - Implement functions to support the kernel
+
+DESCRIPTION
+    Contains implementations of support functions that the kernel can use
+
+GLOBALS
+    extern const char *_status_strings[]
+        Status value strings
+
+EXPOSED FUNCTIONALITY
+    void _put_char_or_code( int ch )
+    	Prints the character on the console, unless it is a non-printing 
+    	character, in which case its hex code is printed
+    
+    void _kmemclr( register byte_t *buf, register uint32_t len )
+    	initialize all bytes of a block of memory to zero
+    
+    void _kmemcpy( register byte_t *dst, register byte_t *src, 
+    				register uint32_t len )
+    	copy a block from one place to another
+    	
+    uint32_t _kstrlen( register char *str )
+    	calculate the length of a NUL-terminated string
+    	
+    uint32_t _kstrcmp( register char *str1, register char *str2)
+    	Compares two strings. Returns 0 if equal, 1 if str1 is > str2, 
+    	-1 otherwise
+    	
+    void _kpanic( char *module, char *msg, status_t code ) 
+    	Panics the kernel and displays basic debug information
+
+TO-D/OS                          May 19, 2014                            TO-D/OS

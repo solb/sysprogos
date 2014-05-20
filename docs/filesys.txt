@@ -1,0 +1,127 @@
+FILESYS(C)                  TO-D/OS MODULE Documents                  FILESYS(C)
+
+NAME
+    filesys - Maintains a filesystem with reading and writing capabilities
+
+SYNOPSIS
+  - Initializes the filesystem for use
+  - Defines constants associated with the filesystem
+  - Defines important structures used within the filesystem
+  - Reads data from the filesystem
+  - Writes data into the filesystem
+
+DESCRIPTION
+    Once initialized, the module maintains a FAT32 Filesystem that is stored in
+    memory. The filesystem is stored in memory because no drive devices were
+    implemented for use with this OS currently.
+    
+    Filesys attempts to adhere to the FAT32 specification standard issued by 
+    microsoft for all implemented functionality. 
+    
+    All filenames within the system follow the shortname 8.3 standard, however,
+    when passing a path, it is unnecessary to create path following 8.3 format.
+    However, all filenames should be 8 characters long with an optional 3
+    character extension.**
+    
+    Unimplemented FAT32 functionality includes: 
+        -Date/time data of any kind with files
+        -Long name file entries - if any exist in the filesystem, they are
+            ignored
+
+GLOBALS
+    byte_t *filesystem
+        Pointer that points to the start of the filesystem
+    
+    fat32_bs_t boot_sector
+        Stores the boot sector/BPB data that was read in from the filesystem
+        at init.
+        
+    uint_t cluster_size
+        Contains the cluster size (in bytes)
+        
+    uint_t data_start_sector
+        The sector number of the start of the data section of the filesystem
+    
+    uint_t fat_start_loc
+        The sector number where the file allocation table begins
+        
+DATA STRUCTURES
+    typedef struct fat32_bs_t
+        Represents the boot sector/BPB contained at the beginning of a FAT32
+        It contains all the important data necessary for calculations to be
+        performed within the filesystem. It contains the bootjump location,
+        name of the system that created the filesystem, how many bytes there are
+        per sector, how many sectors per cluster, number of reserved sector
+        count, number of file allocation tables, the media type, number of
+        sectors per track, number of heads, number of hidden sectors, total
+        number of sectors, size of File allocation table, fat32 flags, version
+        of FAT being used, location of the root cluster, location of file
+        system info structure, location of backup boot sector, drive number,
+        boot signature, volume id, volume label, and the fat type.
+        
+    typedef struct file_entry_t
+    	Represents a file entry within the filesystem. A file entry is 32 bytes
+    	in a FAT32 filesystem. Within the filesystem, the file name is not
+    	nul-terminated. Therefore, the struct containing the file entry when
+    	read from the filesystem memory, is slightly larger than 32 bytes since
+    	it nul-terminates the string for easier usage. A file entry contains the
+    	name of the file, its attributes, the cluster number to the start of the
+    	file's data, and file size. If the file entry is for a directory, the 
+    	file size will always be 0.*
+
+EXPOSED FUNCTIONALITY
+    void _filesys_delete(char *path)
+    	Deletes a file. If the file is a directory, it recursively deletes the
+    	files contained in the directory
+    
+    uint_t _filesys_is_directory(file_entry_t file)
+    	Checks the file to see if it contains the directory attribute. Returns
+    	0 if it is, 1 otherwise
+    	
+    uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len)
+    	Writes data to a file at the given path (if it exists). Returns if it
+    	was successful(0) or if it failed(1)
+    	
+    uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
+    	Makes a new directory at the given path (if path exists). Returns if it
+    	was successful(0) or if it failed(1)
+    
+    uint_t _filesys_make_file(char* path, ubyte_t attributes, 
+    							file_entry_t* new_file)
+    	Creates a file at the given path location (if path exists). Returns if
+    	it was successful(0) or if it failed(1)
+    
+    uint_t _filesys_find_file(const char* path, file_entry_t* file, 
+    							uint_t dir_address)
+    	Finds a file using the given path. Returns if it was successful(0) or if
+    	it failed(1)
+    	
+    uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, 
+    							uint_t dir_address)
+    	Finds a directory at the address and reads the given number of entries
+    	within the directory (valid entries - only shortname entries) and stores
+    	each entry into the given array. Returns the number of entries stored
+    
+    void _filesys_readfile(byte_t *buffer, uint_t file_address, uint_t offset, 
+    						uint_t amount)
+    	Finds a file at the address and reads the file starting at the offset 
+    	until it has read the passed in amount of bytes
+    	
+    void _filesys_init( void )
+    	Initializes the FAT32 filesystem
+
+PITFALLS
+  * Since there is no way to know the size of a directory without going
+  	entry by entry, cluster by cluster within the directory data, it proved
+  	a challenge with creating a find file function since it utilizes readdir
+  	which needs a specified number of directories to read. This currently is a
+  	limitation to the OS because it assumes that a directory will contain no
+  	more than a specified MAX_DIRECTORY_SIZE constant of shortname file entries.
+  	A more complex find file function could solve this issue; however, the need
+  	to change this never arose.
+  
+ ** System only supports shortnames. Anything longer than 8 characters with 3
+ 	character optional extension gets truncated.
+  	
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
