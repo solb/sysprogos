@@ -20,7 +20,7 @@ int main( void ) {
 	int offset = 0;
 	
 	writes( "Path to file? " );
-	char *file_path[100];
+	char file_path[100];
 	reads(100, file_path);
 	
 	int lines_read = 0;

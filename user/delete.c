@@ -12,7 +12,7 @@ int main( void ) {
 	c_puts( "delete running.\n" );
 	
 	writes( "Path to file? " );
-	char *path[100];
+	char path[100];
 	reads(100, path);
 
 	delete(path);

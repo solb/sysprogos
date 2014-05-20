@@ -16,7 +16,7 @@ int main( void ) {
 	
 	
 	writes( "Path to directory? " );
-	char *path[100];
+	char path[100];
 	reads(100, path);
 	
 	file_t entries[SIZE];
