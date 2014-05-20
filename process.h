@@ -153,16 +153,12 @@ extern pid_t _next_pid;		// next available PID
 */
 
 /*
-** _pcb_init()
-**
 ** initializes all pcb-related data structures
 */
 
 void _pcb_init( void );
 
 /*
-** _pcb_alloc()
-**
 ** allocate a pcb structure
 **
 ** returns a pointer to the pcb, or NULL on failure
@@ -171,22 +167,16 @@ void _pcb_init( void );
 pcb_t *_pcb_alloc( void );
 
 /*
-** _pcb_free(pcb)
-**
 ** deallocate a pcb, putting it into the list of available pcbs
 */
 
 void _pcb_free( pcb_t *pcb );
 
 /*
-** _pcb_dump(pcb)
-**
 ** dump the contents of this PCB to the console
 */
 
 void _pcb_dump( const char *which, pcb_t *pcb );
-
-void _context_dump( const char *which, context_t *context );
 
 #endif
 

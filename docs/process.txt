@@ -22,7 +22,8 @@ DATA STRUCTURES
         time. The parent PCB pointer was added to support implementation of
         the syncspawn() syscall, is only populated in the PCBs of
         processes that were spawned by this means, and is only used by the
-        _terminate() function in the scheduler module.
+        _terminate() function in the scheduler module. Spare PCBs are stored
+		in a queue until allocated, then put back there once freed.
 
     typedef struct context_t;
         Stores a process's general-purpose registers, CS and SS segment
@@ -34,5 +35,19 @@ DATA STRUCTURES
         arithmetic. This structure was changed significantly during the 64-bit
         porting process to accomodate the greatly increased number of
         general-purpose registers.
+
+EXPOSED FUNCTIONALITY
+	void _pcb_init(void);
+		Initializes all PCB-related data structures
+
+	pcb_t *_pcb_alloc(void);
+		Allocates a PCB structure
+		Returns NULL on failure
+
+	void _pcb_free(pcb_t *);
+		Returns an unneeded PCB for later reuse
+
+	void _pcb_dump(const char *which, pcb_t *pcb);
+		Dumps the contents of a PCB to the console
 
 TO-D/OS                          May 19, 2014                            TO-D/OS

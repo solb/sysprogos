@@ -47,12 +47,6 @@ pid_t _next_pid;		// next available PID
 ** PUBLIC FUNCTIONS
 */
 
-/*
-** _pcb_init()
-**
-** initializes all pcb-related data structures
-*/
-
 void _pcb_init( void ) {
 	int i;
 	
@@ -76,24 +70,10 @@ void _pcb_init( void ) {
 	c_puts( " pcb" );
 }
 
-/*
-** _pcb_alloc()
-**
-** allocate a pcb structure
-**
-** returns a pointer to the pcb, or NULL on failure
-*/
-
 pcb_t *_pcb_alloc( void ) {
 	// pull the first available PCB off the free queue
 	return( (pcb_t *) _que_remove( &_free_pcbs ) );
 }
-
-/*
-** _pcb_free(pcb)
-**
-** deallocate a pcb, putting it into the set of available pcbs
-*/
 
 void _pcb_free( pcb_t *pcb ) {
 	
@@ -109,12 +89,6 @@ void _pcb_free( pcb_t *pcb ) {
 	pcb->state = FREE;
 	_que_insert( &_free_pcbs, (void *) pcb );
 }
-
-/*
-** _pcb_dump(pcb)
-**
-** dump the contents of this PCB to the console
-*/
 
 void _pcb_dump( const char *which, pcb_t *pcb ) {
 
@@ -146,29 +120,4 @@ void _pcb_dump( const char *which, pcb_t *pcb ) {
 	c_printf( "\n q %d wake %08x", pcb->quantum, pcb->wakeup );
 
 	c_printf( " context %08x\n", (uint32_t) pcb->context );
-}
-
-/*
-** _context_dump(context)
-*/
-
-void _context_dump( const char *which, context_t *context ) {
-
-	c_printf( "%s: ", which );
-	if( context == NULL ) {
-		c_puts( " NULL???\n" );
-		return;
-	}
-
-	c_printf( "\n\t ss %08x  gs %08x  fs %08x  es %08x\n",
-		context->ss, context->gs, context->fs, context->es );
-	c_printf( "\t ds %08x rdi %08x rsi %08x rbp %08x\n",
-		context->ds, context->rdi, context->rsi, context->rbp );
-	c_printf( "\trsp %08x rbx %08x rdx %08x rcx %08x\n",
-		context->rsp, context->rbx, context->rdx, context->rcx );
-	c_printf( "\trax %08x vec %08x cod %08x rip %08x\n",
-		context->rax, context->vector, context->code, context->rip );
-	c_printf( "\t cs %08x rfl %08x\n",
-		context->cs, context->rflags );
-
 }
