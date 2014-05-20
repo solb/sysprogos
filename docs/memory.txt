@@ -1,0 +1,75 @@
+MEMORY(C)                   TO-D/OS MODULE Documents                   MEMORY(C)
+
+NAME
+    memory - A collection of kernel memory routines
+
+SYNOPSIS
+  - Manipulates the page map tables
+  - Implements the "watermark" page frame allocator
+  - Handles page faults
+
+DESCRIPTION
+    The memory module is responsible for managing the pool of available
+    physical memory as well as manipulating page tables. It allows the kernel
+    to map exactly one page (into the kernel scratch page) at a time, as well
+    as manipulates pagetables for userspace processes.
+
+DATA STRUCTURES
+    typedef struct physaddr_t
+        Represents a physical memory address. Originally we expressed physical
+	    memory addresses as void*s, but we quickly realize that it is a
+	    mistake to attempt to dereference physical addresses; they must be
+	    mapped to a virtual address first; and then it will be accessed
+	    through a different address. So we decided to represent physical
+	    memory addresses through this opaque type.
+
+EXPOSED FUNCTIONALITY
+    void _mem_init(void)
+        Initializes the memory protection module
+
+    physaddr_t _mem_page_frame_alloc(void)
+        Returns the next available page frame (physical page) of memory
+	    This must be mapped to a virtual adress before it can be used!
+
+    void _mem_page_frame_free(physaddr_t page)
+        Frees the provided page frame
+
+    void _mem_page_table_free(physaddr_t pt)
+        Frees the provided page table and all its backing page frames
+
+    void _mem_map_page_onto(void *page, physaddr_t frame)
+        Map the given page frame onto the given page-ligned memory address
+
+        page: the page-aligned memory address onto which this frame should be
+        mapped
+        frame: the physical address of memory the page should be mapped to
+
+    void *_mem_map_page(physaddr_t page)
+        Map the given physical address of a page frame into virtual memory and
+        return the address where the page was mapped
+
+        NOTE: currently this can only map one page at a time, and will panic
+        if a page is already mapped in the scratch area. mapped memory must be
+        unmapped with _mem_unmap_page when done being used.
+
+    void _mem_unmap_page(void *addr)
+        Unmaps the given virtual address from virtual memory
+
+    void _mem_map_user_pagetab(physaddr_t frame)
+        Map the privided page table at index 1 of the first PDT.
+
+    void _mem_unmap_user_pagetab(void)
+        Unmaps the currently mapped user page table
+    
+    _Bool _mem_range_is_mapped(void *start_address, uint_t length)
+        Tests whether the specified memory region fits inside one or more
+        mapped userspace pages.
+
+        This function should be used to validate user-specified destination
+        buffers.
+
+    void _mem_kill_overflowing_process(void)
+        Terminate a process that didn't leave enough room on its stack to
+        store a context_t. Called by the context saveing code.
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
