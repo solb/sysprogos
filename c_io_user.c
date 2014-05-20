@@ -1,3 +1,10 @@
+/*
+** File:	c_io_user.c
+**
+** Author:	Dan Johnson
+**
+** Description:	Wrapper functions that are implemented via syscall in userspace
+*/
 #include "c_io.h"
 
 void c_putchar( unsigned int c ) {
