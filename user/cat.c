@@ -7,7 +7,7 @@
 #include "userspace.h"
 
 #define SIZE	512
-#define MAX_LINES 24
+#define MAX_LINES 23
 
 /*
 ** Prints the contents of a file out to SIO
