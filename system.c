@@ -5,7 +5,7 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor:	Sol Boucher
 **
 ** Description:	Miscellaneous OS support implementations
 */
@@ -52,8 +52,6 @@
 */
 
 /*
-** _create_process(ppid,entry)
-**
 ** allocate and initialize a new process' data structures (PCB, filename)
 **
 ** returns:
@@ -159,13 +157,6 @@ pcb_t *_create_process( pid_t ppid, const char *path ) {
 
 	return( new );
 }
-
-/*
-** _init - system initialization routine
-**
-** Called by the startup code immediately before returning into the
-** first user process.
-*/
 
 void _init( void ) {
 	pcb_t *pcb;

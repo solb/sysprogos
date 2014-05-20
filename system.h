@@ -45,8 +45,6 @@
 */
 
 /*
-** _create_process(ppid,filename)
-**
 ** allocate and initialize a new process' data structures (PCB, stack)
 **
 ** returns:
@@ -56,8 +54,6 @@
 pcb_t *_create_process( pid_t ppid, const char *path );
 
 /*
-** _init - system initialization routine
-**
 ** Called by the startup code immediately before returning into the
 ** first user process.
 */

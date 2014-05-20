@@ -1,0 +1,30 @@
+SYSTEM(C)                   TO-D/OS MODULE Documents                   SYSTEM(C)
+
+NAME
+    system - Get the system up and running and initialize new processes
+
+SYNOPSIS
+  - Performs the initialization of the other modules before spawning and
+    handing execution off to the userspace init binary
+  - Sets up processes, including copying them from the ramdisk to memory
+
+DESCRIPTION
+    This module is responsible for getting processes ready to load, whether
+    that's getting the kernel ready to support userland's init or getting
+    another one set up to share the CPU time.
+
+EXPOSED FUNCTIONALITY
+    void _init(void)
+        Called by the startup code immediately before returning into the first
+        user process, and responsible for initializing the kernel and setting
+        the userspace init process up for successful successorship
+
+    pcb_t *_create_process(pid_t ppid, const char *path)
+        Given a filename, set up a process image by initializing a PCB and
+        populating a page table with entries to a bunch of preallocated
+        per-process pages to which userland is allowed access
+        The returned PCB is ready to be _schedule()d, unless there was a
+        problem, in which case it is NULL, likely indicating that the binary
+        file couldn't be found
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
