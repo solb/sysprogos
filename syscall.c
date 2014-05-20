@@ -538,6 +538,37 @@ static void _sys_syncspawn( pcb_t *pcb ) {
 	}
 }
 
+
+/*
+** _sys_writefile - creates a file in the filesystem and writes data to it
+**
+** implements:	int writefile(char* path, void *buff, int count);
+**
+** returns:
+**	SUCCESS or FAILURE
+*/
+static void _sys_writefile( pcb_t *pcb )
+{
+	char *path = (char*)ARG1(pcb);
+	byte_t *data = (byte_t*) ARG2(pcb);
+	int  data_len = ARG3(pcb);
+	
+	file_entry_t file;
+	
+	//Tries finding the file
+	if(_filesys_make_file(path, ATTR_ARCHIVE, &file) == FAILURE)
+	{//Failed to make the file
+		RET(pcb) = FAILURE;
+	}
+		
+	if(_filesys_write_file(path, data, data_len) == FAILURE)
+	{//Failed to write data
+		RET(pcb) = FAILURE;
+	}
+	
+	RET(pcb) = SUCCESS;
+}
+
 /*
 ** PUBLIC FUNCTIONS
 */

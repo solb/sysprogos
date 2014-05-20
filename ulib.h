@@ -252,6 +252,16 @@ int readdir(char *path, void *buff, int count);
 */
 int mkdir(char *path);
 
+/*
+** _sys_writefile - creates a file in the filesystem and writes data to it
+**
+** usage:	int writefile(char* path, void *buff, int count);
+**
+** returns:
+**	SUCCESS or FAILURE
+*/
+int writefile(char* path, void *buff, int count);
+
 #endif
 
 #endif
