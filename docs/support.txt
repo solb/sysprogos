@@ -1,0 +1,36 @@
+SUPPORT(C)                  TO-D/OS MODULE Documents                  SUPPORT(C)
+
+NAME
+    support - The module which manages the IDT and everything else
+
+SYNOPSIS
+  - Blames processes for their transgressions
+  - sets up interrupt handling
+  - initializes the PIC
+  - contains way more functions than it should
+
+DESCRIPTION
+    Support is responsible for handling most things relating to interrupts,
+    including managing the IDT and TSS.
+
+EXPOSED FUNCTIONALITY
+    void __blame_and_punish(void)
+        Checks whether the supervisor or userspace was responsible for an
+        exception, and acts appropriately.
+
+    void __panic(char *reason)
+        support routine for stopping the system
+
+    void __init_interrupts(void)
+        Sets up interrupt handling
+
+    void __init_tss(void)
+        Sets up the Task-Segment Selector
+
+    void ( *__install_isr( int vector, void ( *handler )( int vector, int code
+    ) ) )( int vector, int code )
+        Registers the provided function as the interript handler for the
+        specified vector. Returns the previous interrupt handler for that
+        vector
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
