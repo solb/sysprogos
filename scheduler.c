@@ -5,7 +5,7 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor:	Sol Boucher
 **
 ** Description:	Scheduler/dispatcher implementation
 */
@@ -44,12 +44,6 @@ queue_t _ready[N_READYQ];	// the MLQ ready queue structure
 ** PUBLIC FUNCTIONS
 */
 
-/*
-** _sched_init()
-**
-** initialize the scheduler module
-*/
-
 void _sched_init( void ) {
 	
 	// reset all the MLQ levels
@@ -66,12 +60,6 @@ void _sched_init( void ) {
 
 	c_puts( " sched" );
 }
-
-/*
-** _schedule(pcb)
-**
-** schedule a process for execution according to its priority
-*/
 
 void _schedule( pcb_t *pcb ) {
 	
@@ -95,12 +83,6 @@ void _schedule( pcb_t *pcb ) {
 
 	_que_insert( &_ready[pcb->prio], (void *)pcb );
 }
-
-/*
-** _dispatch()
-**
-** give the CPU to a process
-*/
 
 void _dispatch( void ) {
 	pcb_t *new;
@@ -127,14 +109,8 @@ void _dispatch( void ) {
 	_kpanic( "_dispatch", "no non-empty ready queue", EMPTY_QUEUE );
 }
 
-/*
-** _terminate()
-**
-** go all Arnold on the current process
-*/
-
 void _terminate( void ) {
-	if( _current->pid == 1 )
+	if( _current->pid == PID_INIT )
 		_kpanic( "_terminate", "attempted to kill init", FAILURE );
 
 	// schedule the parent process if it was waiting for us to close

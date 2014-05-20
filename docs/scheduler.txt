@@ -1,0 +1,41 @@
+SCHEDULER(C)                TO-D/OS MODULE Documents                SCHEDULER(C)
+
+NAME
+    scheduler - Manages the queues of background processes
+
+SYNOPSIS
+  - Keeps track of the READY processes (those run when the CPU is free)
+  - Starts the highest-priority READY process when the CPU becomes available
+  - Puts still-READY processes back into the queues when switching in another
+  - Can preemptively kill the current process at another module's request
+
+DESCRIPTION
+    This module's functionality is passive, or supporting, in that it is always
+    invoked by other code in response to e.g. a clock tick or syscall.
+
+GLOBALS
+    pcb_t *_current
+        The PCB of the currently-executing process
+
+    queue_t _ready[]
+        The queues of READY processes, one for each priority
+
+EXPOSED FUNCTIONALITY
+    void _sched_init(void)
+        Initializes the module, clearing the ready queues
+
+    void _schedule(pcb_t *pcb)
+        Schedules a process for execution by adding it to the appropriate
+        ready queue for its priority
+
+    void _dispatch(void)
+        Gives the CPU to the READY process with the highest priority
+        There always ought to be an idle process in the queues; otherwise,
+        this function panics the kernel
+
+    void _terminate(void)
+        Tears down the currently-scheduled process, along with scheduling its
+        parent process if it was waiting on one (which is indicated by the
+        presence of a ppcb pointer on its PCB)
+
+TO-D/OS                          May 19, 2014                            TO-D/OS

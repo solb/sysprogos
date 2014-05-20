@@ -48,32 +48,24 @@ extern queue_t _ready[];	// the MLQ ready queue structure
 */
 
 /*
-** _sched_init()
-**
 ** initialize the scheduler module
 */
 
 void _sched_init( void );
 
 /*
-** _schedule(pcb)
-**
 ** schedule a process for execution according to its priority
 */
 
 void _schedule( pcb_t *pcb );
 
 /*
-** _dispatch()
-**
 ** give the CPU to a process
 */
 
 void _dispatch( void );
 
 /*
-** _terminate()
-**
 ** go all Arnold on the current process
 */
 
