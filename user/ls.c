@@ -15,7 +15,7 @@ int main( void ) {
 	c_puts( "ls running.\n" );
 	
 	
-	writes( "Path to file? " );
+	writes( "Path to directory? " );
 	char *path[100];
 	reads(100, path);
 	
