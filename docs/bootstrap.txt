@@ -1,4 +1,4 @@
-BOOTSTRAP(C)                TO-D/OS MODULE Documents                BOOTSTRAP(C)
+BOOTSTRAP(S)                TO-D/OS MODULE Documents                BOOTSTRAP(S)
 
 NAME
     bootstrap - Load OS kernel and start it in 64bit mode
