@@ -10,8 +10,12 @@ SYNOPSIS
   - Implements functions for allocating and returning PCBs, as well as for
     dumping debug information from PCBs and contexts
 
+DESCRIPTION
+    Once initialized, the module maintains a pool of unused PCBs, which are
+    stored in a queue until allocated, and put back there once freed.
+
 DATA STRUCTURES
-    typedef struct pcb_t;
+    typedef struct pcb_t
         Represents a PCB (Process Control Block) consisting of the PID, parent
         PID, priority, state, remaining execution time, context save area. It
         also includes the physical address of the per-process page table and a
@@ -22,10 +26,9 @@ DATA STRUCTURES
         time. The parent PCB pointer was added to support implementation of
         the syncspawn() syscall, is only populated in the PCBs of
         processes that were spawned by this means, and is only used by the
-        _terminate() function in the scheduler module. Spare PCBs are stored
-		in a queue until allocated, then put back there once freed.
+        _terminate() function in the scheduler module.
 
-    typedef struct context_t;
+    typedef struct context_t
         Stores a process's general-purpose registers, CS and SS segment
         registers, stack pointer, instruction pointer, RFLAGS control
         register, and interrupt code and vector. This information is stored on
@@ -37,17 +40,39 @@ DATA STRUCTURES
         general-purpose registers.
 
 EXPOSED FUNCTIONALITY
-	void _pcb_init(void);
-		Initializes all PCB-related data structures
+    uint32_t ARG1(pcb_t *process)
+        Get the first argument to the syscall invoked by a process (its RCX)*
 
-	pcb_t *_pcb_alloc(void);
-		Allocates a PCB structure
-		Returns NULL on failure
+    uint32_t ARG2(pcb_t *process)
+        Get the second argument to the syscall invoked by a process (its RDX)*
 
-	void _pcb_free(pcb_t *);
-		Returns an unneeded PCB for later reuse
+    uint32_t ARG3(pcb_t *process)
+        Get the third argument to the syscall invoked by a process (its R8)*
 
-	void _pcb_dump(const char *which, pcb_t *pcb);
-		Dumps the contents of a PCB to the console
+    uint32_t ARG4(pcb_t *process)
+        Get the fourth argument to the syscall invoked by a process (its R9)*
+
+    uint32_t RET(pcb_t *process)
+        Get return value of the syscall invoked by a process (RAX) as an lval*
+
+    void _pcb_init(void)
+        Initializes all PCB-related data structures
+
+    pcb_t *_pcb_alloc(void)
+        Allocates a PCB structure
+        Returns NULL on failure
+
+    void _pcb_free(pcb_t *pcb)
+        Returns an unneeded PCB for later reuse
+
+    void _pcb_dump(const char *which, pcb_t *pcb)
+        Dumps the contents of a PCB to the console
+
+PITFALLS
+  * Note that since the context is stored on the stack, and only the stack of
+    the current process is mapped at any point in time, these will not have the
+    expected result when they are invoked with a pcb_t * that doesn't match
+    the one called _current, which is discussed in the documentation for the
+    queue module.
 
 TO-D/OS                          May 19, 2014                            TO-D/OS
