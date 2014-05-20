@@ -1,0 +1,48 @@
+STACK(C)                    TO-D/OS MODULE Documents                    STACK(C)
+
+NAME
+    stack - Manages the system and user stacks, and configuring stack switching
+
+SYNOPSIS
+  - Allocates and initializes the system stack
+  - Provides allocation and deallocation of additional per-process stacks
+  - Initializes the system-level TSS (Task-State Segment) data structure
+
+DESCRIPTION
+    This module sets up stacks and deals with issues key to protection, such
+    as separation of processes' stack space, stack switching on interrupts,
+    and configuration of I/O permissions enforcement. The system stack is
+    always mapped as the second-to-last page of the kernel's PDT.
+    There is no tracking of unallocated stacks: instead, the page frames for
+    new stacks are dynamically allocated by the memory module.
+
+GLOBALS
+    uint32_t *_system_esp
+        The system stack pointer, which is pertinent only to user code, since
+        userspace processes receive stacks of their very own. Since its stack
+        is always within the penultimate kernel page, its address, once
+        initialized, should never fall outside of the virtual address range
+        [0x10e000, 0x10f000).
+
+EXPOSED FUNCTIONALITY
+    void _stack_init(void)
+        Initializes the module, allocating and mapping the system stack
+
+    physaddr_t _stack_alloc(void)
+        Allocates and returns the *physical* address of a new page frame for
+        use as a userspace process stack
+
+    void _stack_free(physaddr_t stack)
+        Frees a no longer needed stack page frame
+
+    void _stack_mktss(void)
+        Initializes x86's TSS (Task-State Segment) data structure, which is
+        used to control stack switching on interrupts and fine-tune userland
+        I/O permissions. Specifically, it configures the system to always
+        stack switch to the base of the system stack upon receiving an
+        interrupt from either userspace or kernel code, and sets the I/O
+        privileges bit vector address to be invalid, disabling any
+        last-effort permission checks that would otherwise cause the user to
+        be allowed to perform I/O operations such as in and out.
+
+TO-D/OS                          May 19, 2014                            TO-D/OS

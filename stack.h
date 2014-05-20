@@ -39,10 +39,6 @@
 ** Types
 */
 
-// user stack
-
-typedef uint32_t	stack_t[ STACK_SIZE ];
-
 /*
 ** Globals
 */
@@ -54,34 +50,27 @@ extern uint32_t *_system_esp;		// OS stack pointer
 */
 
 /*
-** _stack_init()
-**
 ** initializes all stack-related data structures
 */
 
 void _stack_init( void );
 
 /*
-** _stack_alloc()
-**
 ** allocate a stack structure
 **
-** returns a pointer to the stack, or NULL on failure
+** returns a pointer to the stack
 */
 
 physaddr_t _stack_alloc( void );
 
 /*
-** Name:	_stack_mktss
-**
-** initialize the Task-Segment Selector (TSS)
+** initialize the Task-Segment Selector (TSS) so that
+** we'll be able to jump from ring 3 back to ring 0.
 */
 void _stack_mktss( void );
 
 /*
-** _stack_free(stack)
-**
-** deallocate a stack, putting it into the list of available stacks
+** deallocate a stack, freeing its page frame
 */
 
 void _stack_free( physaddr_t stack );
