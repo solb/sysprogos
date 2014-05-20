@@ -39,21 +39,34 @@ DATA STRUCTURES
         porting process to accomodate the greatly increased number of
         general-purpose registers.
 
+    typedef uint8_t state_t
+        FREE: The PCB is unallocated and doesn't describe a real process
+        NEW: The PCB describes a newly-created, and not yet scheduled, process
+        READY: The PCB describes a process that is awaiting being given CPU time
+        RUNNING: The PCB describes the process that is currently executing
+        SLEEPING: The PCB describes a process to be run after time has elapsed
+        BLOCKED: The PCB describes a process that is waiting on another or I/O*
+        
+    typedef unit8_t prio_t
+        HIGH: This PCB is for a process that would rather not be interrupted
+        STD: This PCB is for a process that runs normally
+        LOW: This PCB is for a process that only needs the CPU when it's idle
+
 EXPOSED FUNCTIONALITY
     uint32_t ARG1(pcb_t *process)
-        Get the first argument to the syscall invoked by a process (its RCX)*
+        Get the first argument to the syscall invoked by a process (its RCX)**
 
     uint32_t ARG2(pcb_t *process)
-        Get the second argument to the syscall invoked by a process (its RDX)*
+        Get the second argument to the syscall invoked by a process (its RDX)**
 
     uint32_t ARG3(pcb_t *process)
-        Get the third argument to the syscall invoked by a process (its R8)*
+        Get the third argument to the syscall invoked by a process (its R8)**
 
     uint32_t ARG4(pcb_t *process)
-        Get the fourth argument to the syscall invoked by a process (its R9)*
+        Get the fourth argument to the syscall invoked by a process (its R9)**
 
     uint32_t RET(pcb_t *process)
-        Get return value of the syscall invoked by a process (RAX) as an lval*
+        Get return value of the syscall invoked by a process (RAX) as an lval**
 
     void _pcb_init(void)
         Initializes all PCB-related data structures
@@ -69,7 +82,12 @@ EXPOSED FUNCTIONALITY
         Dumps the contents of a PCB to the console
 
 PITFALLS
-  * Note that since the context is stored on the stack, and only the stack of
+  * Such blocked processes are not further managed by the scheduler module's
+    normal _dispatch() code path; instead, if they are awaiting another
+    process's completion, they will be made READY in the scheduler's
+    _terminate() function, and if they are awaiting user input, they will be
+    rescheduled by the sio module.
+ ** Note that since the context is stored on the stack, and only the stack of
     the current process is mapped at any point in time, these will not have the
     expected result when they are invoked with a pcb_t * that doesn't match
     the one called _current, which is discussed in the documentation for the
