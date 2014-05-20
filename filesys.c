@@ -393,6 +393,21 @@ void _filesys_delete_file_entry(char *path, file_entry_t *file)
 */
 void _filesys_convert_shortname_to_normal(char *shortname, char *converted)
 {
+	//Special case of "." and ".." files in the filesystem
+	if(_kstrcmp(shortname, ".          ") == 0 || _kstrcmp(shortname, "..         ") == 0)
+	{
+		converted[0] = '.';
+		converted[1] = '\0';
+		
+		if(shortname[1] == '.')
+		{//It is a ".." file
+			converted[1] = '.';
+			converted[2] = '\0';
+		}
+
+		return;
+	}
+
 	int index = 0;
 	for(int i = 0; i < 8; i++)
 	{
