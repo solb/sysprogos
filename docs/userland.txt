@@ -37,7 +37,7 @@ EXPOSED FUNCTIONALITY
     they have access to the VGA monitor output library calls exposed by and
     documented with the c_io library.
 
-PITFALLS and TO-D/OS
+PITFALLS AND TO-D/OS
     The syscalls that accept a string (e.g. a filesystem path) do not check to
     ensure it starts or finishes within the legitimate userland address space.
     Thus, it is possible to get the kernel to read short arbitrary sections of
@@ -47,14 +47,16 @@ PITFALLS and TO-D/OS
     address. This is a known issue, and although it could be prevented by
     use of a safe (tolerant of invalid addresses) strlen()-style function,
     time constraints prevented addressing it for this submission.
-    Because GCC uses BSS segments to store global data, and because userspace
-    programs need to be shipped as raw binaries, the size information for this
-    segment is lost during the final linking stage. Thus, the operating system
-    is unable to allocate bss space, and any global variables stored there
-    only end up with as much (uninitialized) space as was left over anyway at
-    the end of their last text/data pages, of which they are granted the
-    minimum number necessary to fit the complete size of their binary files on
-    disk. For this reason, it is important to keep global data small and
-    not count on its initialization to zeroes.
+    Because GCC uses BSS section to store uninitialized global data, and
+	because userspace programs need to be shipped as raw binaries, the size
+	information for this section is lost during the final linking stage. Thus,
+	the operating system is unable to allocate bss space, and any global variables
+	stored there only end up with as much zero-initialized space as was left over
+	anyway at the end of their last text/data pages, of which they are granted
+	the minimum number necessary to fit the complete size of their binary files
+	on disk. For this reason, it is advisable to use the data section instead of
+	the bss for storage of large data. To enforce this, initialize your space to
+	nonzero values, like so:
+		uint_t storage[SIZE] = {-1};
 
 TO-D/OS                          May 19, 2014                            TO-D/OS
