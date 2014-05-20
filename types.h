@@ -34,7 +34,7 @@
 **		name, file_size, and is_directory (0 if not, 1 if it is)
 */
 typedef struct file_entry_user {
-	char 			name[12];
+	char 			name[13];
 	unsigned int	file_size;
 	char			is_directory;
 } file_t;

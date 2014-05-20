@@ -462,8 +462,10 @@ static void _sys_readdir( pcb_t *pcb )
 	//user
 	for(int i = 0; i < num_dir_read; i++)
 	{
-		buff[i] = (file_t){ .name = entries[i].name, .file_size = entries[i].file_size, 
+		buff[i] = (file_t){ .name = {'\0'} ,.file_size = entries[i].file_size, 
 					.is_directory = _filesys_is_directory(entries[i]) };
+
+		_filesys_convert_shortname_to_normal(entries[i].name, buff[i].name);
 	}
 
 	RET(pcb) = num_dir_read;
