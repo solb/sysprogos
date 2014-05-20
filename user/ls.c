@@ -14,7 +14,10 @@
 int main( void ) {
 	c_puts( "ls running.\n" );
 	
-	char *path = "/";
+	
+	writes( "Path to file? " );
+	char *path[100];
+	reads(100, path);
 	
 	file_t entries[SIZE];
 	
