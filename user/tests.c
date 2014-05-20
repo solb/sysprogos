@@ -228,4 +228,12 @@ int main( void ) {
 		exit();
 	}
 #endif
+
+#ifdef SPAWN_COPYTEST
+	pid = spawn( "/copy_tst.b" );
+	if( pid < 0 ) {
+		c_printf( "init, cpy_tst() copy_tst failed\n" );
+		exit();
+	}
+#endif
 }
