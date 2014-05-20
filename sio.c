@@ -512,8 +512,13 @@ void _sio_writec( int ch ){
 	//
 
 	if( _sending ) {
-		*_outlast++ = ch;
-		++_outcount;
+		if (_outcount < BUF_SIZE) {
+			*_outlast++ = ch;
+			if( _outlast >= (_outbuffer + BUF_SIZE) ) {
+				_outlast = _outbuffer;
+			}
+			++_outcount;
+		}
 		return;
 	}
 
