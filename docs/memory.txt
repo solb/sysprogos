@@ -17,11 +17,11 @@ DESCRIPTION
 DATA STRUCTURES
     typedef struct physaddr_t
         Represents a physical memory address. Originally we expressed physical
-	    memory addresses as void*s, but we quickly realize that it is a
-	    mistake to attempt to dereference physical addresses; they must be
-	    mapped to a virtual address first; and then it will be accessed
-	    through a different address. So we decided to represent physical
-	    memory addresses through this opaque type.
+        memory addresses as void*s, but we quickly realize that it is a
+        mistake to attempt to dereference physical addresses; they must be
+        mapped to a virtual address first; and then it will be accessed
+        through a different address. So we decided to represent physical
+        memory addresses through this opaque type.
 
 EXPOSED FUNCTIONALITY
     void _mem_init(void)
@@ -29,7 +29,7 @@ EXPOSED FUNCTIONALITY
 
     physaddr_t _mem_page_frame_alloc(void)
         Returns the next available page frame (physical page) of memory
-	    This must be mapped to a virtual adress before it can be used!
+        This must be mapped to a virtual adress before it can be used!
 
     void _mem_page_frame_free(physaddr_t page)
         Frees the provided page frame

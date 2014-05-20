@@ -48,15 +48,15 @@ PITFALLS AND TO-D/OS
     use of a safe (tolerant of invalid addresses) strlen()-style function,
     time constraints prevented addressing it for this submission.
     Because GCC uses BSS section to store uninitialized global data, and
-	because userspace programs need to be shipped as raw binaries, the size
-	information for this section is lost during the final linking stage. Thus,
-	the operating system is unable to allocate bss space, and any global variables
-	stored there only end up with as much zero-initialized space as was left over
-	anyway at the end of their last text/data pages, of which they are granted
-	the minimum number necessary to fit the complete size of their binary files
-	on disk. For this reason, it is advisable to use the data section instead of
-	the bss for storage of large data. To enforce this, initialize your space to
-	nonzero values, like so:
-		uint_t storage[SIZE] = {-1};
+    because userspace programs need to be shipped as raw binaries, the size
+    information for this section is lost during the final linking stage. Thus,
+    the operating system is unable to allocate bss space, and any global variables
+    stored there only end up with as much zero-initialized space as was left over
+    anyway at the end of their last text/data pages, of which they are granted
+    the minimum number necessary to fit the complete size of their binary files
+    on disk. For this reason, it is advisable to use the data section instead of
+    the bss for storage of large data. To enforce this, initialize your space to
+    nonzero values, like so:
+        uint_t storage[SIZE] = {-1};
 
 TO-D/OS                          May 19, 2014                            TO-D/OS
