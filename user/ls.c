@@ -14,7 +14,7 @@
 int main( void ) {
 	c_puts( "ls running.\n" );
 	
-	char *path = "/manpages";
+	char *path = "/";
 	
 	file_t entries[SIZE];
 	
