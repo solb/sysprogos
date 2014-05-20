@@ -498,7 +498,7 @@ static void _sys_mkdir( pcb_t *pcb )
 	file_entry_t dir;
 	
 	if(_filesys_make_dir(path, &dir) == 1)
-	{//Mkdir was successful
+	{//Mkdir was failure
 		RET(pcb) = 1;
 	}
 	

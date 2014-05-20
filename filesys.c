@@ -174,6 +174,7 @@ uint_t _filesys_find_first_free_entry(uint_t dir_address)
 	
 	if(next_cluster >= LAST_CLUSTER)
 	{//Reached the end of the cluster chain and didn't find any free entries
+		c_puts("NEED TO EXPAND CLUSTER!\n");
 		return 0;
 	}
 	
@@ -214,6 +215,7 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 	byte_t *file_data = filesystem+_filesys_calc_absolute_cluster_loc(next_cluster);
 	_kmemclr(file_data, cluster_size);
 	
+	c_printf("Expanded cluster: 0x%x\n", next_cluster);
 	return next_cluster;
 }
 
@@ -271,23 +273,29 @@ uint_t _filesys_find_next_free_cluster(void)
 void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t attributes, 
  								uint_t new_file_cluster)
 {
+	c_puts("Entered write_file_entry\n");
+	
  	byte_t *entry = filesystem+new_entry_loc;
  	
- 	ushort_t cluster_low = new_file_cluster & 0x00FF;
- 	ushort_t cluster_hi = new_file_cluster >> 0x8 & 0x00FF;
+ 	c_printf("filename: %s\n", filename);
+ 	c_printf("new_entry_loc: 0x%x\n", new_entry_loc);
+ 	c_printf("new_file_cluster: 0x%x\n", new_file_cluster);
+ 	
+ 	ushort_t cluster_low = new_file_cluster & 0xFFFF;
+ 	ushort_t cluster_hi = new_file_cluster >> 0x10 & 0xFFFF;
  	
  	_kmemcpy(entry, (byte_t*)filename, 11);	//filename
  	*(entry+11) = attributes;				//attributes
  	*(entry+12) = 0x0;						//reserved_NT
  	*(entry+13) = 0x0;						//create_time_milli
- 	*(entry+14) = 0x00;						//create_time
- 	*(entry+16) = 0x00;						//create_date
- 	*(entry+18) = 0x00;						//last_access_date
- 	*(entry+20) = cluster_hi;				//first_cluster_hi
- 	*(entry+22) = 0x00;						//write_time
- 	*(entry+24) = 0x00;						//write_date
- 	*(entry+26) = cluster_low;				//first_cluster_low
- 	*(entry+28) = 0x0000;					//file_size
+ 	*(ushort_t*)(entry+14) = 0x00;						//create_time
+ 	*(ushort_t*)(entry+16) = 0x00;						//create_date
+ 	*(ushort_t*)(entry+18) = 0x00;						//last_access_date
+ 	*(ushort_t*)(entry+20) = cluster_hi;				//first_cluster_hi
+ 	*(ushort_t*)(entry+22) = 0x00;						//write_time
+ 	*(ushort_t*)(entry+24) = 0x00;						//write_date
+ 	*(ushort_t*)(entry+26) = cluster_low;				//first_cluster_low
+ 	*(uint_t*)(entry+28) = 0x0000;					//file_size
 }
  
 /*
@@ -627,6 +635,8 @@ uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 	//Gets the cluster number for the new directory
 	uint_t new_dir_cluster = new_dir->first_cluster_hi << 16 | new_dir->first_cluster_low;
 	uint_t new_dir_cluster_loc = _filesys_calc_absolute_cluster_loc(new_dir_cluster);
+		
+	c_printf("new_dir_cluster: 0x%x\n", new_dir_cluster);
 	
 	//Gets the cluster number for the new directory's parent
 	char *parent_path_end = path+_kstrlen(path) - 1;
@@ -637,7 +647,12 @@ uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 	_kmemcpy((byte_t*)parent_path,(byte_t*)path, parent_path_len);
 	parent_path[parent_path_len - 1] = '\0';
 	file_entry_t parent_dir[1];
-	_filesys_find_file(parent_path, parent_dir, 0);
+	
+	if(_filesys_find_file(parent_path, parent_dir, 0) == 1)
+	{
+		c_printf("Failed to find parent: %s\n", parent_path);
+		return FAILURE;
+	}
 	
 	uint_t parent_cluster = parent_dir->first_cluster_hi << 16 | parent_dir->first_cluster_low;
 	
@@ -686,36 +701,55 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	
 	//Checks to see if the new_file already exists, and if so, it will return FAILURE
 	if(_filesys_find_file(path, new_file, 0) == SUCCESS)
+	{
+		c_puts("File already exists\n");
 		return FAILURE;
+	}
 	
 	//Locates the parent directory file entry
 	file_entry_t parent_dir[1];
 	if(_filesys_find_file(parent_path, parent_dir, 0) == FAILURE)
+	{
+		c_puts("Failed to find parent\n");
 		return FAILURE;
+	}
 	
 	//Finds the first empty file entry slot in the parent directory
 	uint_t entry_cluster, dir_address;
 	entry_cluster = parent_dir->first_cluster_hi << 16 | parent_dir->first_cluster_low;
 	dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
 	
+	c_printf("Parent dir address: 0x%x\n", dir_address);
+	
 	uint_t new_entry_loc = _filesys_find_first_free_entry(dir_address);
 	
 	if(new_entry_loc == 0)
 	{//No new entry location was able to be found, needs to expand the cluster chain
+		c_puts("no entry space, expanding to new cluster\n");
 		new_entry_loc = _filesys_expand_cluster_chain(entry_cluster);
+		new_entry_loc = _filesys_calc_absolute_cluster_loc(new_entry_loc);
 	}
 	
 	//Finds the next free cluster for the new file contents to be stored
 	uint_t new_file_cluster = _filesys_find_next_free_cluster();
 	
-	if(new_file_cluster == 0) return FAILURE; //Failed to create new file
+	if(new_file_cluster == 0) 
+	{
+		c_puts("Couldn't find a free cluster for file data\n");	
+		return FAILURE; //Failed to create new file
+	}
 	
 	//Writes the new entry
 	_filesys_write_file_entry(new_entry_loc, filename, attributes, new_file_cluster);
 	
 	//Looks for the newly created entry and returns FAILURE if it isn't found
 	if(_filesys_find_file(path, new_file, 0) == FAILURE)
+	{
+		c_puts("FAiled to create file\n");
 		return FAILURE;
+	}
+	
+	c_printf("Created new dir at: 0x%x:%x\n", new_file->first_cluster_hi, new_file->first_cluster_low);
 	
 	//Updates the FAT to say the file's cluster is not free
 	_filesys_update_fats(new_file_cluster, LAST_CLUSTER);
