@@ -1,0 +1,60 @@
+Group 1's addendums to the README
+
+Members:	Chris Cooper, Sol Boucher, and Dan Johnson
+Date:		05/20/14
+------------------------------------------------------
+
+Does the information herein matter to me?
+
+	The answer is the same as to the question, "Do I plan to build the
+	filesystem?" This distribution includes a precompiled collection of user
+	binaries preloaded into the filesystem image userspace.img, so unless you
+	want to change the set of included programs or modify the programs
+	themselves, you'll be okay without rebuilding. A simple
+		$ make
+	should compile the kernel and create a USB disk image that includes both it
+	and the prepopulated root filesystem ramdisk. If the build fails looking for
+	loopmount_userspace, however, then Make is trying to rebuild the filesystem
+	image, and you'll need to read the below to get this working.
+
+Configuring which binaries will be included in the userspace filesystem:
+	You just need to set the U_C_BIN and U_C_OBJ variables at the top of the
+	makefile to the appropriate space-separated list of .b and .o files in the
+	user/ subdirectory, respectively. After that, a
+		$ make clean
+	is likely in order, and a
+		$ make depend
+	probably wouldn't hurt.
+
+Notes on building the userspace filesystem:
+
+	Despite our search for a FUSE driver capable of mounting FAT32 filesystems
+	read/write in userspace, we were unable to find one that did this adequately
+	and supported short filenames. We were going to use Chris's FAT32
+	implementation to populate the userspace filesystem, but ran out of time to
+	sufficiently finalize or test this solution. Consequently, we went the easy
+	route and use the Linux kernel's builtin FAT32 driver to loopmount the image
+	onto the filesystem. The downside is that the mount must be performed as
+	root, so we've included a small (and "somewhat safe") C wrapper to call it.
+
+Before building the project:
+
+	To build the wrapper for mount, you need to manually this target once:
+		$ make loopmount_userspace
+	Once the binary has been built, Make will setuid root it, a process that
+	requires you to type your password at the sudo prompt. The clean target
+	doesn't nuke this binary, so you'll never have to do this again. Sorry for
+	the sketchiness!
+
+Building the project:
+
+	This, at least, is unchanged:
+		$ make
+	The one thing to watch out for is that the filesystem successfully unmounts.
+	Some desktop environments run daemons that try to interrogate the contents
+	of mounted filesystems; these can prevent immediate unmounting of the
+	filesystem, which will cause the build target to fail. Rather than
+	proceding unabated if this happens, it's probably wise to unmount it:
+		$ ./loopmount_userspace unmount -
+	before proceeding with the build:
+		$ make
