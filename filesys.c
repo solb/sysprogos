@@ -156,7 +156,7 @@ uint_t _filesys_find_first_free_entry(uint_t dir_address)
 {
 	uint_t entry_address = dir_address;
 	uint_t end_of_cluster = dir_address + cluster_size;
-	while(entry_address != end_of_cluster)
+	while(entry_address < end_of_cluster)
 	{//loops until it reaches the end of the current cluster
 		ubyte_t val = filesystem[entry_address];
 		if(val == ENTRY_FREE || val == ENTRIES_FREE)
@@ -226,7 +226,7 @@ void _filesys_shrink_cluster_chain(uint_t start_cluster)
 {
 	uint_t current_cluster = start_cluster;
 	
-	while(current_cluster != LAST_CLUSTER)
+	while(current_cluster < LAST_CLUSTER)
 	{
 		uint_t next_cluster = _filesys_find_next_cluster(current_cluster);
 		
@@ -673,7 +673,8 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	
 	//Locates the parent directory file entry
 	file_entry_t parent_dir[1];
-	_filesys_find_file(parent_path, parent_dir, 0);
+	if(_filesys_find_file(parent_path, parent_dir, 0) == FAILURE)
+		return FAILURE;
 	
 	//Finds the first empty file entry slot in the parent directory
 	uint_t entry_cluster, dir_address;
