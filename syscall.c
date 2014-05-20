@@ -569,6 +569,22 @@ static void _sys_writefile( pcb_t *pcb )
 	RET(pcb) = SUCCESS;
 }
 
+
+/*
+** _sys_delete - Deletes a file in the filesystem. If it is a directory, it will delete
+**					everything within the directory
+**
+** implements:	void delete(char* path);
+**
+*/
+static void _sys_delete( pcb_t *pcb )
+{
+	char *path = (char*)ARG1(pcb);
+	
+	_filesys_delete(path);
+		
+}
+
 /*
 ** PUBLIC FUNCTIONS
 */

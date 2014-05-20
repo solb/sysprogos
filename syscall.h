@@ -38,10 +38,11 @@
 #define SYS_mkdir		14
 #define SYS_syncspawn	15
 #define SYS_writefile	16
+#define SYS_delete		17
 
 // number of "real" system calls
 
-#define	N_SYSCALLS	17
+#define	N_SYSCALLS	18
 
 // dummy system call code to test the syscall ISR
 

@@ -262,6 +262,15 @@ int mkdir(char *path);
 */
 int writefile(char* path, void *buff, int count);
 
+/*
+** _sys_delete - Deletes a file in the filesystem. If it is a directory, it will delete
+**					everything within the directory
+**
+** implements:	void delete(char* path);
+**
+*/
+void delete(char *path);
+
 #endif
 
 #endif
