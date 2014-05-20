@@ -20,7 +20,7 @@ DESCRIPTION
     long name file entries and therefore, if any exist in the filesystem, the
     call to readdir will ignore all long name file entries and all entries
     that have been freed (deleted).
-     
+    
     A path of "" and "/" will produce the same result, root will be read.
 
 PARAMETERS

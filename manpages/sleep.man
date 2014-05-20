@@ -4,7 +4,7 @@ NAME
     sleep - Put the current process to sleep for some length of time
 
 SYNOPSIS
-	void sleep(uint_t ms)
+    void sleep(uint_t ms)
 
 PARAMETERS
     ms - the sleep time in milliseconds

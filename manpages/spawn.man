@@ -11,7 +11,7 @@ DESCRIPTION
 
 PARAMETERS
     path - filesystem path to the binary file
-     
+
 RETURN VALUE
     PID of the spawned process or -1 on failure
 

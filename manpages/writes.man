@@ -8,7 +8,7 @@ SYNOPSIS
 
 PARAMETERS
     buff - the string to write out
-     
+
 RETURN VALUE
     The number of characters that were sent
 

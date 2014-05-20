@@ -1,22 +1,21 @@
-<<<<<<< Updated upstream
 MKDIR(1)                     TO-D/OS SYSCALLS Manual                    MKDIR(1)
 
 NAME
     mkdir - Creates a directory
 
 SYNOPSIS
-     int mkdir(char *path);
+    int mkdir(char *path)
 
 DESCRIPTION
-     Creates a directory in the filesystem at the given path. 
-     
-     Since the filesystem uses FAT32, all items are items are files, including
-     directories. Mkdir will create a file at the first available entry
-     location in its parent directory and will then find the first free cluster
-     and clear the memory. The entry will be initialized with the directory
-     name provided in the path and will contain the directory attribute,
-     ATTR_DIRECTORY. A directory size is always 0.
-     
+    Creates a directory in the filesystem at the given path. 
+    
+    Since the filesystem uses FAT32, all items are items are files, including
+    directories. Mkdir will create a file at the first available entry
+    location in its parent directory and will then find the first free cluster
+    and clear the memory. The entry will be initialized with the directory
+    name provided in the path and will contain the directory attribute,
+    ATTR_DIRECTORY. A directory size is always 0.
+    
 PARAMETERS
     path - desired path to the new directory
     

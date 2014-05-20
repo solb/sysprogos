@@ -8,7 +8,7 @@ SYNOPSIS
 
 PARAMETERS
     prio - the desired priority
-     
+
 RETURN VALUE
     The old priority of the process
 
