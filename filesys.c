@@ -78,6 +78,18 @@ uint_t _filesys_calc_relative_cluster(uint_t cluster_address)
 */
 void _filesys_convert_to_shortname(char* filename, char* shortname)
 {	
+	if(_kstrcmp(filename, ".") == 0 || _kstrcmp(filename, "..") == 0)
+	{
+		uint_t len = _kstrlen(filename);
+		shortname[0] = '.';
+		if(len == 2) shortname[1] = '.';
+		
+		for(int i = 2; i < 11; i ++) shortname[i] = ' ';
+		shortname[11] = '\0';
+		
+		return;
+	}
+
 	uint_t index = 0;
 	while(index < 8)
 	{//Filename portion of the shortname
@@ -795,6 +807,16 @@ uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, uint_t dir_a
 			};
 			
 			_kmemcpy(file.name, entry, 11);
+			
+			//Special Case:
+			//				IF cluster number is 0x0000, then set to root at 0x0002
+			uint_t cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
+			if(cluster == 0x0000)
+			{//Should use root
+				uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
+				file.first_cluster_hi = 0x00;
+				file.first_cluster_low = _filesys_calc_relative_cluster(root_loc);
+			}
 			
 			//File entry valid, add to entries array (ignores long name entries)
 			if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE &&
