@@ -418,7 +418,12 @@ void _filesys_convert_shortname_to_normal(char *shortname, char *converted)
 		index++;
 	}
 	
-	converted[index] = '.';
+	//Checks if the next shortname character is a space
+	//If it is, then that means there is no extension
+	if(shortname[8] == ' ')
+		converted[index] = ' ';
+	else
+		converted[index] = '.';
 	index++;
 	
 	for(int i = 8; i < 12; i++)
