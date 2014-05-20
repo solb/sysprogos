@@ -477,6 +477,14 @@ void _filesys_delete(char *path)
 		return;
 	}
 	
+	c_printf("filename: %s\n", file.name);
+	
+	//Special case check for root
+	if((file.first_cluster_hi << 16 | file.first_cluster_low) == 0x02)
+	{
+		return;
+	}
+	
 	//Special case check for the . and .. "directories"
 	if(_kstrcmp(file.name, ".          ") == 0 || _kstrcmp(file.name, "..         "))
 	{
