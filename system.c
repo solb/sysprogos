@@ -88,6 +88,9 @@ pcb_t *_create_process( pid_t ppid, const char *path ) {
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
 		void *mapped = _mem_map_page(pf);
 		_filesys_readfile(mapped, start_address, count << 12, PAGE_SIZE);
+		if(remaining_size < PAGE_SIZE) {
+			_kmemclr(mapped + remaining_size, PAGE_SIZE - remaining_size);
+		}
 		_mem_unmap_page(mapped);
 		remaining_size -= PAGE_SIZE;
 	}
