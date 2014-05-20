@@ -1,0 +1,49 @@
+QUEUE(C)                    TO-D/OS MODULE Documents                    QUEUE(C)
+
+NAME
+    queue - Linked list--based priority queues
+
+SYNOPSIS
+  - Implements a priority queue data structure
+
+DESCRIPTION
+    Although external modules are permitted to allocate their own "high"-level
+    queues, the link nodes are handled internally by this module and stored in
+    a pool that it maintains.
+
+DATA STRUCTURES
+    typedef struct queue_t
+        Represents a complete queue: its fields should be treated as opaque
+
+    typedef struct linknode_t
+        Represents a link node: it should be treated as completely opaque
+
+EXPOSED FUNCTIONALITY
+    void _que_init(void)
+        Initializes the module by establishing the pool of free list nodes
+
+    void _que_reset(queue_t *que, int (*compare)(void *, void *))
+        (Re)initializes a (priority) queue
+        A NULL comparison function means the queue will be unordered
+
+    void _que_insert(queue_t *queue, void *data)
+        Inserts a data value at the appropriate place in the (priority) queue
+
+    void *_que_remove(queue_t *queue)
+        Removes the head data value of the queue, returning it
+        Safe to call on an empty list, in which case it returns NULL
+
+    void *_que_peek(queue_t *queue)
+        Returns the head data value of the queue
+        Returns NULL when called on an empty list
+
+    uint32_t _que_length(queue_t *queue)
+        Returns the length of a queue
+
+    void _que_dump(char *which, queue_t *queue)
+        Console-dump queue contents
+
+    int _compare_time(void *i1, void *i2)
+        Comparison function that considers PCBs' wakeup times
+
+TO-D/OS                          May 19, 2014                            TO-D/OS

@@ -94,17 +94,6 @@ void _link_free( linknode_t *link ) {
 ** PUBLIC FUNCTIONS
 */
 
-/*
-** _compare_time(p1,p2)
-**
-** compare two PCBs using the wakeup time
-**
-** returns the status of the comparison:
-**      < 0     p1 < p2
-**      = 0     p1 == p2
-**      > 0     p1 > p2
-*/
-
 int _compare_time( register void *p1, register void *p2 ) {
 
 	// should really do a sanity check here, but what if
@@ -118,12 +107,6 @@ int _compare_time( register void *p1, register void *p2 ) {
 	return( 1 );
 
 }
-
-/*
-** _que_init( void )
-**
-** initialize the queue module
-*/
 
 void _que_init( void ) {
 	int i;
@@ -139,13 +122,6 @@ void _que_init( void ) {
 
 	c_puts( " queues" );
 }
-
-/*
-** _que_reset(que,compare)
-**
-** reset the supplied queue by setting its link pointers to NULL
-** and associating the supplied comparison routine with it
-*/
 
 void _que_reset( queue_t *queue, int (*compare)(void*,void*) ) {
 
@@ -169,15 +145,6 @@ void _que_reset( queue_t *queue, int (*compare)(void*,void*) ) {
 	queue->compare = compare;
 
 }
-
-/*
-** _que_insert(queue,data)
-**
-** insert the supplied data value into a queue, using the supplied
-** key for ordering according to the queue's ordering rule
-**
-** returns the status of the insertion attempt
-*/
 
 void _que_insert( queue_t *queue, void *data ) {
 	linknode_t *prev, *curr, *new;
@@ -270,14 +237,6 @@ void _que_insert( queue_t *queue, void *data ) {
 	
 }
 
-/*
-** _que_remove(queue)
-**
-** remove the first element from the queue
-**
-** returns a pointer to the removed data item, or NULL
-*/
-
 void *_que_remove( queue_t *queue ) {
 	linknode_t *node;
 	void *data;
@@ -321,14 +280,6 @@ void *_que_remove( queue_t *queue ) {
 	return( data );
 }
 
-/*
-** _que_peek(queue)
-**
-** peek at the first element from the queue
-**
-** returns a pointer to the first queued data item, or NULL
-*/
-
 void *_que_peek( queue_t *queue ) {
 	
 	// sanity check!
@@ -341,12 +292,6 @@ void *_que_peek( queue_t *queue ) {
 
 	return( queue->first->data );
 }
-
-/*
-** _que_dump(which,queue)
-**
-** dump the contents of the specified queue to the console
-*/
 
 void _que_dump( char *which, queue_t *queue ) {
 	linknode_t *tmp;

@@ -65,32 +65,30 @@ typedef struct queue {
 */
 
 /*
-** _compare_time(i1,i2)
-**
 ** compare two PCBs using the wakeup time
+**
+** returns the status of the comparison:
+**      < 0     p1 < p2
+**      = 0     p1 == p2
+**      > 0     p1 > p2
 */
 
 int _compare_time( register void *i1, register void *i2 );
 
 /*
-** _que_init()
-**
 ** initialize the queue module
 */
 
 void _que_init( void );
 
 /*
-** _que_reset(que,fcn)
-**
-** reinitialize the specified queue 
+** reset the supplied queue by setting its link pointers to NULL
+** and associating the supplied comparison routine with it
 */
 
 void _que_reset( queue_t *que, int (*compare)(void*,void*) );
 
 /*
-** _que_insert(que,data)
-**
 ** insert the supplied data value into the queue, ordering the
 ** queue using its built-in comparison function
 */
@@ -98,8 +96,6 @@ void _que_reset( queue_t *que, int (*compare)(void*,void*) );
 void _que_insert( queue_t *queue, void *data );
 
 /*
-** _que_remove(que)
-**
 ** remove the first element from the queue
 **
 ** returns the thing that was removed, or NULL
@@ -108,8 +104,6 @@ void _que_insert( queue_t *queue, void *data );
 void *_que_remove( queue_t *que );
 
 /*
-** _que_peek(que)
-**
 ** peek at the first element in the queue
 **
 ** returns a pointer to the first queued data item, or NULL
@@ -118,8 +112,6 @@ void *_que_remove( queue_t *que );
 void *_que_peek( queue_t *que );
 
 /*
-** _que_dump(which,queue)
-**
 ** dump the contents of the specified queue to the console
 */
 
