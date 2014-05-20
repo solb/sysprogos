@@ -1,0 +1,52 @@
+STARTUP(C)                  TO-D/OS MODULE Documents                  STARTUP(C)
+
+NAME
+    startup - Set up registers at start of execution and do other assembly stuff
+
+SYNOPSIS
+  - First code to run once we jump to IA-32e long mode
+  - Provides assembly routines for accessing low-level I/O functionality
+  - Exposes accessors for some CPU registers
+  - Includes hardware-level utility functions (e.g. pause and cache management)
+
+DESCRIPTION
+    The go-to for all things x86 assembly. The catch-all for anything that
+    didn't fit naturally elsewhere. The pinnacle of careful API design.
+
+EXPOSED FUNCTIONALITY
+    int __inb(int port)
+        Read one byte from an input port
+
+    int __inw(int port)
+        Read one word from an input port
+
+    int __inl(int port)
+        Read one longword from an input port
+
+    void __outb(int port, int value)
+        Write one byte to an output port
+
+    void __outw(int port, int value)
+        Write one word to an output port
+
+    void __outl(int port, int value)
+        Write one longword to an output port
+
+    int __get_flags()
+        Get the current processor flags from the RFLAGS register
+
+    void __pause()
+        Halt until something happens
+
+    void __inst_tss()
+        Install the TSS (Task-State Segment)
+
+    void __inv_tlb()
+        Invalidate the translation lookaside buffer, which is a definite
+        TO-D/O--list item whenever one modifies page table mappings
+
+    void *__get_cr2()
+        Get a copy of the CR2 register's contents, which contains the
+        effective address that caused the last page fault
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
