@@ -1,17 +1,27 @@
-READDIR(1)                       TO-D/OS SYSCALLS Manual                       READDIR(1)
+READDIR(1)                   TO-D/OS SYSCALLS Manual                  READDIR(1)
 
 NAME
-     readdir — Reads the contents of a directory
+    readdir - Reads the contents of a directory
 
 SYNOPSIS
-	 int readdir(char *path, void *buff, int count);
+    int readdir(char *path, void *buff, int count)
 
 DESCRIPTION
-     Reads the contents of a directory at the path and stores the name, size, and
-     if it is a directory for each file read into buff.
+    Reads the contents of a directory at the path and stores the name, size, and
+    whether it is a directory for each file read into buff, in the following
+    format:
+        typedef struct {
+            char name[13];
+            unsigned file_size;
+            char is_directory;
+        } file_t;
+
+PARAMETERS
+    path - path to the directory in the filesystem
+    buff - target buffer (should be a file_t *)
+    count - maximum number of bytes to read
      
 RETURN VALUE
-	 The number of files read in the directory. Returns -1 if the read failed
+    The number of files read in the directory. Returns -1 if the read failed
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

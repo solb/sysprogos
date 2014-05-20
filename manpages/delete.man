@@ -1,14 +1,16 @@
-DELETE(1)                        TO-D/OS SYSCALLS Manual                        DELETE(1)
+DELETE(1)                    TO-D/OS SYSCALLS Manual                   DELETE(1)
 
 NAME
-     delete — Deletes a file
+    delete - Deletes an existing file
 
 SYNOPSIS
-	 void delete(char *path);
+    void delete(char *path)
 
 DESCRIPTION
-     Deletes a file from the filesystem. If it is a directory, it will delete everything
-     within the directory.
+    Deletes a file from the filesystem. If given a directory, it will delete
+    everything within it (!)
 
+PARAMETERS
+    path - path to the soon-to-be--former directory
 
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

@@ -1,15 +1,15 @@
-WRITECH(1)                       TO-D/OS SYSCALLS Manual                       WRITECH(1)
+WRITECH(1)                   TO-D/OS SYSCALLS Manual                  WRITECH(1)
 
 NAME
-     writech — Write a single character to the SIO
+    writech - Write a single character to the SIO console
 
 SYNOPSIS
-	void writech(char ch);
+    char writech(char ch)
 
-DESCRIPTION
-     
+PARAMETERS
+    ch - the character to write out
+
 RETURN VALUE
-	 The character that was written
+    The character that was written
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

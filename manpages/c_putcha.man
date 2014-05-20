@@ -1,0 +1,17 @@
+C_PUTCHAR_AT(1)             TO-D/OS SYSCALLS Manual              C_PUTCHAR_AT(1)
+
+NAME
+    c_putchar_at - Allow debug printing to the VGA console
+
+SYNOPSIS
+    void c_putchar_at(unsigned x, unsigned y, unsigned c)
+
+DESCRIPTION
+    Writes the given character at the specified screen coordinates, in pixels
+
+PARAMETERS
+    x - x-coordinate on the screen
+    y - y-coordiate on the screen
+    c - character to output
+
+TO-D/OS                           May 19, 2014                           TO-D/OS

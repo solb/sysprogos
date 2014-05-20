@@ -1,15 +1,15 @@
-WRITES(1)                        TO-D/OS SYSCALLS Manual                        WRITES(1)
+WRITES(1)                    TO-D/OS SYSCALLS Manual                   WRITES(1)
 
 NAME
-     writes — Write a NUL-terminated string to the SIO
+    writes - Write a NUL-terminated string to the SIO console
 
 SYNOPSIS
-	 int writes(char *buff);
+    int writes(char *buff)
 
-DESCRIPTION
+PARAMETERS
+    buff - the string to write out
      
 RETURN VALUE
-	 The number of characters that were sent
+    The number of characters that were sent
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

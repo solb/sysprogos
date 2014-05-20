@@ -1,15 +1,15 @@
-READCH(1)                        TO-D/OS SYSCALLS Manual                        READCH(1)
+READCH(1)                   TO-D/OS SYSCALLS Manual                    READCH(1)
 
 NAME
-	 readch — Read a single character from the SIO
+    readch - Read a single character from the SIO console
 
 SYNOPSIS
-	 int readch();
+    int readch()
 
 DESCRIPTION
-	 Blocks the calling routine if there is no character to return
+    Blocks the calling routine if there is no character to return
 
 RETURN VALUE
-	 The character
+    The character
 
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

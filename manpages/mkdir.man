@@ -1,22 +1,21 @@
-MKDIR(1)                         TO-D/OS SYSCALLS Manual                         MKDIR(1)
+MKDIR(1)                     TO-D/OS SYSCALLS Manual                    MKDIR(1)
 
 NAME
-     mkdir — Creates a directory
+    mkdir - Creates a directory
 
 SYNOPSIS
-	 int mkdir(char *path);
+    int mkdir(char *path);
 
 DESCRIPTION
-     Creates a directory in the filesystem at the given path
-     
+    Creates a directory in the filesystem at the given path.
+
+PARAMETERS
+    path - desired path to the new directory
+    
 RETURN VALUE
-	 Returns SUCCESS if it successfully creates the directory, FAILURE otherwise
-	 
-NOTES
-	 SUCCESS and FAILURE are both defined by the OS. At the time of this writing:
-	 
-	 SUCCESS = 0
-	 FAILURE = 1
+    Returns SUCCESS if it successfully creates the directory, FAILURE otherwise
+    SUCCESS and FAILURE are both defined by the OS. At the time of this writing:
+        SUCCESS = 0
+        FAILURE = 1
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

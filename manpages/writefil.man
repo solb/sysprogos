@@ -1,0 +1,23 @@
+WRITEFILE(1)                 TO-D/OS SYSCALLS Manual                WRITEFILE(1)
+
+NAME
+    writefile - Writes a string out to a file
+
+SYNOPSIS
+    int writefile(char *path, void *buff, int count)
+
+DESCRIPTION
+    An already-existing file is treated as a FAILURE condition
+
+PARAMETERS
+    path - desired path to the new file 
+    buff - source bugffer (must be at least count bytes long)
+    count - number of bytes to write
+
+RETURN VALUE
+    Returns SUCCESS if it successfully creates the file, FAILURE otherwise
+    SUCCESS and FAILURE are defined by the OS, but currently have the values:
+        SUCCESS = 0
+        FAILURE = 1
+
+TO-D/OS                           May 19, 2014                           TO-D/OS

@@ -1,13 +1,14 @@
-SPAWN(1)                     TO-D/OS SYSCALLS Manual                    SPAWN(1)
+SYNCSPAWN(1)                 TO-D/OS SYSCALLS Manual                SYNCSPAWN(1)
 
 NAME
-    spawn - Create a new process running a different program
+    syncspawn - Create and join a new process running a different program
 
 SYNOPSIS
     pid_t spawn(char *path)
 
 DESCRIPTION
-    Returns immediately regardless of success
+    Returns only after the new process exit()s, or immediately if it was unable
+    to actually start it
 
 PARAMETERS
     path - filesystem path to the binary file

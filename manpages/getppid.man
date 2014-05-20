@@ -1,19 +1,16 @@
-GETPPID(1)                       TO-D/OS SYSCALLS Manual                       GETPPID(1)
+GETPPID(1)                   TO-D/OS SYSCALLS Manual                  GETPPID(1)
 
 NAME
-     getppid — Retrieve the parent PID of the current process
+    getppid - Retrieve the parent PID of the current process
 
 SYNOPSIS
-	 pid_t getppid(void);
+    pid_t getppid()
 
 DESCRIPTION
-	 
-	 
-     Note: If the original parent of this process has exited, this process will have been
-           inherited by the system init process, whose PID will be returned
+    If the original parent of this process has exited, this process will have
+    been inherited by the system init process, whose PID will be returned.
      
 RETURN VALUE
-	 The process' parent's pid
+    The process' parent's pid
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

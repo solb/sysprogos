@@ -1,13 +1,13 @@
-EXIT(1)                          TO-D/OS SYSCALLS Manual                          EXIT(1)
+EXIT(1)                      TO-D/OS SYSCALLS Manual                     EXIT(1)
 
 NAME
-     exit — Terminate the calling process
+    exit - Terminate the calling process
 
 SYNOPSIS
-	void exit();
+    void exit()
 
 DESCRIPTION
-    
+    Never returns, because the kernel will have already terminated the process
+    by the time that could ever happen
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

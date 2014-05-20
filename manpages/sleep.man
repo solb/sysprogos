@@ -1,14 +1,16 @@
-SLEEP(1)                         TO-D/OS SYSCALLS Manual                         SLEEP(1)
+SLEEP(1)                     TO-D/OS SYSCALLS Manual                    SLEEP(1)
 
 NAME
-     sleep — Put the current process to sleep for some length of time
+    sleep - Put the current process to sleep for some length of time
 
 SYNOPSIS
-	void sleep(uint_t ms);
+	void sleep(uint_t ms)
+
+PARAMETERS
+    ms - the sleep time in milliseconds
 
 DESCRIPTION
-     If the sleep time (in milliseconds) is 0, just preempts the process; 
-     Otherwise, puts it onto the sleep queue for the specified length of time
+    If the sleep time is 0, just preempts the process;
+    otherwise, puts it onto the sleep queue for the specified length of time
 
-
-BSD                                   May 19, 2014                                   BSD
+TO-D/OS                           May 19, 2014                           TO-D/OS

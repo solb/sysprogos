@@ -361,6 +361,10 @@ static void _sys_sleep( pcb_t *pcb ) {
 	_dispatch();
 }
 
+/*
+** c_putchar_at - syscall for debug printing
+*/
+
 static void _sys_c_putchar_at( pcb_t *pcb ) {
 	int32_t x = (int32_t)ARG1(pcb);
 	int32_t y = (int32_t)ARG2(pcb);
