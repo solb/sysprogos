@@ -162,6 +162,7 @@ _Bool _mem_range_is_mapped(void *start_address, uint_t length) {
 	uint64_t last_pte = ((uint64_t)end_address - USERSPACE_VIRT_ADDRESS) >> 12;
 	for(uint64_t entry = first_pte; entry <= last_pte; ++entry) {
 		if(!(page_table[entry] & PAGE_PRESENT)) {
+			_mem_unmap_page(page_table);
 			return 0;
 		}
 	}
