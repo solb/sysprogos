@@ -491,12 +491,12 @@ static void _sys_mkdir( pcb_t *pcb )
 	
 	file_entry_t dir;
 	
-	if(_filesys_make_dir(path, &dir) == SUCCESS)
+	if(_filesys_make_dir(path, &dir) == 1)
 	{//Mkdir was successful
-		RET(pcb) = SUCCESS;
+		RET(pcb) = 1;
 	}
 	
-	RET(pcb) = FAILURE;
+	RET(pcb) = 0;
 }
 
 
@@ -620,6 +620,8 @@ void _sys_init( void ) {
 	_syscalls[ SYS_readdir ]   = _sys_readdir;
 	_syscalls[ SYS_mkdir ]     = _sys_mkdir;
 	_syscalls[ SYS_syncspawn ] = _sys_syncspawn;
+	_syscalls[ SYS_writefile ] = _sys_writefile;
+	_syscalls[ SYS_delete ]    = _sys_delete;
 
 	// install our ISR
 
