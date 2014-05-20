@@ -439,7 +439,7 @@ static void _sys_readdir( pcb_t *pcb )
 
 	int num_dir_read = 0;
 	file_entry_t file;
-	
+		
 	//Tries finding the file
 	if(_filesys_find_file(path, &file, 0) == FAILURE)
 	{//Failed to find the file
@@ -449,9 +449,11 @@ static void _sys_readdir( pcb_t *pcb )
 	//Checks if the file is a directory or not
 	if(_filesys_is_directory(file) == SUCCESS)
 	{//Is a directory, READ
+		uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
 		int dir_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
-		int dir_address = _filesys_calc_absolute_cluster_loc(dir_cluster);
-		
+		int dir_address = dir_cluster == 0? root_loc : 
+										_filesys_calc_absolute_cluster_loc(dir_cluster);
+				
 		num_dir_read = _filesys_readdir(entries, (uint_t)count, (uint_t)dir_address);
 	}
 	else
