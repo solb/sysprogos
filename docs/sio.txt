@@ -1,0 +1,40 @@
+SIO(C)                      TO-D/OS MODULE Documents                      SIO(C)
+
+NAME
+    sio - read and write to the serial console
+
+SYNOPSIS
+  - Reads characters from the console
+  - Processes are put on a blocked queue when they read but no data is
+    available.
+  - Writes individual characters and strings
+  - Buffers input and output
+
+DESCRIPTION
+    The sio module is responsible for communication to and from the serial
+    console. It maintains 2 ring buffers of characters, one for input and one
+    for output. It provides an interface for characters to be read ior writtem
+    one at a time or from a NUL-terminated string buffer.
+
+    This module remains almost entirely unchanged from the base system, save
+    for a buffer overflow bug fix in _sio_writec.
+
+EXPOSED FUNCTIONALITY
+    void _sio_init(void)
+        Initialize the serial output device and module
+
+    int _sio_readc(void)
+        returns a character read from the terminal
+
+    int _sio_reads(char *buffer, int length)
+        reads a line of input into the given buffer, up to the provided length
+        returns the number of characters put into the buffer.
+
+    void _sio_writec( int ch )
+        Writes the given character to the serial console.
+
+    int _sio_writes(char *buffer, int length)
+        Writes length characters from buffer to the serial console
+        returns the number of characters written.
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
