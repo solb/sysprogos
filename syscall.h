@@ -81,15 +81,12 @@
 */
 
 extern queue_t _sleeping;      // sleeping processes
-extern queue_t _waiting;       // waiting for exit status information
 
 /*
 ** Prototypes
 */
 
 /*
-** _sys_init()
-**
 ** initializes all syscall-related data structures
 */
 

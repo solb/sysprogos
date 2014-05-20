@@ -1,0 +1,27 @@
+SYSCALL(C)                  TO-D/OS MODULE Documents                  SYSCALL(C)
+
+NAME
+    syscall - Kernel-level backing syscall implementations
+
+SYNOPSIS
+  - Handles incoming syscalls arriving from userland
+  - Maintains a record of the SLEEPING processes desiring timed rescheduling
+
+DESCRIPTION
+    This module only receives control flow when it is first initialized, and
+    thereafter only when userland requests a syscall. It does not define any
+    data structures, and the only state data it exposes is the queue of
+    sleeping processes, which it shares with the clock module.
+
+GLOBALS
+    queue_t _sleeping
+        The queue of processes waiting to be woken up at specific times; these
+        processes will be _schedule()d by the clock module at that point
+
+EXPOSED FUNCTIONALITY
+    void _sys_init(void)
+        Initializes the module, linking the syscall codes to their
+        implementing routines, installing its own ISR to invoke those, and
+        initializing its sleeping queue
+
+TO-D/OS                          May 19, 2014                            TO-D/OS

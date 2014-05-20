@@ -5,7 +5,9 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor:	Dan Johnson
+**				Chris Cooper
+**				Sol Boucher
 **
 ** Description:	System call module implementation
 */
@@ -587,12 +589,6 @@ static void _sys_delete( pcb_t *pcb )
 
 /*
 ** PUBLIC FUNCTIONS
-*/
-
-/*
-** _sys_init()
-**
-** initialize the syscall module
 */
 
 void _sys_init( void ) {
