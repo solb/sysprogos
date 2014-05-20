@@ -12,15 +12,15 @@
 */
 
 int main( void ) {
-	c_puts( "ls running." );
+	c_puts( "ls running.\n" );
 	
-	char *path = "";
+	char *path = "/manpages";
 	
 	file_t entries[SIZE];
 	
 	int num_entries_read = readdir(path, entries, SIZE);
 	
-	if(num_entries_read)
+	if(num_entries_read == -1)
 	{//Failed to read directory
 		c_puts("Reading directory failed.\n");
 		return -1;
@@ -35,7 +35,7 @@ int main( void ) {
 	{
 		file_t file = entries[i];
 	
-		if(file.is_directory)
+		if(file.is_directory == 0)
 			writech('d');
 		else
 			writech('-');
@@ -43,7 +43,7 @@ int main( void ) {
 		writech(' ');
 		
 		writes(file.name);
-		
+		writech('\n');
 	}
 	
 	c_puts( "ls exiting\n" );
