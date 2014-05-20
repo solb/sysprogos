@@ -448,6 +448,7 @@ static void _sys_readdir( pcb_t *pcb )
 	if(_filesys_find_file(path, &file, 0) == FAILURE)
 	{//Failed to find the file
 		RET(pcb) = -1;
+		return;
 	}
 	
 	//Checks if the file is a directory or not
@@ -463,6 +464,7 @@ static void _sys_readdir( pcb_t *pcb )
 	else
 	{//Not a directory, return failure
 		RET(pcb) = -1;
+		return;
 	}
 	
 	
@@ -574,11 +576,13 @@ static void _sys_writefile( pcb_t *pcb )
 	if(_filesys_make_file(path, ATTR_ARCHIVE, &file) == FAILURE)
 	{//Failed to make the file
 		RET(pcb) = FAILURE;
+		return;
 	}
 		
 	if(_filesys_write_file(path, data, data_len) == FAILURE)
 	{//Failed to write data
 		RET(pcb) = FAILURE;
+		return;
 	}
 	
 	RET(pcb) = SUCCESS;
