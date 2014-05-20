@@ -1,4 +1,5 @@
 // Author: Sol Boucher <slb1566@rit.edu>
+//         Dan Johnson <dbj9353@rit.edu>
 // Memory management functions
 
 /*
