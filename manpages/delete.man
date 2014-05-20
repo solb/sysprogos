@@ -4,11 +4,20 @@ NAME
     delete - Deletes an existing file
 
 SYNOPSIS
-    void delete(char *path)
+     void delete(char *path)
 
 DESCRIPTION
-    Deletes a file from the filesystem. If given a directory, it will delete
-    everything within it (!)
+     Deletes a file from the filesystem that is at the specified path. If it is
+     a directory, it will delete everything within the directory. 
+     
+     Special exceptions include the root directory, where if delete is 
+     attempted on root, then it will do nothing.
+     
+     When deleting a directory, it will do a recursive delete on all
+     directories, except for "." and ".." since this would cause it to be 
+     circular. To resolve this, when delete sees these files, it will not
+     do anything. This will not affect the delete of a directory, since the
+     next time a file is generated, that memory will be cleared.
 
 PARAMETERS
     path - path to the soon-to-be--former directory

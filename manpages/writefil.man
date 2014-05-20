@@ -7,6 +7,9 @@ SYNOPSIS
     int writefile(char *path, void *buff, int count)
 
 DESCRIPTION
+    Creates a file in the filesystem at the given path and then writes the 
+    data stored in buff into the contents of that file in the filesystem.
+    
     An already-existing file is treated as a FAILURE condition
 
 PARAMETERS

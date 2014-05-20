@@ -15,12 +15,19 @@ DESCRIPTION
             unsigned file_size;
             char is_directory;
         } file_t;
+        
+    The current implementation of the filesystem does not support the use of
+    long name file entries and therefore, if any exist in the filesystem, the
+    call to readdir will ignore all long name file entries and all entries
+    that have been freed (deleted).
+     
+    A path of "" and "/" will produce the same result, root will be read.
 
 PARAMETERS
     path - path to the directory in the filesystem
     buff - target buffer (should be a file_t *)
     count - maximum number of bytes to read
-     
+
 RETURN VALUE
     The number of files read in the directory. Returns -1 if the read failed
 

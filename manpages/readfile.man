@@ -4,11 +4,13 @@ NAME
     readfile - Read data from a file in the filesystem
 
 SYNOPSIS
-    int readfile(char *path, int offset, void *buff, int count)
+     int readfile(char *path, int offset, void *buff, int count);
 
 DESCRIPTION
-    Reads data from a file at the given path. It's important not to set the
-    count parameter to be greater than the length of the buffer!
+     Reads data from a file at the given path. An offset can be specified to 
+     read starting at a different point in the file. The data read is stored in
+     buff, which is of size count. It will return the number of bytes read. If 
+     reading fails, -1 is returned.
 
 PARAMETERS
     path - path to the file on the filesystem
