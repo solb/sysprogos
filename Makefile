@@ -165,7 +165,7 @@ kern.b:	kern.o
 	cp -r $^ /tmp/userspacemnt/
 	./loopmount_userspace unmount -
 
-userspace.img: $(U_C_BIN) manpages/
+userspace.img: $(U_C_BIN) manpages/ docs/
 
 loopmount_userspace: loopmount_userspace.c
 	gcc -std=c99 -Wall -Wextra -pedantic -o loopmount_userspace loopmount_userspace.c
@@ -268,6 +268,10 @@ user/clear.o: user/userspace.h common.h defs.h types.h c_io.h support.h
 user/clear.o: system.h process.h clock.h stack.h klib.h
 user/clob_gdt.o: user/userspace.h common.h defs.h types.h c_io.h support.h
 user/clob_gdt.o: system.h process.h clock.h stack.h klib.h
+user/copy_tst.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/copy_tst.o: system.h process.h clock.h stack.h klib.h
+user/delete.o: user/userspace.h common.h defs.h types.h c_io.h support.h
+user/delete.o: system.h process.h clock.h stack.h klib.h
 user/dref_nul.o: user/userspace.h common.h defs.h types.h c_io.h support.h
 user/dref_nul.o: system.h process.h clock.h stack.h klib.h
 user/init.o: user/userspace.h common.h defs.h types.h c_io.h support.h
