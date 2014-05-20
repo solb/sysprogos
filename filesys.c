@@ -477,6 +477,13 @@ void _filesys_delete(char *path)
 		return;
 	}
 	
+	//Special case check for the . and .. "directories"
+	if(_kstrcmp(file.name, ".          ") == 0 || _kstrcmp(file.name, "..         "))
+	{
+		_filesys_delete_file_entry(path, &file);
+		return;
+	}
+	
 	int dir_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
 	
 	if(_filesys_is_directory(file) == 0)
@@ -496,6 +503,8 @@ void _filesys_delete(char *path)
 			_kmemcpy(extended_path, path, path_len);
 			_kmemcpy(extended_path+path_len+1, normal_filename, 13); 
 			extended_path[path_len] = '/';
+			
+			c_printf("Extended path: %s", extended_path);
 			
 			_filesys_delete(extended_path);
 		}
@@ -840,7 +849,7 @@ uint_t _filesys_readdir(file_entry_t *entries, uint_t entries_size, uint_t dir_a
 			}
 			
 			//File entry valid, add to entries array (ignores long name entries)
-			if(file.name[0] != ENTRY_FREE && file.name[0] != ENTRIES_FREE &&
+			if(file.name[0] != (char)ENTRY_FREE && file.name[0] != (char)ENTRIES_FREE &&
 				(file.attributes & ATTR_LONG_NAME) != ATTR_LONG_NAME)
 			{
 				entries[entry_count] = file;
