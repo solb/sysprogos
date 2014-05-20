@@ -1,0 +1,28 @@
+CLOCK(C)                    TO-D/OS MODULE Documents                    CLOCK(C)
+
+NAME
+    clock - keep track of the passage of time
+
+SYNOPSIS
+  - Initializes the PIT
+  - Handles all clock ticks
+  - Preempts tasks which have run for too long
+  - Prints a nice pretty pinwheel
+  - Wakes sleeping processes so that they are not late to their finals
+
+DESCRIPTION
+    The clock module is responsible for keeping the system moving along. It
+    uses the 8253 Programmable Interrupt Timer (set to 1KHz) to allow the OS
+    to handle periodic tasks. The most important of these is the preemption of
+    userspace processes. It also keeps track of the passage of time (useful
+    for sleeping processes) and updates a spinning pinwheel.
+
+GLOBALS
+    extern time_t _system_time
+        The current system time in milliseconds since system boot.
+
+EXPOSED FUNCTIONALITY
+    void _clock_init(void)
+        Initializes the clock hardware and registers the ISR
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
