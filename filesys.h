@@ -42,7 +42,7 @@
 /*
 ** Defines the maximum number of files to be stored in a directory
 */
-#define	MAX_DIRECTORY_SIZE	30;
+#define	MAX_DIRECTORY_SIZE	30
 
 /*
 ** Defines the file_entry ATTRIBUTES
@@ -204,6 +204,13 @@ uint_t _filesys_find_first_free_entry(uint_t dir_address);
 uint_t _filesys_expand_cluster_chain(uint_t start_cluster);
 
 /*
+** _filesys_shrink_cluster_chain - Shrinks the cluster chain down to a single cluster
+**									freeing up all the other clusters in the chain
+** 
+*/
+void _filesys_shrink_cluster_chain(uint_t start_cluster);
+
+/*
 ** _filesys_find_next_free_cluster - Goes through the FAT and locates the first available
 **										cluster that is free and returns the relative
 **										cluster number. Returns 0 if no free cluster found
@@ -228,6 +235,46 @@ void _filesys_write_file_entry(uint_t new_entry_loc, char* filename, ubyte_t att
 **
 */
 void _filesys_update_fats(uint_t relative_cluster, uint_t value);
+
+/*
+** _filesys_update_file_size - Updates the file's file size in it's entry by locating the 
+**								entry in the filesystem using the given filename at the
+**								parent directory location and updates it to the given
+**								data length
+*/
+void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t data_len);
+
+/*
+** _filesys_convert_shortname_to_normal - converts a shortname file name to a normal
+**											filename
+*/
+void _filesys_convert_shortname_to_normal(char *shortname, char *converted);
+
+/*
+** _filesys_delete_file_entry - Sets the first byte of the file entry in the file system
+**								to ENTRY_FREE
+*/
+void _filesys_delete_file_entry(char *path, file_entry_t *file);
+
+/* 
+** _filesys_delete - Deletes a file within the filesystem. If the file is a directory, it
+**						will delete every file within the directory as well
+*/
+void _filesys_delete(char *path);
+
+/*
+** _filesys_is_directory - Determines if the given file is a directory or not.
+**                          Returns SUCCESS if it is, FAILURE otherwise
+*/
+uint_t _filesys_is_directory(file_entry_t file);
+
+/*
+** _filesys_write_file - Writes the given data of the given length to the given file
+**							If there is data in the file already, clears it
+**
+**							Returns SUCCESS if write is successful, FAILURE otherwise
+*/
+uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len);
 
 /*
 ** _filesys_make_dir - Makes a new directory at the given path and sets the new_dir to 

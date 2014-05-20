@@ -183,9 +183,10 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 	uint_t prev_cluster = start_cluster;
 	uint_t next_cluster = _filesys_find_next_cluster(prev_cluster);
 	
-	while(next_cluster != LAST_CLUSTER)
+	while(next_cluster < LAST_CLUSTER)
 	{//Continue searching through the chain for the last cluster
 		prev_cluster = next_cluster;
+		next_cluster = _filesys_find_next_cluster(prev_cluster);
 	}
 
 	//Gets a free cluster to expand the chain into
@@ -197,7 +198,34 @@ uint_t _filesys_expand_cluster_chain(uint_t start_cluster)
 	//Updates the FATs, setting the next_cluster as the end
 	_filesys_update_fats(next_cluster, LAST_CLUSTER);
 	
+	//Clear memory of the next cluster
+	byte_t *file_data = filesystem+_filesys_calc_absolute_cluster_loc(next_cluster);
+	_kmemclr(file_data, cluster_size);
+	
 	return next_cluster;
+}
+
+/*
+** _filesys_shrink_cluster_chain - Shrinks the cluster chain down to a single cluster
+**									freeing up all the other clusters in the chain
+** 
+*/
+void _filesys_shrink_cluster_chain(uint_t start_cluster)
+{
+	uint_t current_cluster = start_cluster;
+	
+	while(current_cluster != LAST_CLUSTER)
+	{
+		uint_t next_cluster = _filesys_find_next_cluster(current_cluster);
+		
+		//Frees the current_cluster, if it isn't the start_cluster
+		if(current_cluster != start_cluster)
+			_filesys_update_fats(current_cluster, 0x0000);
+		else
+			_filesys_update_fats(current_cluster, LAST_CLUSTER);
+			
+		current_cluster = next_cluster;
+	}
 }
 
 /*
@@ -266,7 +294,113 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 	{
 		update_fat_entry = update_fat_entry+(i * fat_size); //Moves to next FAT
 
-		*update_fat_entry = *update_fat_entry | value;
+		*update_fat_entry = value;
+	}
+}
+
+/*
+** _filesys_update_file_size - Updates the file's file size in it's entry by locating the 
+**								entry in the filesystem using the given filename at the
+**								parent directory location and updates it to the given
+**								data length
+*/
+void _filesys_update_file_size(char *filename, file_entry_t *parent_dir, uint_t data_len)
+{
+	uint_t current_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	
+	while(current_cluster < LAST_CLUSTER)
+	{
+		uint_t current_cluster_loc = _filesys_calc_absolute_cluster_loc(current_cluster);
+		byte_t *entry = filesystem + current_cluster_loc;
+		
+		byte_t *end_of_cluster = entry + cluster_size;
+		while(entry < end_of_cluster)
+		{//Searches for entry matching filename
+			char name[12] = {'\0'};
+			_kmemcpy((byte_t*)name, (byte_t*)entry, 11);
+			
+			if(_kstrcmp(name, filename) == 0)
+			{//Update filesize in the last 4 bytes of the 32 byte entry
+				*(uint_t*)(entry+28) = data_len;
+				
+				return;
+			}
+			
+			entry += 32;
+		}
+		current_cluster = _filesys_find_next_cluster(current_cluster);
+	}
+}
+
+/*
+** _filesys_delete_file_entry - Sets the first byte of the file entry in the file system
+**								to ENTRY_FREE
+*/
+void _filesys_delete_file_entry(char *path, file_entry_t *file)
+{
+	//Gets the cluster number for the new directory's parent
+	char *parent_path_end = path+_kstrlen(path) - 1;
+	while(*(--parent_path_end) != '/') {}
+	
+	uint_t parent_path_len = parent_path_end - path + 1;
+	char parent_path[parent_path_len];
+	_kmemcpy((byte_t*)parent_path,(byte_t*)path, parent_path_len);
+	parent_path[parent_path_len - 1] = '\0';
+	file_entry_t parent_dir;
+	_filesys_find_file(parent_path, &parent_dir, 0);
+	
+	uint_t current_cluster = parent_dir.first_cluster_hi << 16 | parent_dir.first_cluster_low;
+	
+	while(current_cluster < LAST_CLUSTER)
+	{
+		uint_t current_cluster_loc = _filesys_calc_absolute_cluster_loc(current_cluster);
+		byte_t *entry = filesystem + current_cluster_loc;
+		
+		byte_t *end_of_cluster = entry + cluster_size;
+		while(entry < end_of_cluster)
+		{//Searches for entry matching filename
+			char name[12] = {'\0'};
+			_kmemcpy((byte_t*)name, (byte_t*)entry, 11);
+			
+			if(_kstrcmp(name, file->name) == 0)
+			{//Update entry's first byte to ENTRY_FREE
+				*(entry) = ENTRY_FREE;
+				
+				return;
+			}
+			
+			entry += 32;
+		}
+		current_cluster = _filesys_find_next_cluster(current_cluster);
+	}
+}
+
+/*
+** _filesys_convert_shortname_to_normal - converts a shortname file name to a normal
+**											filename
+*/
+void _filesys_convert_shortname_to_normal(char *shortname, char *converted)
+{
+	int index = 0;
+	for(int i = 0; i < 8; i++)
+	{
+		if(shortname[i] == ' ')
+			continue;
+			
+		converted[index] = shortname[i];
+		index++;
+	}
+	
+	converted[index] = '.';
+	index++;
+	
+	for(int i = 8; i < 12; i++)
+	{
+		if(shortname[i] == ' ')
+			break;
+			
+		converted[index] = shortname[i];
+		index++;
 	}
 }
 
@@ -274,18 +408,136 @@ void _filesys_update_fats(uint_t relative_cluster, uint_t value)
 ** PUBLIC FUNCTIONS
 */
 
+/* 
+** _filesys_delete - Deletes a file within the filesystem. If the file is a directory, it
+**						will delete every file within the directory as well
+*/
+void _filesys_delete(char *path)
+{
+	file_entry_t file;
+	if(_filesys_find_file(path, &file, 0) == 1)
+	{//Couldn't find file to delete, return
+		return;
+	}
+	
+	int dir_cluster = file.first_cluster_hi << 16 | file.first_cluster_low;
+	
+	if(_filesys_is_directory(file) == 0)
+	{//It is a directory
+		int dir_address = _filesys_calc_absolute_cluster_loc(dir_cluster);
+		file_entry_t entries[MAX_DIRECTORY_SIZE];
+		
+		int num_entries = _filesys_readdir(entries, MAX_DIRECTORY_SIZE, dir_address);
+		int path_len = _kstrlen(path);
+		
+		for(int i = 0; i < num_entries; i++)
+		{//For each entry in the directory, add the file to the path and delete
+			char normal_filename[13] = { '\0' };
+			_filesys_convert_shortname_to_normal(entries[i].name, normal_filename);
+			
+			char extended_path[path_len + 12];
+			_kmemcpy(extended_path, path, path_len);
+			_kmemcpy(extended_path+path_len+1, normal_filename, 13); 
+			extended_path[path_len] = '/';
+			
+			_filesys_delete(extended_path);
+		}
+	}
+	
+	//Deletes a single (non-directory) file
+	//Clears fats for all cluster in file expect first
+	_filesys_shrink_cluster_chain(dir_cluster);
+	
+	//Updates the fats to clear the first cluster of the file	
+	_filesys_update_fats(dir_cluster, 0x0000);
+	
+	//Sets first byte of file entry to ENTRY_FREE
+	_filesys_delete_file_entry(path, &file);
+	
+}
+
 /*
 ** _filesys_is_directory - Determines if the given file is a directory or not.
-**							Returns SUCCESS if it is, FAILURE otherwise
+**                          Returns SUCCESS if it is, FAILURE otherwise
 */
 uint_t _filesys_is_directory(file_entry_t file)
 {
 	if((file.attributes & ATTR_DIRECTORY) == ATTR_DIRECTORY)
-	{
-		return SUCCESS;
+    {
+        return SUCCESS;
+    }
+        
+    return FAILURE;
+}
+
+/*
+** _filesys_write_file - Writes the given data of the given length to the given file
+**							If there is data in the file already, clears it
+**
+**							Returns SUCCESS if write is successful, FAILURE otherwise
+*/
+uint_t _filesys_write_file(char* path, byte_t *data, uint_t data_len)
+{
+	file_entry_t file[1];
+	
+	if(_filesys_find_file(path, file, 0) == 1)
+	{//Failed to find the file to be written to
+		return FAILURE;
 	}
 	
-	return FAILURE;
+	//Shrinks the file down to 1 cluster and clears the memory before writing
+	uint_t start_cluster = file->first_cluster_hi << 8 | file->first_cluster_low;
+	uint_t start_cluster_loc = _filesys_calc_absolute_cluster_loc(start_cluster);
+	_filesys_shrink_cluster_chain(start_cluster);
+	_kmemclr(filesystem+start_cluster_loc, cluster_size);
+	
+	//Writes the data
+	uint_t data_index = 0;
+	uint_t remaining_data = data_len;
+	uint_t current_cluster_loc = start_cluster_loc;
+	
+	while(remaining_data > 0)
+	{//While there is still data
+		if(remaining_data < cluster_size)
+		{//The remaining data fits in the current cluster
+			_kmemcpy(filesystem+current_cluster_loc, data+data_index, remaining_data);
+						
+			data_index += remaining_data;
+			remaining_data = 0;
+			continue;
+		}
+		
+		//Requires more than 1 cluster to write data
+		_kmemcpy(filesystem+current_cluster_loc, data+data_index, cluster_size);
+		
+		data_index += cluster_size;
+		remaining_data -= cluster_size;
+		
+		//Gets next cluster to write to (expands cluster chain by 1)
+		uint_t current_cluster = _filesys_expand_cluster_chain(start_cluster);
+		current_cluster_loc = _filesys_calc_absolute_cluster_loc(current_cluster);
+	}
+	
+	//Gets the parent_directory
+	char *parent_path_end = path+_kstrlen(path) - 1;
+	while(*(--parent_path_end) != '/') {}
+	
+	uint_t parent_path_len = parent_path_end - path + 1;
+	char parent_path[parent_path_len];
+	_kmemcpy((byte_t*)parent_path,(byte_t*)path, parent_path_len);
+	parent_path[parent_path_len - 1] = '\0';
+	file_entry_t parent_dir;
+	
+
+	if(_filesys_find_file(parent_path, &parent_dir, 0) == FAILURE)
+	{
+		return FAILURE;
+	}
+	
+	//Updates the file entry's file size
+	_filesys_update_file_size(file->name, &parent_dir, data_len);
+	
+	return SUCCESS;
 }
 
 /*
@@ -296,7 +548,7 @@ uint_t _filesys_is_directory(file_entry_t file)
 */
 uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 {
-	if(_filesys_make_file(path, ATTR_DIRECTORY, new_dir) == 1) return 1; //FAILURE;
+	if(_filesys_make_file(path, ATTR_DIRECTORY, new_dir) == FAILURE) return FAILURE;
 	
 	//Gets the cluster number for the new directory
 	uint_t new_dir_cluster = new_dir->first_cluster_hi << 8 | new_dir->first_cluster_low;
@@ -323,7 +575,7 @@ uint_t _filesys_make_dir(char* path, file_entry_t* new_dir)
 	_filesys_write_file_entry(new_dir_cluster_loc+32, "..         ", 
 								ATTR_DIRECTORY, parent_cluster);
 	
-	return 0; //SUCCESS;
+	return SUCCESS;
 }
 
 /*
@@ -359,7 +611,7 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	_filesys_convert_to_shortname(filename_start, filename);
 	
 	//Checks to see if the new_file already exists, and if so, it will return FAILURE
-	if(_filesys_find_file(path, new_file, 0) == 0)
+	if(_filesys_find_file(path, new_file, 0) == SUCCESS)
 		return FAILURE;
 	
 	//Locates the parent directory file entry
@@ -367,8 +619,10 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	_filesys_find_file(parent_path, parent_dir, 0);
 	
 	//Finds the first empty file entry slot in the parent directory
-	uint_t entry_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
-	uint_t dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
+	uint_t entry_cluster, dir_address;
+	entry_cluster = parent_dir->first_cluster_hi << 8 | parent_dir->first_cluster_low;
+	dir_address = _filesys_calc_absolute_cluster_loc(entry_cluster);
+	
 	uint_t new_entry_loc = _filesys_find_first_free_entry(dir_address);
 	
 	if(new_entry_loc == 0)
@@ -385,7 +639,7 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 	_filesys_write_file_entry(new_entry_loc, filename, attributes, new_file_cluster);
 	
 	//Looks for the newly created entry and returns FAILURE if it isn't found
-	if(_filesys_find_file(path, new_file, 0) == 1)
+	if(_filesys_find_file(path, new_file, 0) == FAILURE)
 		return FAILURE;
 	
 	//Updates the FAT to say the file's cluster is not free
@@ -413,6 +667,18 @@ uint_t _filesys_make_file(char* path, ubyte_t attributes, file_entry_t* new_file
 */
 uint_t _filesys_find_file(const char* path, file_entry_t* file, uint_t dir_address)
 {	
+	//First checks to see if root directory, and if soo, it generates a fake file entry
+	// with the root directories start cluster
+	if(_kstrcmp(path, "") == 0 || _kstrcmp(path, "/") == 0)
+	{
+		uint_t root_loc = data_start_sector * boot_sector.bytes_per_sector;
+		_filesys_convert_to_shortname("/", file->name);
+		file->first_cluster_hi = 0x00;
+		file->first_cluster_low = _filesys_calc_relative_cluster(root_loc);
+		file->attributes = ATTR_DIRECTORY;
+		return SUCCESS;
+	}
+
 	//Splits path into head (first folder name) and Tail (rest of path)
 	//Split is performed by finding first 2nd "/" and converts it to \0 
 	//				(because path should start with "/")
