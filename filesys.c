@@ -405,6 +405,31 @@ void _filesys_convert_shortname_to_normal(char *shortname, char *converted)
 }
 
 /*
+** _filesys_calc_offset_loc - given a cluster number and an offset, calculate the relative
+**								location in the filesystem at which the offset should
+**								go point at
+*/
+uint_t _filesys_calc_offset_loc(uint_t relative_cluster, uint_t offset)
+{
+	uint_t current_cluster_loc = _filesys_calc_absolute_cluster_loc(relative_cluster);
+	uint_t next_cluster = _filesys_find_next_cluster(relative_cluster);
+	
+	while(offset > cluster_size)
+	{
+		if(next_cluster == LAST_CLUSTER)
+		{//The last cluster has been reached before offset is smaller than the cluster
+			return current_cluster_loc + cluster_size;
+		}
+		
+		current_cluster_loc = _filesys_calc_absolute_cluster_loc(next_cluster);
+		next_cluster = _filesys_find_next_cluster(next_cluster);
+		offset -= cluster_size;
+	}
+	
+	return current_cluster_loc + offset;
+}
+
+/*
 ** PUBLIC FUNCTIONS
 */
 
@@ -813,8 +838,9 @@ void _filesys_readfile(byte_t *buffer, uint_t file_address, uint_t offset, uint_
 	uint_t relative_cluster = _filesys_calc_relative_cluster(file_address);
 	uint_t next_cluster = _filesys_find_next_cluster(relative_cluster);
 	
-	uint_t filesys_offset = file_address + offset;
-
+	//Calculates the location in the file the offset goes to
+	uint_t filesys_offset = _filesys_calc_offset_loc(relative_cluster, offset);
+	
 	uint_t remaining_bytes = count;
 	uint_t remaining_bytes_current_cluster = cluster_size - offset;
 	while(remaining_bytes > 0)
