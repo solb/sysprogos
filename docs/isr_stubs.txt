@@ -1,0 +1,49 @@
+ISR_STUBS(S)                TO-D/OS MODULE Documents                ISR_STUBS(S)
+
+NAME
+    isr_stubs - interrupt dispatching routines
+
+SYNOPSIS
+  - Saves/restores process contexts when handling the interrupt
+  - Normalizes stack by pushing an error code when necessary
+  - Switches to the system stack
+  - Calls the appropriate isr in the __isr_table
+  - Kills processes which have not enough room for a context save area
+
+DESCRIPTION
+    The isr_stubs module is responsible for handling the low-level interrupt
+    handling details. It saves all the register values and an interrupt vector
+    number and error code, into the top of the processes's stack, then
+    updates the current pcb entry's context pointer to point to this saved
+    area. If the user process's rsp is invalid (outside the user stack), or
+    there is not enough space on the user stack, the process is terminated.
+
+    When returning from an interrupt, the context of the current process is
+    restored before returning.
+
+    Notably, both the format of the stack when first entering the stub is
+    different (5 entries of 8 bytes) and the format of the saved context is
+    different (all entries are 8 bytes long; new GPRs; reorganized to match
+    default layout) are different from the base system). This is driven by the
+    needs of the 64 bit operating system port, and slightly inspired by the
+    privilege isolation project. We do not currently support running userspace
+    programs in compatibility mode, although we did at one point in
+    development run our entire project in compatibility mode. This file was
+    probably the single largest source of rewrites, and definitely the most
+    difficult aspect; because we are sensitive to register use in this
+    context, it must be written in assembly, which drastically increases
+    development time and brain power required.
+
+DATA STRUCTURES
+    typedef struct context_t;
+        See process module documentation.
+
+EXPOSED FUNCTIONALITY
+    __isr_<#>:
+        receives control from CPU when an interrupt occurs
+        stack layout is [code] RIP CS RFLAGS RSP SS all 8 byte quantities
+        code is optional and only present for certain interrupts; the stubs
+        will push a 0 in its place if the specific interrupt does not provide
+        one.
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
