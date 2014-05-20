@@ -270,6 +270,8 @@ user/dref_nul.o: user/userspace.h common.h defs.h types.h c_io.h support.h
 user/dref_nul.o: system.h process.h clock.h stack.h klib.h
 user/init.o: user/userspace.h common.h defs.h types.h c_io.h support.h
 user/init.o: system.h process.h clock.h stack.h klib.h
+user/ls.o: user/userspace.h common.h defs.h types.h c_io.h support.h system.h
+user/ls.o: process.h clock.h stack.h klib.h
 user/shell.o: user/userspace.h common.h defs.h types.h c_io.h support.h
 user/shell.o: system.h process.h clock.h stack.h klib.h
 user/spwn_nul.o: user/userspace.h common.h defs.h types.h c_io.h support.h
