@@ -1,0 +1,54 @@
+C_IO(C)                     TO-D/OS MODULE Documents                     C_IO(C)
+
+NAME
+    c_io - VGA console debug print mechanisms
+
+SYNOPSIS
+  - Defines methods to be called by userspace and kernel code.
+  - Uses mostly identical code in userspace and kernel
+  - c_putchar_at is a method in kernel code and a syscall in user code
+  - Implementation split into 3 files:
+    - c_io_shared.c: contains code common to kernel and userspace
+    - c_io_kern.c: contains code only used in the kernel
+    - c_io_user.c: contains userspace wrappers around the syscall
+
+DESCRIPTION
+    The c_io library is an important part of TO-D/OS, because it lets the system
+    print all kinds of debugging output. Originally developed as part of the
+    baseline system, we had to tear it apart when our userspace processes wanted
+    to call it but were no longer allowed to access kernel memory. To fix this,
+    we put all the state management into a kernel-only c file, and gave
+    userspace a syscall for c_putchar_at. The rest of the support routines are
+    then linked with both userspace and the kernel, and it all works nicely
+    together. Arguably it should have been designed this way in the first place,
+    but it was originally intended as a quick debugging function, not a robust
+    part of the operating system.
+
+EXPOSED FUNCTIONALITY
+    void c_putchar(unsigned int c)
+        Prints the given character c
+
+    void c_puts(char *str)
+        Prints the NUL-terminated string s
+
+    void c_printf(char *fmt, ...)
+        Prints a formatted string according to the format given in fmt.
+        Certain codes are then replaced in order by the following
+        arguments. The accepted codes are:
+          - %c : a single character
+          - %s : a NUL-terminated string
+          - %d : an integer formatted in decimal
+          - %x : an integer formatted in hexadecimal
+          - %o : an integer formatted in octal
+
+    void c_putchar_at(unsigned int x, unsigned int y, unsigned int c)
+        Prints the given character c at location (x,y)
+
+    void c_puts_at(unsigned int x, unsigned int y, char *str)
+        Prints the NUL-terminated string s at location (x,y)
+
+    void c_printf_at(unsigned int x, unsigned int y, char *fmt, ...)
+        Prints a formatted string according to the format given in fmt at (x,y)
+        This formats the string just like c_printf does (see above).
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
