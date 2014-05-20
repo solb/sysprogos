@@ -5,7 +5,8 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor:	Dan Johnson
+**				Sol Boucher
 **
 ** Description:	Process-related implementations
 */

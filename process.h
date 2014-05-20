@@ -5,7 +5,7 @@
 **
 ** Author:	CSCI-452 class of 20135
 **
-** Contributor:
+** Contributor:	Dan Johnson
 **
 ** Description:	Process-related declarations
 */

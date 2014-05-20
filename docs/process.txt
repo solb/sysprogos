@@ -1,0 +1,38 @@
+PROCESS(C)                  TO-D/OS MODULE Documents                  PROCESS(C)
+
+NAME
+    process - Process-related bookkeeping structures (namely PCBs)
+
+SYNOPSIS
+  - Defines constants related to userspace processes: their states,
+    priorities, PIDs, number of memory pages, and stack address
+  - Provides structures to represent PCBs and process contexts
+  - Implements functions for allocating and returning PCBs, as well as for
+    dumping debug information from PCBs and contexts
+
+DATA STRUCTURES
+    typedef struct pcb_t;
+        Represents a PCB (Process Control Block) consisting of the PID, parent
+        PID, priority, state, remaining execution time, context save area. It
+        also includes the physical address of the per-process page table and a
+        processor to the parent processor's PCB. The latter two fields were
+        added recently: Per-process protection tables are part of the dynamic
+        memory portion of the protection project, whose goal was to ensure
+        that only one userspace process would have its memory mapped at a
+        time. The parent PCB pointer was added to support implementation of
+        the syncspawn() syscall, is only populated in the PCBs of
+        processes that were spawned by this means, and is only used by the
+        _terminate() function in the scheduler module.
+
+    typedef struct context_t;
+        Stores a process's general-purpose registers, CS and SS segment
+        registers, stack pointer, instruction pointer, RFLAGS control
+        register, and interrupt code and vector. This information is stored on
+        top of userspace processes' stacks, which means that only the one
+        corresponding to the currently-executing process is accessible without
+        the manual mapping of a stack page and a fair amount of pointer
+        arithmetic. This structure was changed significantly during the 64-bit
+        porting process to accomodate the greatly increased number of
+        general-purpose registers.
+
+TO-D/OS                          May 19, 2014                            TO-D/OS
