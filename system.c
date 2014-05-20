@@ -83,6 +83,10 @@ pcb_t *_create_process( pid_t ppid, const char *path ) {
 	uint_t start_address =
 			_filesys_calc_absolute_cluster_loc((info.first_cluster_hi << 16) | info.first_cluster_low);
 	uint64_t table[PAGES_PER_USERSPACE_PROCESS];
+	if((remaining_size - 1) / PAGE_SIZE + 1 > PAGES_PER_USERSPACE_PROCESS) {
+		c_printf("_create_process: Binary is too many (%d) pages long\n", (remaining_size - 1) / PAGE_SIZE + 1);
+		return NULL;
+	}
 	for(uint64_t count = 0; remaining_size > 0; ++count) {
 		physaddr_t pf = _mem_page_frame_alloc();
 		table[count] = (uint64_t)pf.addr | PAGE_PRESENT | PAGE_RW | PAGE_USER;
